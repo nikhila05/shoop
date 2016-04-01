@@ -26,20 +26,30 @@ class ServiceProvider(TranslatableShoopModel):
     class Meta:
         abstract = True
 
-    def get_services(self):
+    def get_service_choices(self):
         """
-        :rtype: list[Service]
+        :rtype: list[ServiceChoice]
+        """
+        raise NotImplementedError
+
+    def create_service(self, choice_identifier, **kwargs):
+        """
+        :type choice_identifier: str|None
+        :param choice_identifier:
+          Identifier of the service choice to use.  If None, use the
+          default service choice.
+        :rtype: shoop.core.models.Service
         """
         raise NotImplementedError
 
     def initialize_service(self):
-        pass # TODO(SHOOP-2293): how to create the methods with good defaults for behavior parts?
+        pass # TODO(SHOOP-2293): how to create the methods with good defaults for behavior parts? ... maybe the above "create_service" is good?
 
 
-class Service(object):
+class ServiceChoice(object):
     def __init__(self, identifier, name):
         """
-        Initialize service description.
+        Initialize service choice.
 
         :type identifier: str
         :param identifier:

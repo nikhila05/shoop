@@ -19,12 +19,7 @@ from ._contacts import (
 )
 from ._counters import Counter, CounterType
 from ._manufacturers import Manufacturer
-from ._service_providers import (
-    Carrier, PaymentProcessor, Service, ServiceProvider
-)
-from ._methods import (
-    BehaviorPart, PaymentMethod, ShippingMethod, ShippingBehaviorPart
-)
+from ._methods import PaymentMethod, ShippingMethod
 from ._order_lines import OrderLine, OrderLineTax, OrderLineType
 from ._orders import (
     Order, OrderLogEntry, OrderStatus, OrderStatusRole, PaymentStatus,
@@ -43,6 +38,14 @@ from ._products import (
     Product, ProductAttribute, ProductCrossSell, ProductCrossSellType,
     ProductMode, ProductType, ShippingMode, StockBehavior
 )
+from ._service_providers import (
+    Carrier, PaymentProcessor, PaymentUrls, ServiceChoice, ServiceProvider
+)
+from ._services_base import Service, ServiceBehaviorPart
+from ._services_concrete import (
+    CustomCarrier, CustomPaymentProcessor, FixedPriceBehaviorPart,
+    WeightLimitsBehaviorPart,
+)
 from ._shipments import Shipment, ShipmentProduct
 from ._shops import Shop, ShopStatus
 from ._supplied_products import SuppliedProduct
@@ -55,7 +58,6 @@ __all__ = [
     "Attribute",
     "AttributeType",
     "AttributeVisibility",
-    "BehaviorPart",
     "Carrier",
     "Category",
     "CategoryStatus",
@@ -66,7 +68,10 @@ __all__ = [
     "ContactGroup",
     "Counter",
     "CounterType",
+    "CustomCarrier",
     "CustomerTaxGroup",
+    "CustomPaymentProcessor",
+    "FixedPriceBehaviorPart",
     "get_person_contact",
     "Gender",
     "ImmutableAddress",
@@ -83,6 +88,7 @@ __all__ = [
     "PaymentMethod",
     "PaymentProcessor",
     "PaymentStatus",
+    "PaymentUrls",
     "PersistentCacheEntry",
     "PersonContact",
     "Product",
@@ -105,10 +111,11 @@ __all__ = [
     "SavedAddressRole",
     "SavedAddressStatus",
     "Service",
+    "ServiceBehaviorPart",
+    "ServiceChoice",
     "ServiceProvider",
     "Shipment",
     "ShipmentProduct",
-    "ShippingBehaviorPart",
     "ShippingMethod",
     "ShippingMode",
     "ShippingStatus",
@@ -121,6 +128,7 @@ __all__ = [
     "SupplierType",
     "Tax",
     "TaxClass",
+    "WeightLimitsBehaviorPart",
 ]
 
 update_module_attributes(__all__, __name__)
