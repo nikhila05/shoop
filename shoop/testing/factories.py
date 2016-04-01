@@ -29,12 +29,13 @@ from six import BytesIO
 
 from shoop.core.defaults.order_statuses import create_default_order_statuses
 from shoop.core.models import (
-    AnonymousContact, Attribute, AttributeType, Carrier, Category,
-    CategoryStatus, CompanyContact, Contact, ContactGroup, MutableAddress,
-    Order, OrderLine, OrderLineTax, OrderLineType, OrderStatus, PaymentMethod,
-    PaymentProcessor, PersonContact, Product, ProductMedia, ProductMediaKind,
-    ProductType, SalesUnit, ShippingMethod, Shop, ShopProduct, ShopStatus,
-    StockBehavior, Supplier, SupplierType, Tax, TaxClass
+    AnonymousContact, Attribute, AttributeType, CustomCarrier, Category,
+    CategoryStatus, CompanyContact, Contact, ContactGroup, CustomPaymentProcessor,
+    FixedPriceBehaviorPart, MutableAddress, Order, OrderLine, OrderLineTax,
+    OrderLineType, OrderStatus, PaymentMethod, PersonContact, Product,
+    ProductMedia, ProductMediaKind, ProductType, SalesUnit, ShippingMethod,
+    Shop, ShopProduct, ShopStatus, StockBehavior, Supplier, SupplierType,
+    Tax, TaxClass
 )
 from shoop.core.order_creator import OrderCreator, OrderSource
 from shoop.core.pricing import get_pricing_module
@@ -294,33 +295,68 @@ def get_default_tax_class():
     return tax_class
 
 
-def get_default_payment_method():
-    payment_method = default_by_identifier(PaymentMethod)
+def get_service_provider(cls, identifier, name):
+    service_provider = cls.objects.filter(identifier=identifier).first()
+    if not service_provider:
+        service_provider = cls.objects.create(
+            identifier=identifier,
+            name=name,
+            shop=get_default_shop()
+        )
+        assert service_provider.pk and service_provider.identifier == identifier
+    return service_provider
+
+def get_custom_payment_processor():
+    return get_service_provider(
+        CustomPaymentProcessor, "custom_payment_processor", "Custom Payment Processor")
+
+def get_custom_carrier():
+    return get_service_provider(CustomCarrier, "custom_carrier", "Custom Carrier")
+
+
+def get_custom_payment_method():
+    identifier="custom_payment_method"
+    payment_method = PaymentMethod.objects.filter(identifier=identifier).first()
     if not payment_method:
-        payment_processor = PaymentProcessor.objects.create(
-            identifier='default', name="Payment processor",
-            shop=get_default_shop())
         payment_method = PaymentMethod.objects.create(
-            identifier=DEFAULT_IDENTIFIER, name="Payment method",
-            payment_processor=payment_processor,
+            identifier=identifier,
+            name="Payment method",
+            payment_processor=get_custom_payment_processor(),
             tax_class=get_default_tax_class(),
         )
-        assert payment_method.pk and payment_method.identifier == DEFAULT_IDENTIFIER
+        assert payment_method.pk and payment_method.identifier == identifier
+    return payment_method
+
+
+def get_custom_shipping_method():
+    identifier="custom_shipping_method"
+    shipping_method = ShippingMethod.objects.filter(identifier=identifier).first()
+    if not shipping_method:
+        shipping_method = ShippingMethod.objects.create(
+            identifier=identifier,
+            name="Shipping method",
+            carrier=get_custom_carrier(),
+            tax_class=get_default_tax_class(),
+        )
+        assert shipping_method.pk and shipping_method.identifier == identifier
+    return shipping_method
+
+
+def get_default_payment_method():
+    """
+    Default payment method with basic behaviors
+    """
+    payment_method = get_custom_payment_method()
+    FixedPriceBehaviorPart.objects.create(owner=payment_method, price_value=0)
     return payment_method
 
 
 def get_default_shipping_method():
-    shipping_method = default_by_identifier(ShippingMethod)
-    if not shipping_method:
-        carrier = Carrier.objects.create(
-            identifier='default', name="Carrier",
-            shop=get_default_shop())
-        shipping_method = ShippingMethod.objects.create(
-            identifier=DEFAULT_IDENTIFIER, name="Shipping method",
-            carrier=carrier,
-            tax_class=get_default_tax_class(),
-        )
-        assert shipping_method.pk and shipping_method.identifier == DEFAULT_IDENTIFIER
+    """
+    Default shipping method with basic behaviors
+    """
+    shipping_method = get_custom_shipping_method()
+    FixedPriceBehaviorPart.objects.create(owner=shipping_method, price_value=0)
     return shipping_method
 
 

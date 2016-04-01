@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from django.db import models
 from django.http.response import HttpResponseRedirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from parler.models import TranslatedField, TranslatedFields
 from polymorphic.models import PolymorphicModel
 
