@@ -25,7 +25,7 @@ def get_request_for_contact_tests(rf):
     activate("en")
     request = rf.get("/")
     request.shop = get_shop(prices_include_tax=True)
-    get_default_payment_method()
+    get_default_payment_method(request.shop)
     apply_request_middleware(request)
     return request
 

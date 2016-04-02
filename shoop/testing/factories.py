@@ -295,68 +295,70 @@ def get_default_tax_class():
     return tax_class
 
 
-def get_service_provider(cls, identifier, name):
+def get_service_provider(shop, cls, identifier, name):
     service_provider = cls.objects.filter(identifier=identifier).first()
     if not service_provider:
         service_provider = cls.objects.create(
             identifier=identifier,
             name=name,
-            shop=get_default_shop()
+            shop=shop
         )
         assert service_provider.pk and service_provider.identifier == identifier
     return service_provider
 
-def get_custom_payment_processor():
+
+def get_custom_payment_processor(shop):
     return get_service_provider(
-        CustomPaymentProcessor, "custom_payment_processor", "Custom Payment Processor")
-
-def get_custom_carrier():
-    return get_service_provider(CustomCarrier, "custom_carrier", "Custom Carrier")
+        shop, CustomPaymentProcessor, "custom_payment_processor_%s" % shop.pk, "Custom Payment Processor")
 
 
-def get_custom_payment_method():
-    identifier="custom_payment_method"
+def get_custom_carrier(shop):
+    return get_service_provider(shop, CustomCarrier, "custom_carrier_%s" % shop.pk, "Custom Carrier")
+
+
+def get_custom_payment_method(shop):
+    identifier = "custom_payment_method_%s" % shop.pk
     payment_method = PaymentMethod.objects.filter(identifier=identifier).first()
     if not payment_method:
         payment_method = PaymentMethod.objects.create(
             identifier=identifier,
             name="Payment method",
-            payment_processor=get_custom_payment_processor(),
+            payment_processor=get_custom_payment_processor(shop),
             tax_class=get_default_tax_class(),
         )
         assert payment_method.pk and payment_method.identifier == identifier
     return payment_method
 
 
-def get_custom_shipping_method():
-    identifier="custom_shipping_method"
+def get_custom_shipping_method(shop):
+    identifier = "custom_shipping_method_%s" % shop.pk
     shipping_method = ShippingMethod.objects.filter(identifier=identifier).first()
     if not shipping_method:
         shipping_method = ShippingMethod.objects.create(
             identifier=identifier,
             name="Shipping method",
-            carrier=get_custom_carrier(),
+            carrier=get_custom_carrier(shop),
             tax_class=get_default_tax_class(),
         )
         assert shipping_method.pk and shipping_method.identifier == identifier
     return shipping_method
 
 
-def get_default_payment_method():
+def get_default_payment_method(shop=None, price_value=0):
     """
     Default payment method with basic behaviors
     """
-    payment_method = get_custom_payment_method()
-    FixedPriceBehaviorPart.objects.create(owner=payment_method, price_value=0)
+    payment_method = get_custom_payment_method(shop or get_default_shop())
+    FixedPriceBehaviorPart.objects.create(owner=payment_method, price_value=price_value)
     return payment_method
 
 
-def get_default_shipping_method():
+def get_default_shipping_method(shop=None, price_value=0):
     """
     Default shipping method with basic behaviors
     """
-    shipping_method = get_custom_shipping_method()
-    FixedPriceBehaviorPart.objects.create(owner=shipping_method, price_value=0)
+    shipping_method = get_custom_shipping_method(shop or get_default_shop())
+    FixedPriceBehaviorPart.objects.create(owner=shipping_method, price_value=price_value)
     return shipping_method
 
 

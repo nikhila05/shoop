@@ -7,7 +7,7 @@
 from django.utils.translation import activate
 from shoop.testing.factories import (
     get_shop, get_default_customer_group, get_default_payment_method,
-    create_random_person
+    get_default_shop, create_random_person
 )
 from shoop.testing.utils import apply_request_middleware
 
@@ -15,7 +15,8 @@ from shoop.testing.utils import apply_request_middleware
 def initialize_test(rf, include_tax=False):
     activate("en")
     shop = get_shop(prices_include_tax=include_tax)
-    get_default_payment_method()  # Valid baskets needs some payment methods to be available
+    get_default_payment_method(shop=shop)  # Valid baskets needs some payment methods to be available
+    get_default_payment_method(get_default_shop())  # Since some of the basket's is created for default shop.
 
     group = get_default_customer_group()
     customer = create_random_person()

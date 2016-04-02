@@ -119,8 +119,8 @@ class OrderCreateView(TemplateView):
 
     def get_config(self):
         shops = [encode_shop(shop) for shop in Shop.objects.filter(status=ShopStatus.ENABLED)]
-        shipping_methods = ShippingMethod.objects.enabled() # TODO(SHOOP-2293): check
-        payment_methods = PaymentMethod.objects.enabled() # TODO(SHOOP-2293): check
+        shipping_methods = ShippingMethod.objects.enabled()  # TODO(SHOOP-2293): check
+        payment_methods = PaymentMethod.objects.enabled()  # TODO(SHOOP-2293): check
         return {
             "shops": shops,
             "countries": [{"id": code, "name": name} for code, name in list(countries)],
