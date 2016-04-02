@@ -15,10 +15,10 @@ from shoop.core.pricing import PriceInfo
 
 
 class ExpensiveSwedenBehaviorPart(ServiceBehaviorPart):
-    def get_name(self, source):
+    def get_name(self, service, source):
         return "Expenseefe-a Svedee Sheepping"
 
-    def get_costs(self, source):
+    def get_costs(self, service, source):
         four = source.create_price('4.00')
         five = source.create_price('5.00')
         if source.shipping_address and source.shipping_address.country == "SE":
@@ -26,7 +26,7 @@ class ExpensiveSwedenBehaviorPart(ServiceBehaviorPart):
         else:
             yield (None, PriceInfo(four, four, 1), None)
 
-    def get_unavailability_reasons(self, source):
+    def get_unavailability_reasons(self, service, source):
         if source.shipping_address and source.shipping_address.country == "FI":
             yield ValidationError("Veell nut sheep unytheeng tu Feenlund!", code="we_no_speak_finnish")
 
@@ -34,7 +34,7 @@ class ExpensiveSwedenBehaviorPart(ServiceBehaviorPart):
 class PriceWaiverBehaviorPart(ServiceBehaviorPart):
     waive_limit_value = MoneyValueField()
 
-    def get_costs(self, source):
+    def get_costs(self, service, source):
         waive_limit = source.create_price(self.waive_limit_value)
         product_total = source.total_price_of_products
         if product_total and product_total >= waive_limit:

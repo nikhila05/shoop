@@ -68,7 +68,7 @@ class ServiceQuerySet(TranslatableQuerySet):
         return self.filter(pk__in=self.available_ids(shop, products))
 
 
-class Service(TranslatableShoopModel, PolymorphicModel):
+class Service(TranslatableShoopModel):
     identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
 
@@ -81,6 +81,11 @@ class Service(TranslatableShoopModel, PolymorphicModel):
         'TaxClass', verbose_name=_("tax class"), on_delete=models.PROTECT)
 
     objects = ServiceQuerySet.as_manager()
+
+    behavior_parts = models.ManyToManyField('ServiceBehaviorPart')
+
+    class Meta:
+        abstract = True
 
     @property
     def provider(self):
@@ -110,7 +115,7 @@ class Service(TranslatableShoopModel, PolymorphicModel):
                 _("%s is for different shop") % self, code='wrong_shop')
 
         for part in self.behavior_parts.all():
-            for reason in part.get_unavailability_reasons(source):
+            for reason in part.get_unavailability_reasons(self, source):
                 yield reason
 
     def get_total_cost(self, source):
@@ -133,9 +138,9 @@ class Service(TranslatableShoopModel, PolymorphicModel):
         :rtype: Iterable[(str, PriceInfo, TaxClass)]
         """
         for part in self.behavior_parts.all():
-            for (desc, price_info, tax_class) in part.get_costs(source):
+            for (desc, price_info, tax_class) in part.get_costs(self, source):
                 if desc is None:
-                    desc = part.get_name(source)
+                    desc = part.get_name(self, source)
                 yield (desc, price_info, tax_class or self.tax_class)
 
     def get_lines(self, source):
@@ -150,7 +155,11 @@ class Service(TranslatableShoopModel, PolymorphicModel):
         def rand_int():
             return random.randint(0, 0x7FFFFFFF)
 
-        for (n, cost) in enumerate(self.get_costs(source)):
+        costs = list(self.get_costs(source))
+        if not costs:
+            zero = source.create_price(0)
+            costs = [(self.name, PriceInfo(zero, zero, 1), self.tax_class)]
+        for (n, cost) in enumerate(costs):
             (desc, price_info, tax_class) = cost
             yield source.create_line(
                 line_id="%s_%02d_%x" % (line_prefix, n, rand_int()),
@@ -184,28 +193,34 @@ def _sum_price_infos(price_infos, zero):
 
 
 class ServiceBehaviorPart(ShoopModel, PolymorphicModel):
-    owner = models.ForeignKey(Service, related_name="behavior_parts")
-
-    def get_name(self, source):
+    def get_name(self, service, source):
         """
+        :type service: Service
+        :type source: shoop.core.order_creator.OrderSource
         :rtype: str
         """
         return ""
 
-    def get_unavailability_reasons(self, source):
+    def get_unavailability_reasons(self, service, source):
         """
+        :type service: Service
+        :type source: shoop.core.order_creator.OrderSource
         :rtype: Iterable[ValidationError]
         """
         return ()
 
-    def get_costs(self, source):
+    def get_costs(self, service, source):
         """
+        :type service: Service
+        :type source: shoop.core.order_creator.OrderSource
         :rtype: Iterable[(str, PriceInfo, TaxClass|None)]
         """
         return ()
 
-    def get_delivery_time(self, source):
+    def get_delivery_time(self, service, source):
         """
+        :type service: Service
+        :type source: shoop.core.order_creator.OrderSource
         :rtype: shoop.utils.dates.DurationRange|None
         """
         return None

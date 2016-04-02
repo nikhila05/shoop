@@ -17,7 +17,8 @@ from shoop.core.models import (
 )
 from shoop.testing.factories import (
     create_product, get_address, get_default_product, get_default_shop,
-    get_default_supplier, get_default_tax_class
+    get_default_supplier, get_default_tax_class, get_payment_method,
+    get_shipping_method,
 )
 
 from shoop_tests.dummyapp.models import (
@@ -33,26 +34,19 @@ def get_expensive_sweden_shipping_method():
         shop=get_default_shop(),
     )
     sm = carrier.create_service(None, tax_class=get_default_tax_class())
-    ExpensiveSwedenBehaviorPart.objects.create(owner=sm)
-    WeightLimitsBehaviorPart.objects.create(
-        owner=sm, min_weight="0.11", max_weight="3"),
-    PriceWaiverBehaviorPart.objects.create(
-        owner=sm, waive_limit_value="370")
+    sm.behavior_parts.add(
+        ExpensiveSwedenBehaviorPart.objects.create(),
+        WeightLimitsBehaviorPart.objects.create(
+            min_weight="0.11", max_weight="3"),
+        PriceWaiverBehaviorPart.objects.create(
+            waive_limit_value="370"),
+    )
     return sm
 
 
 def override_provides_for_expensive_sweden_shipping_method():
     # TODO(SHOOP-2293): Clean-up shipping_method_module provide
     return override_provides("shipping_method_module", [])
-
-
-def _create_payment_method(identifier, price):
-    payment_processor = CustomPaymentProcessor.objects.create(
-        shop=get_default_shop())
-    pm = payment_processor.create_service(
-        None, identifier=identifier, tax_class=get_default_tax_class())
-    FixedPriceBehaviorPart.objects.create(owner=pm, price_value=price)
-    return pm
 
 
 @pytest.mark.django_db
@@ -74,62 +68,64 @@ def test_methods(admin_user, country):
     source.shipping_address = shipping_address
     source.customer = contact
 
-    with override_provides_for_expensive_sweden_shipping_method():
-        source.shipping_method = get_expensive_sweden_shipping_method()
-        source.payment_method = _create_payment_method(identifier="neat", price=4)
-        assert source.shipping_method_id
-        assert source.payment_method_id
+    source.shipping_method = get_expensive_sweden_shipping_method()
+    source.payment_method = get_payment_method(identifier="neat", price=4)
+    assert source.shipping_method_id
+    assert source.payment_method_id
 
-        errors = list(source.get_validation_errors())
+    errors = list(source.get_validation_errors())
 
-        if country == "FI":
-            # "Expenseefe-a Svedee Sheepping" will not allow shipping to
-            # Finland, let's see if that holds true
-            assert any([ve.code == "we_no_speak_finnish" for ve in errors])
-            return  # Shouldn't try the rest if we got an error here
-        else:
-            assert not errors
+    if country == "FI":
+        # "Expenseefe-a Svedee Sheepping" will not allow shipping to
+        # Finland, let's see if that holds true
+        assert any([ve.code == "we_no_speak_finnish" for ve in errors])
+        return  # Shouldn't try the rest if we got an error here
+    else:
+        assert not errors
 
-        final_lines = list(source.get_final_lines())
+    final_lines = list(source.get_final_lines())
 
-        assert any(line.type == OrderLineType.SHIPPING for line in final_lines)
+    assert any(line.type == OrderLineType.SHIPPING for line in final_lines)
 
-        for line in final_lines:
-            if line.type == OrderLineType.SHIPPING:
-                if country == "SE":  # We _are_ using Expenseefe-a Svedee Sheepping after all.
-                    assert line.price == source.create_price("5.00")
-                else:
-                    assert line.price == source.create_price("4.00")
-                assert line.text == u"Expenseefe-a Svedee Sheepping"
-            if line.type == OrderLineType.PAYMENT:
-                assert line.price == source.create_price(4)
+    for line in final_lines:
+        if line.type == OrderLineType.SHIPPING:
+            if country == "SE":  # We _are_ using Expenseefe-a Svedee Sheepping after all.
+                assert line.price == source.create_price("5.00")
+            else:
+                assert line.price == source.create_price("4.00")
+            assert line.text == u"Expenseefe-a Svedee Sheepping"
+        if line.type == OrderLineType.PAYMENT:
+            assert line.price == source.create_price(4)
 
 
-# @pytest.mark.django_db
-# def test_waiver():
-#     sm = ShippingMethod(name="Waivey", tax_class=get_default_tax_class(),
-#                         module_data={
-#                             "price_waiver_product_minimum": "370",
-#                             "price": "100"
-#                         })
-#     source = BasketishOrderSource(get_default_shop())
-#     assert sm.get_effective_name(source) == u"Waivey"
-#     assert sm.get_effective_price_info(source).price == source.create_price(100)
-#     source.add_line(
-#         type=OrderLineType.PRODUCT,
-#         product=get_default_product(),
-#         base_unit_price=source.create_price(400),
-#         quantity=1
-#     )
-#     assert sm.get_effective_price_info(source).price == source.create_price(0)
+# TODO(SHOOP-2293): Implement campaign for waiving shipping/payment costs
+@pytest.mark.xfail
+@pytest.mark.django_db
+def test_waiver():
+    sm = ShippingMethod(name="Waivey", tax_class=get_default_tax_class(),
+                        module_data={
+                            "price_waiver_product_minimum": "370",
+                            "price": "100"
+                        })
+    source = BasketishOrderSource(get_default_shop())
+    assert sm.get_effective_name(source) == u"Waivey"
+    assert sm.get_effective_price_info(source).price == source.create_price(100)
+    source.add_line(
+        type=OrderLineType.PRODUCT,
+        product=get_default_product(),
+        base_unit_price=source.create_price(400),
+        quantity=1
+    )
+    assert sm.get_effective_price_info(source).price == source.create_price(0)
 
 
 @pytest.mark.django_db
 def test_weight_limits():
     carrier = CustomCarrier.objects.create(shop=get_default_shop())
     sm = carrier.create_service(None, tax_class=get_default_tax_class())
-    WeightLimitsBehaviorPart.objects.create(
-        owner=sm, min_weight=100, max_weight=500)
+    sm.behavior_parts.add(
+        WeightLimitsBehaviorPart.objects.create(
+            min_weight=100, max_weight=500))
     source = BasketishOrderSource(get_default_shop())
     assert any(ve.code == "min_weight" for ve in sm.get_unavailability_reasons(source))
     source.add_line(type=OrderLineType.PRODUCT, weight=600)
@@ -141,8 +137,7 @@ def test_limited_methods():
     """
     Test that products can declare that they limit available shipping methods.
     """
-    unique_shipping_method = ShippingMethod(tax_class=get_default_tax_class(), module_data={"price": 0})
-    unique_shipping_method.save()
+    unique_shipping_method = get_shipping_method(identifier="unique", price=0)
     shop = get_default_shop()
     common_product = create_product(sku="SH_COMMON", shop=shop)  # A product that does not limit shipping methods
     unique_product = create_product(sku="SH_UNIQUE", shop=shop)  # A product that only supports unique_shipping_method

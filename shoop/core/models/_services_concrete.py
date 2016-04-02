@@ -42,7 +42,7 @@ class CustomPaymentProcessor(PaymentProcessor):
 class FixedPriceBehaviorPart(ServiceBehaviorPart):
     price_value = MoneyValueField()
 
-    def get_costs(self, source):
+    def get_costs(self, service, source):
         price = source.create_price(self.price_value)
         yield (None, PriceInfo(price, price, 1), None)
 
@@ -55,7 +55,7 @@ class WeightLimitsBehaviorPart(ServiceBehaviorPart):
         max_digits=36, decimal_places=6, blank=True, null=True,
         verbose_name=_("maximum weight"))
 
-    def get_unavailability_reasons(self, source):
+    def get_unavailability_reasons(self, service, source):
         weight = sum(((x.get("weight") or 0) for x in source.get_lines()), 0)
         if self.min_weight:
             if weight < self.min_weight:
