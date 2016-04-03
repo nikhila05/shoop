@@ -29,13 +29,13 @@ from six import BytesIO
 
 from shoop.core.defaults.order_statuses import create_default_order_statuses
 from shoop.core.models import (
-    AnonymousContact, Attribute, AttributeType, CustomCarrier, Category,
-    CategoryStatus, CompanyContact, Contact, ContactGroup, CustomPaymentProcessor,
-    FixedPriceBehaviorPart, MutableAddress, Order, OrderLine, OrderLineTax,
-    OrderLineType, OrderStatus, PaymentMethod, PersonContact, Product,
-    ProductMedia, ProductMediaKind, ProductType, SalesUnit, ShippingMethod,
-    Shop, ShopProduct, ShopStatus, StockBehavior, Supplier, SupplierType,
-    Tax, TaxClass
+    AnonymousContact, Attribute, AttributeType, Category, CategoryStatus,
+    CompanyContact, Contact, ContactGroup, CustomCarrier,
+    CustomPaymentProcessor, FixedPriceBehaviorPart, MutableAddress, Order,
+    OrderLine, OrderLineTax, OrderLineType, OrderStatus, PaymentMethod,
+    PersonContact, Product, ProductMedia, ProductMediaKind, ProductType,
+    SalesUnit, ShippingMethod, Shop, ShopProduct, ShopStatus, StockBehavior,
+    Supplier, SupplierType, Tax, TaxClass
 )
 from shoop.core.order_creator import OrderCreator, OrderSource
 from shoop.core.pricing import get_pricing_module
