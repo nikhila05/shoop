@@ -15,9 +15,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from parler.managers import TranslatableQuerySet
 from parler.models import TranslatedField
-from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
-from polymorphic.query import PolymorphicQuerySet
 
 from shoop.core.fields import InternalIdentifierField
 from shoop.core.pricing import PriceInfo
@@ -26,7 +24,7 @@ from ._base import ShoopModel, TranslatableShoopModel
 from ._product_shops import ShopProduct
 
 
-class ServiceQuerySet(TranslatableQuerySet, PolymorphicQuerySet):
+class ServiceQuerySet(TranslatableQuerySet):
     def enabled(self):
         no_provider_filter = {
             self.model.provider_attr: None,
@@ -195,8 +193,6 @@ def _sum_price_infos(price_infos, zero):
 
 
 class ServiceBehaviorPart(ShoopModel, PolymorphicModel):
-    objects = PolymorphicManager()
-
     def get_name(self, service, source):
         """
         :type service: Service
