@@ -15,7 +15,7 @@ from shoop.campaigns.models.basket_conditions import (
     BasketTotalProductAmountCondition, BasketTotalAmountCondition
 )
 from shoop.campaigns.models.campaigns import BasketCampaign, Coupon, CouponUsage
-from shoop.core.models import ShippingMethod, OrderLineType
+from shoop.core.models import OrderLineType
 from shoop.core.order_creator import OrderCreator
 from shoop.front.basket import get_basket
 from shoop.front.basket.commands import handle_add_campaign_code

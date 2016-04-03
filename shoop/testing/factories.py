@@ -29,13 +29,13 @@ from six import BytesIO
 
 from shoop.core.defaults.order_statuses import create_default_order_statuses
 from shoop.core.models import (
-    AnonymousContact, Attribute, AttributeType, Category, CategoryStatus,
-    CompanyContact, Contact, ContactGroup, CustomCarrier,
-    CustomPaymentProcessor, FixedPriceBehaviorPart, MutableAddress, Order,
-    OrderLine, OrderLineTax, OrderLineType, OrderStatus, PaymentMethod,
-    PersonContact, Product, ProductMedia, ProductMediaKind, ProductType,
-    SalesUnit, ShippingMethod, Shop, ShopProduct, ShopStatus, StockBehavior,
-    Supplier, SupplierType, Tax, TaxClass
+    AnonymousContact, Attribute, AttributeType, CustomCarrier, Category,
+    CategoryStatus, CompanyContact, Contact, ContactGroup, CustomPaymentProcessor,
+    FixedPriceBehaviorPart, MutableAddress, Order, OrderLine, OrderLineTax,
+    OrderLineType, OrderStatus, PaymentMethod, PersonContact, Product,
+    ProductMedia, ProductMediaKind, ProductType, SalesUnit, ShippingMethod,
+    Shop, ShopProduct, ShopStatus, StockBehavior, Supplier, SupplierType,
+    Tax, TaxClass
 )
 from shoop.core.order_creator import OrderCreator, OrderSource
 from shoop.core.pricing import get_pricing_module
@@ -293,6 +293,27 @@ def get_default_tax_class():
         assert tax_class.pk
         assert str(tax_class) == DEFAULT_NAME
     return tax_class
+
+
+def get_service_provider(shop, cls, identifier, name):
+    service_provider = cls.objects.filter(identifier=identifier).first()
+    if not service_provider:
+        service_provider = cls.objects.create(
+            identifier=identifier,
+            name=name,
+            shop=shop
+        )
+        assert service_provider.pk and service_provider.identifier == identifier
+    return service_provider
+
+
+def get_custom_payment_processor(shop):
+    return get_service_provider(
+        shop, CustomPaymentProcessor, "custom_payment_processor_%s" % shop.pk, "Custom Payment Processor")
+
+
+def get_custom_carrier(shop):
+    return get_service_provider(shop, CustomCarrier, "custom_carrier_%s" % shop.pk, "Custom Carrier")
 
 
 def get_default_payment_method():

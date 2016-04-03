@@ -18,6 +18,8 @@ def initialize_test(rf, include_tax=False):
 
     # Valid baskets needs some payment methods to be available
     get_payment_method(shop)
+    # Since some of the baskets are created for the default shop:
+    get_payment_method(None)
 
     group = get_default_customer_group()
     customer = create_random_person()

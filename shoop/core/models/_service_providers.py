@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from django.db import models
 from django.http.response import HttpResponseRedirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from parler.models import TranslatedField, TranslatedFields
 from polymorphic.models import PolymorphicModel
 
@@ -43,7 +43,7 @@ class ServiceProvider(TranslatableShoopModel):
         raise NotImplementedError
 
     def initialize_service(self):
-        pass # TODO(SHOOP-2293): how to create the methods with good defaults for behavior parts? ... maybe the above "create_service" is good?
+        pass  # TODO(SHOOP-2293): how to create the methods with good defaults for behavior parts? ... maybe the above "create_service" is good?
 
 
 class ServiceChoice(object):
