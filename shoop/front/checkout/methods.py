@@ -132,6 +132,8 @@ class _MethodDependentCheckoutPhase(CheckoutPhaseViewMixin):
             return self._checkout_phase_object
 
         meth = self.get_method()
+        # TODO(SHOOP-2293): Refactor checkout_phase_class
+        # TODO(SHOOP-2293): Add unit test for checkout_phase_class  (See shoop-stripe for example)
         if not (meth and meth.module.checkout_phase_class):
             return None
         phase = self.checkout_process.instantiate_phase_class(
