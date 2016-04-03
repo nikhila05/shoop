@@ -295,25 +295,25 @@ def get_default_tax_class():
     return tax_class
 
 
-def get_service_provider(shop, cls, identifier, name):
-    service_provider = cls.objects.filter(identifier=identifier).first()
+def get_custom_payment_processor(shop):
+    return _get_service_provider(CustomPaymentProcessor, shop)
+
+
+def get_custom_carrier(shop):
+    return _get_service_provider(CustomCarrier, shop)
+
+
+def _get_service_provider(model, shop):
+    identifier = 'default-%d' % shop.pk
+    service_provider = model.objects.filter(identifier=identifier).first()
     if not service_provider:
-        service_provider = cls.objects.create(
+        service_provider = model.objects.create(
             identifier=identifier,
-            name=name,
+            name=model.__name__,
             shop=shop
         )
         assert service_provider.pk and service_provider.identifier == identifier
     return service_provider
-
-
-def get_custom_payment_processor(shop):
-    return get_service_provider(
-        shop, CustomPaymentProcessor, "custom_payment_processor_%s" % shop.pk, "Custom Payment Processor")
-
-
-def get_custom_carrier(shop):
-    return get_service_provider(shop, CustomCarrier, "custom_carrier_%s" % shop.pk, "Custom Carrier")
 
 
 def get_default_payment_method():
@@ -329,9 +329,7 @@ def get_payment_method(shop=None, identifier=None, price=None):
         shop = get_default_shop()
     payment_method = PaymentMethod.objects.filter(identifier=identifier).first()
     if not payment_method:
-        payment_processor = CustomPaymentProcessor.objects.get_or_create(
-            identifier=('default-%d' % shop.pk),
-            defaults=dict(name="Payment processor", shop=shop))[0]
+        payment_processor = get_custom_payment_processor(shop)
         payment_method = payment_processor.create_service(
             None, identifier=identifier, name="Payment method",
             tax_class=get_default_tax_class(),
@@ -357,9 +355,7 @@ def get_shipping_method(shop=None, identifier=None, price=None):
         shop = get_default_shop()
     shipping_method = ShippingMethod.objects.filter(identifier=identifier).first()
     if not shipping_method:
-        carrier = CustomCarrier.objects.get_or_create(
-            identifier=('default-%d' % shop.pk),
-            defaults=dict(name="Carrier", shop=shop))[0]
+        carrier = get_custom_carrier(shop)
         shipping_method = carrier.create_service(
             None, identifier=identifier, name="Shipping method",
             tax_class=get_default_tax_class(),
