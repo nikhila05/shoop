@@ -91,6 +91,9 @@ class Service(TranslatableShoopModel):
     def provider(self):
         return getattr(self, self.provider_attr)
 
+    def get_effective_name(self, source):
+        return self.name  # TODO(SHOOP-2293): Do we need Service.get_effective_name?
+
     def is_available_for(self, source):
         """
         Return true if service is available for given source.

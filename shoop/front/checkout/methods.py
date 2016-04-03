@@ -31,10 +31,13 @@ class MethodModelChoiceField(forms.ModelChoiceField):
         super(MethodModelChoiceField, self).__init__(*args, **kwargs)
 
     def label_from_instance(self, obj):
+        """
+        :type obj: shoop.core.models.Service
+        """
         label = force_text(obj.get_effective_name(self.basket))
 
         price_info = (
-            obj.get_effective_price_info(self.basket)
+            obj.get_total_cost(self.basket)
             if self.basket and self.show_prices else None)
 
         if price_info and price_info.price:
