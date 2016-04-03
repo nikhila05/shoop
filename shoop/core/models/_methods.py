@@ -42,8 +42,8 @@ class ShippingMethod(Service):
         :rtype: shoop.utils.dates.DurationRange|None
         """
         times = set()
-        for part in self.behavior_parts.all():
-            delivery_time = part.get_delivery_time(self, source)
+        for component in self.behavior_components.all():
+            delivery_time = component.get_delivery_time(self, source)
             if delivery_time:
                 assert isinstance(delivery_time, DurationRange)
                 times.add(delivery_time.min_duration)

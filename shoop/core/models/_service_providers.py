@@ -42,8 +42,8 @@ class ServiceProvider(TranslatableShoopModel):
         """
         raise NotImplementedError
 
-    def initialize_service(self):
-        pass  # TODO(SHOOP-2293): how to create the methods with good defaults for behavior parts? ... maybe the above "create_service" is good?
+    # TODO(SHOOP-2293): how to create the methods with good defaults for
+    # behavior components? ... maybe the above "create_service" is good?
 
 
 class ServiceChoice(object):

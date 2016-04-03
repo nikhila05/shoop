@@ -11,9 +11,9 @@ import pytest
 
 from shoop.apps.provides import override_provides
 from shoop.core.models import (
-    CustomCarrier, CustomPaymentProcessor, FixedPriceBehaviorPart,
+    CustomCarrier, CustomPaymentProcessor, FixedPriceBehaviorComponent,
     get_person_contact, OrderLineType, ShippingMethod,
-    WeightLimitsBehaviorPart
+    WeightLimitsBehaviorComponent
 )
 from shoop.testing.factories import (
     create_product, get_address, get_default_product, get_default_shop,
@@ -22,8 +22,8 @@ from shoop.testing.factories import (
 )
 
 from shoop_tests.dummyapp.models import (
-    ExpensiveSwedenBehaviorPart,
-    PriceWaiverBehaviorPart,
+    ExpensiveSwedenBehaviorComponent,
+    PriceWaiverBehaviorComponent,
 )
 from shoop_tests.utils.basketish_order_source import BasketishOrderSource
 
@@ -34,11 +34,11 @@ def get_expensive_sweden_shipping_method():
         shop=get_default_shop(),
     )
     sm = carrier.create_service(None, tax_class=get_default_tax_class())
-    sm.behavior_parts.add(
-        ExpensiveSwedenBehaviorPart.objects.create(),
-        WeightLimitsBehaviorPart.objects.create(
+    sm.behavior_components.add(
+        ExpensiveSwedenBehaviorComponent.objects.create(),
+        WeightLimitsBehaviorComponent.objects.create(
             min_weight="0.11", max_weight="3"),
-        PriceWaiverBehaviorPart.objects.create(
+        PriceWaiverBehaviorComponent.objects.create(
             waive_limit_value="370"),
     )
     return sm
@@ -123,8 +123,8 @@ def test_waiver():
 def test_weight_limits():
     carrier = CustomCarrier.objects.create(shop=get_default_shop())
     sm = carrier.create_service(None, tax_class=get_default_tax_class())
-    sm.behavior_parts.add(
-        WeightLimitsBehaviorPart.objects.create(
+    sm.behavior_components.add(
+        WeightLimitsBehaviorComponent.objects.create(
             min_weight=100, max_weight=500))
     source = BasketishOrderSource(get_default_shop())
     assert any(ve.code == "min_weight" for ve in sm.get_unavailability_reasons(source))

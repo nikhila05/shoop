@@ -10,11 +10,11 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 
 from shoop.core.fields import MoneyValueField
-from shoop.core.models import ServiceBehaviorPart
+from shoop.core.models import ServiceBehaviorComponent
 from shoop.core.pricing import PriceInfo
 
 
-class ExpensiveSwedenBehaviorPart(ServiceBehaviorPart):
+class ExpensiveSwedenBehaviorComponent(ServiceBehaviorComponent):
     def get_name(self, service, source):
         return "Expenseefe-a Svedee Sheepping"
 
@@ -31,7 +31,7 @@ class ExpensiveSwedenBehaviorPart(ServiceBehaviorPart):
             yield ValidationError("Veell nut sheep unytheeng tu Feenlund!", code="we_no_speak_finnish")
 
 
-class PriceWaiverBehaviorPart(ServiceBehaviorPart):
+class PriceWaiverBehaviorComponent(ServiceBehaviorComponent):
     waive_limit_value = MoneyValueField()
 
     def get_costs(self, service, source):
@@ -40,7 +40,7 @@ class PriceWaiverBehaviorPart(ServiceBehaviorPart):
         if product_total and product_total >= waive_limit:
             five = source.create_price(5)
             # TODO(SHOOP-2293): Reconsider calculation of method's price
-            # with behavior parts since price waiving is impossible
+            # with behavior components since price waiving is impossible
             #
             # We decided to use campaigns in that case... maybe that's
             # OK too, but then these test would have to be amended and

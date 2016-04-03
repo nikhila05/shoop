@@ -31,7 +31,7 @@ from shoop.core.defaults.order_statuses import create_default_order_statuses
 from shoop.core.models import (
     AnonymousContact, Attribute, AttributeType, Category, CategoryStatus,
     CompanyContact, Contact, ContactGroup, CustomCarrier,
-    CustomPaymentProcessor, FixedPriceBehaviorPart, MutableAddress, Order,
+    CustomPaymentProcessor, FixedPriceBehaviorComponent, MutableAddress, Order,
     OrderLine, OrderLineTax, OrderLineType, OrderStatus, PaymentMethod,
     PersonContact, Product, ProductMedia, ProductMediaKind, ProductType,
     SalesUnit, ShippingMethod, Shop, ShopProduct, ShopStatus, StockBehavior,
@@ -335,8 +335,8 @@ def get_payment_method(shop=None, identifier=None, price=None):
             tax_class=get_default_tax_class(),
         )
         if price:
-            payment_method.behavior_parts.add(
-                FixedPriceBehaviorPart.objects.create(price_value=price))
+            payment_method.behavior_components.add(
+                FixedPriceBehaviorComponent.objects.create(price_value=price))
     assert payment_method.pk and payment_method.identifier == identifier
     assert payment_method.payment_processor.shop == shop
     return payment_method
@@ -361,8 +361,8 @@ def get_shipping_method(shop=None, identifier=None, price=None):
             tax_class=get_default_tax_class(),
         )
         if price:
-            shipping_method.behavior_parts.add(
-                FixedPriceBehaviorPart.objects.create(price_value=price))
+            shipping_method.behavior_components.add(
+                FixedPriceBehaviorComponent.objects.create(price_value=price))
     assert shipping_method.pk and shipping_method.identifier == identifier
     assert shipping_method.carrier.shop == shop
     return shipping_method

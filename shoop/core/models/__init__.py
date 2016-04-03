@@ -41,10 +41,10 @@ from ._products import (
 from ._service_providers import (
     Carrier, PaymentProcessor, PaymentUrls, ServiceChoice, ServiceProvider
 )
-from ._services_base import Service, ServiceBehaviorPart
+from ._services_base import Service, ServiceBehaviorComponent
 from ._services_concrete import (
-    CustomCarrier, CustomPaymentProcessor, FixedPriceBehaviorPart,
-    WeightLimitsBehaviorPart,
+    CustomCarrier, CustomPaymentProcessor, FixedPriceBehaviorComponent,
+    WeightLimitsBehaviorComponent,
 )
 from ._shipments import Shipment, ShipmentProduct
 from ._shops import Shop, ShopStatus
@@ -71,7 +71,7 @@ __all__ = [
     "CustomCarrier",
     "CustomerTaxGroup",
     "CustomPaymentProcessor",
-    "FixedPriceBehaviorPart",
+    "FixedPriceBehaviorComponent",
     "get_person_contact",
     "Gender",
     "ImmutableAddress",
@@ -111,7 +111,7 @@ __all__ = [
     "SavedAddressRole",
     "SavedAddressStatus",
     "Service",
-    "ServiceBehaviorPart",
+    "ServiceBehaviorComponent",
     "ServiceChoice",
     "ServiceProvider",
     "Shipment",
@@ -128,7 +128,7 @@ __all__ = [
     "SupplierType",
     "Tax",
     "TaxClass",
-    "WeightLimitsBehaviorPart",
+    "WeightLimitsBehaviorComponent",
 ]
 
 update_module_attributes(__all__, __name__)

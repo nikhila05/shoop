@@ -82,7 +82,7 @@ class Service(TranslatableShoopModel):
 
     objects = ServiceQuerySet.as_manager()
 
-    behavior_parts = models.ManyToManyField('ServiceBehaviorPart')
+    behavior_components = models.ManyToManyField('ServiceBehaviorComponent')
 
     class Meta:
         abstract = True
@@ -117,8 +117,8 @@ class Service(TranslatableShoopModel):
             yield ValidationError(
                 _("%s is for different shop") % self, code='wrong_shop')
 
-        for part in self.behavior_parts.all():
-            for reason in part.get_unavailability_reasons(self, source):
+        for component in self.behavior_components.all():
+            for reason in component.get_unavailability_reasons(self, source):
                 yield reason
 
     def get_total_cost(self, source):
@@ -140,10 +140,10 @@ class Service(TranslatableShoopModel):
         :return: description, price and tax class of the costs
         :rtype: Iterable[(str, PriceInfo, TaxClass)]
         """
-        for part in self.behavior_parts.all():
-            for (desc, price_info, tax_class) in part.get_costs(self, source):
+        for component in self.behavior_components.all():
+            for (desc, price_info, tax_class) in component.get_costs(self, source):
                 if desc is None:
-                    desc = part.get_name(self, source)
+                    desc = component.get_name(self, source)
                 yield (desc, price_info, tax_class or self.tax_class)
 
     def get_lines(self, source):
@@ -195,7 +195,7 @@ def _sum_price_infos(price_infos, zero):
     return functools.reduce(plus, price_infos, zero)
 
 
-class ServiceBehaviorPart(ShoopModel, PolymorphicModel):
+class ServiceBehaviorComponent(ShoopModel, PolymorphicModel):
     def get_name(self, service, source):
         """
         :type service: Service

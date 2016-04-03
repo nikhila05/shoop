@@ -13,7 +13,7 @@ from shoop.core.fields import MoneyValueField
 from shoop.core.pricing import PriceInfo
 
 from ._service_providers import Carrier, PaymentProcessor, ServiceChoice
-from ._services_base import ServiceBehaviorPart
+from ._services_base import ServiceBehaviorComponent
 from ._methods import PaymentMethod, ShippingMethod
 
 
@@ -39,7 +39,7 @@ class CustomPaymentProcessor(PaymentProcessor):
             payment_processor=self, choice_identifier=choice_identifier, **kwargs)
 
 
-class FixedPriceBehaviorPart(ServiceBehaviorPart):
+class FixedPriceBehaviorComponent(ServiceBehaviorComponent):
     price_value = MoneyValueField()
 
     def get_costs(self, service, source):
@@ -47,7 +47,7 @@ class FixedPriceBehaviorPart(ServiceBehaviorPart):
         yield (None, PriceInfo(price, price, 1), None)
 
 
-class WeightLimitsBehaviorPart(ServiceBehaviorPart):
+class WeightLimitsBehaviorComponent(ServiceBehaviorComponent):
     min_weight = models.DecimalField(
         max_digits=36, decimal_places=6, blank=True, null=True,
         verbose_name=_("minimum weight"))
