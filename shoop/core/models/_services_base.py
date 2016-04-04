@@ -128,7 +128,7 @@ class Service(TranslatableShoopModel):
         :type source: shoop.core.order_creator.OrderSource
         :rtype: PriceInfo
         """
-        price_infos = (x[1] for x in self.get_costs(source))
+        price_infos = (x.price_info for x in self.get_costs(source))
         zero = source.create_price(0)
         return _sum_price_infos(price_infos, PriceInfo(zero, zero, quantity=1))
 
@@ -138,13 +138,13 @@ class Service(TranslatableShoopModel):
 
         :type source: shoop.core.order_creator.OrderSource
         :return: description, price and tax class of the costs
-        :rtype: Iterable[(str, PriceInfo, TaxClass)]
+        :rtype: Iterable[Cost]
         """
         for component in self.behavior_components.all():
-            for (desc, price_info, tax_class) in component.get_costs(self, source):
-                if desc is None:
-                    desc = component.get_name(self, source)
-                yield (desc, price_info, tax_class or self.tax_class)
+            for cost in component.get_costs(self, source):
+                desc = (cost.description or component.get_name(self, source))
+                tax_class = (cost.tax_class or self.tax_class)
+                yield Cost(cost.price, desc, tax_class, cost.base_price)
 
     def get_lines(self, source):
         """
@@ -158,20 +158,19 @@ class Service(TranslatableShoopModel):
         def rand_int():
             return random.randint(0, 0x7FFFFFFF)
 
-        costs = list(self.get_costs(source))
-        if not costs:
-            zero = source.create_price(0)
-            costs = [(self.name, PriceInfo(zero, zero, 1), self.tax_class)]
+        costs = (
+            list(self.get_costs(source)) or
+            [Cost(source.create_price(0), self.name, self.tax_class)])
         for (n, cost) in enumerate(costs):
-            (desc, price_info, tax_class) = cost
+            price_info = cost.price_info
             yield source.create_line(
                 line_id="%s_%02d_%x" % (line_prefix, n, rand_int()),
                 type=self.line_type,
-                quantity=price_info.quantity,
-                text=desc,
+                quantity=cost.price_info.quantity,
+                text=cost.description,
                 base_unit_price=price_info.base_unit_price,
                 discount_amount=price_info.discount_amount,
-                tax_class=tax_class,
+                tax_class=cost.tax_class,
             )
 
     def _make_sure_is_usable(self):
@@ -214,9 +213,13 @@ class ServiceBehaviorComponent(ShoopModel, PolymorphicModel):
 
     def get_costs(self, service, source):
         """
+        TODO: Document!
+
+        Costs may be created with the `create_cost` function.
+
         :type service: Service
         :type source: shoop.core.order_creator.OrderSource
-        :rtype: Iterable[(str, PriceInfo, TaxClass|None)]
+        :rtype: Iterable[Cost]
         """
         return ()
 
@@ -227,3 +230,28 @@ class ServiceBehaviorComponent(ShoopModel, PolymorphicModel):
         :rtype: shoop.utils.dates.DurationRange|None
         """
         return None
+
+    @classmethod
+    def create_cost(cls, price, description=None,
+                    tax_class=None, base_price=None):
+        return Cost(price, description, tax_class, base_price)
+
+
+class Cost(object):
+    def __init__(
+            self, price, description=None,
+            tax_class=None, base_price=None):
+        """
+        :type price: shoop.core.pricing.Price
+        :type description: str
+        :type tax_class: shoop.core.models.TaxClass|None
+        :type base_price: shoop.core.pricing.Price|None
+        """
+        self.price = price
+        self.description = description
+        self.tax_class = tax_class
+        self.base_price = base_price if base_price is not None else price
+
+    @property
+    def price_info(self):
+        return PriceInfo(self.price, self.base_price, quantity=1)

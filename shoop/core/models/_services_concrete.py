@@ -38,8 +38,7 @@ class FixedCostBehaviorComponent(ServiceBehaviorComponent):
     price_value = MoneyValueField()
 
     def get_costs(self, service, source):
-        price = source.create_price(self.price_value)
-        yield (None, PriceInfo(price, price, 1), None)
+        yield self.create_cost(source.create_price(self.price_value))
 
 
 class WeightLimitsBehaviorComponent(ServiceBehaviorComponent):

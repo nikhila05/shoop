@@ -22,6 +22,9 @@
 ** TODO Implement WaivingCostBehaviorComponent
    - [[file:shoop/core/models/_services_concrete.py::63]]
 
+** DONE Add ServiceBehaviorComponent.create_cost
+   - [[file:shoop/core/models/_services_base.py::236]]
+
 ** TODO Port "test_waiver" to new WaivingCostBehaviorComponent
    - [[file:shoop_tests/core/test_methods.py::96]]
 
