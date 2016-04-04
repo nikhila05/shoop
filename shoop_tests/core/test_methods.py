@@ -20,10 +20,7 @@ from shoop.testing.factories import (
     get_shipping_method,
 )
 
-from shoop_tests.dummyapp.models import (
-    ExpensiveSwedenBehaviorComponent,
-    PriceWaiverBehaviorComponent,
-)
+from shoop_tests.dummyapp.models import ExpensiveSwedenBehaviorComponent
 from shoop_tests.utils.basketish_order_source import BasketishOrderSource
 
 
@@ -37,8 +34,6 @@ def get_expensive_sweden_shipping_method():
         ExpensiveSwedenBehaviorComponent.objects.create(),
         WeightLimitsBehaviorComponent.objects.create(
             min_weight="0.11", max_weight="3"),
-        PriceWaiverBehaviorComponent.objects.create(
-            waive_limit_value="370"),
     )
     return sm
 
@@ -73,6 +68,7 @@ def test_methods(admin_user, country):
         # "Expenseefe-a Svedee Sheepping" will not allow shipping to
         # Finland, let's see if that holds true
         assert any([ve.code == "we_no_speak_finnish" for ve in errors])
+        assert [x.code for x in errors] == ["we_no_speak_finnish"]
         return  # Shouldn't try the rest if we got an error here
     else:
         assert not errors
@@ -94,21 +90,17 @@ def test_methods(admin_user, country):
 
 @pytest.mark.django_db
 def test_waiver():
-    sm = ShippingMethod(name="Waivey", tax_class=get_default_tax_class(),
-                        module_data={
-                            "price_waiver_product_minimum": "370",
-                            "price": "100"
-                        })
+    sm = get_shipping_method(name="Waivey", price=100, waive_at=370)
     source = BasketishOrderSource(get_default_shop())
     assert sm.get_effective_name(source) == u"Waivey"
-    assert sm.get_effective_price_info(source).price == source.create_price(100)
+    assert sm.get_total_cost(source).price == source.create_price(100)
     source.add_line(
         type=OrderLineType.PRODUCT,
         product=get_default_product(),
         base_unit_price=source.create_price(400),
         quantity=1
     )
-    assert sm.get_effective_price_info(source).price == source.create_price(0)
+    assert sm.get_total_cost(source).price == source.create_price(0)
 
 
 @pytest.mark.django_db

@@ -35,7 +35,7 @@ from shoop.core.models import (
     OrderLine, OrderLineTax, OrderLineType, OrderStatus, PaymentMethod,
     PersonContact, Product, ProductMedia, ProductMediaKind, ProductType,
     SalesUnit, ShippingMethod, Shop, ShopProduct, ShopStatus, StockBehavior,
-    Supplier, SupplierType, Tax, TaxClass
+    Supplier, SupplierType, Tax, TaxClass, WaivingCostBehaviorComponent
 )
 from shoop.core.order_creator import OrderCreator, OrderSource
 from shoop.core.pricing import get_pricing_module
@@ -320,31 +320,33 @@ def get_default_payment_method():
     return get_payment_method()
 
 
-def get_payment_method(shop=None, identifier=None, price=None):
+def get_payment_method(shop=None, identifier=None,
+                       price=None, waive_at=None, name=None):
     return _get_service(
-        PaymentMethod, CustomPaymentProcessor, name="Payment method",
-        shop=shop, identifier=identifier, price=price)
+        PaymentMethod, CustomPaymentProcessor, name=(name or "Payment method"),
+        shop=shop, identifier=identifier, price=price, waive_at=waive_at)
 
 
 def get_default_shipping_method():
     return get_shipping_method()
 
 
-def get_shipping_method(shop=None, identifier=None, price=None):
+def get_shipping_method(shop=None, identifier=None,
+                        price=None, waive_at=None, name=None):
     return _get_service(
-        ShippingMethod, CustomCarrier, name="Shipping method",
-        shop=shop, identifier=identifier, price=price)
+        ShippingMethod, CustomCarrier, name=(name or "Shipping method"),
+        shop=shop, identifier=identifier, price=price, waive_at=waive_at)
 
 
 def _get_service(
         service_model, provider_model, name,
-        shop=None, identifier=None, price=None):
-    if shop is None and identifier is None and price is None:
+        shop=None, identifier=None, price=None, waive_at=None):
+    if all(x is None for x in [shop, identifier, price, waive_at]):
         identifier = DEFAULT_IDENTIFIER
-    elif identifier is None:
-        identifier = "default-%d-%r" % (shop.pk, price)
     if shop is None:
         shop = get_default_shop()
+    if identifier is None:
+        identifier = "default-%d-%r-%r" % (shop.pk, price, waive_at)
     service = service_model.objects.filter(identifier=identifier).first()
     if not service:
         provider = _get_service_provider(provider_model, shop)
@@ -352,9 +354,13 @@ def _get_service(
             None, identifier=identifier, name=name,
             tax_class=get_default_tax_class(),
         )
-        if price:
+        if price and waive_at is None:
             service.behavior_components.add(
                 FixedCostBehaviorComponent.objects.create(price_value=price))
+        elif price:
+            service.behavior_components.add(
+                WaivingCostBehaviorComponent.objects.create(
+                    price_value=price, waive_limit_value=waive_at))
     assert service.pk and service.identifier == identifier
     assert service.provider.shop == shop
     return service

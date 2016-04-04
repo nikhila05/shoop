@@ -22,27 +22,10 @@ class ExpensiveSwedenBehaviorComponent(ServiceBehaviorComponent):
         four = source.create_price('4.00')
         five = source.create_price('5.00')
         if source.shipping_address and source.shipping_address.country == "SE":
-            yield (None, PriceInfo(five, four, 1), None)
+            yield self.create_cost(five, base_price=four)
         else:
-            yield (None, PriceInfo(four, four, 1), None)
+            yield self.create_cost(four)
 
     def get_unavailability_reasons(self, service, source):
         if source.shipping_address and source.shipping_address.country == "FI":
             yield ValidationError("Veell nut sheep unytheeng tu Feenlund!", code="we_no_speak_finnish")
-
-
-class PriceWaiverBehaviorComponent(ServiceBehaviorComponent):
-    waive_limit_value = MoneyValueField()
-
-    def get_costs(self, service, source):
-        waive_limit = source.create_price(self.waive_limit_value)
-        product_total = source.total_price_of_products
-        if product_total and product_total >= waive_limit:
-            five = source.create_price(5)
-            # TODO(SHOOP-2293): Reconsider calculation of method's price
-            # with behavior components since price waiving is impossible
-            #
-            # We decided to use campaigns in that case... maybe that's
-            # OK too, but then these test would have to be amended and
-            # the Campaign rule has to be created
-            yield (_("Free shipping"), PriceInfo(-five, -five, 1), None)

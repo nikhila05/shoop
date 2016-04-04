@@ -44,7 +44,7 @@ from ._service_providers import ServiceChoice, ServiceProvider
 from ._services_base import Service, ServiceBehaviorComponent
 from ._services_concrete import (
     CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,
-    WeightLimitsBehaviorComponent,
+    WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
 from ._shipments import Shipment, ShipmentProduct
 from ._shops import Shop, ShopStatus
@@ -128,6 +128,7 @@ __all__ = [
     "SupplierType",
     "Tax",
     "TaxClass",
+    "WaivingCostBehaviorComponent",
     "WeightLimitsBehaviorComponent",
 ]
 
