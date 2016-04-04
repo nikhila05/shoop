@@ -1,0 +1,82 @@
+* SHOOP-2293 TODOs
+
+** DONE How to create services with good defaults for behavior components?
+    - Use ServiceProvide.create_service
+    - [[file:shoop/core/models/_service_providers.py::45]]
+
+** DONE Should we implement campaign for waiving shipping/payment costs?
+   - Result: Not yet.  WaivingCostBehaviorComponent will do.
+   - [[file:shoop_tests/core/test_methods.py::10]]
+
+** DONE Reconsider determining service price with behavior compontents
+   - Should we allow changing the price by chaining components so that
+     the price of another component is passed in to next component?
+      - This would need the components be ordered and makes the
+        architecture more complex.
+   - Result: No need (at least yet). WaivingCostBehaviorComponent will do.
+   - [[file:shoop/core/models/_services_concrete.py::76]]
+
+** DONE Implement WeightLimitsBehaviorComponent
+   - [[file:shoop/core/methods/base.py::176]]
+
+** TODO Implement WaivingCostBehaviorComponent
+   - [[file:shoop/core/models/_services_concrete.py::63]]
+
+** TODO Port "test_waiver" to new WaivingCostBehaviorComponent
+   - [[file:shoop_tests/core/test_methods.py::96]]
+
+** TODO Implement checkout_phase_class
+   - [[file:shoop/front/checkout/methods.py::135]]
+
+** TODO Add unit test for checkout_phase_class
+   - See shoop-stripe for example
+   - [[file:shoop/front/checkout/methods.py::136]]
+
+** TODO Do we need Service.get_effective_name?
+   - [[file:shoop/core/models/_services_base.py::95]]
+
+** TODO Check that method without a provider cannot be saved as enabled
+   - [[file:shoop/core/models/_methods.py::55]]
+
+** TODO Port PseudoPaymentMethodModule to new architecture
+   - [[file:shoop/testing/pseudo_payment.py::49]]
+
+** TODO Document _service_providers.py
+   - [[file:shoop/core/models/_service_providers.py::31]]
+   - [[file:shoop/core/models/_service_providers.py::39]]
+   - [[file:shoop/core/models/_service_providers.py::83]]
+   - [[file:shoop/core/models/_service_providers.py::93]]
+   - [[file:shoop/core/models/_service_providers.py::111]]
+
+** TODO Document _methods.py
+   - [[file:shoop/core/models/_methods.py]]
+
+** TODO Admin / Order creator: encode_method_extras
+   - [[file:shoop/admin/modules/orders/views/create.py::69]]
+
+** TODO Admin / Order creator: check ShippingMethod.objects.enabled()
+   - [[file:shoop/admin/modules/orders/views/create.py::122]]
+
+** TODO Admin / Order creator: check PaymentMethod.objects.enabled()
+   - [[file:shoop/admin/modules/orders/views/create.py::123]]
+
+** TODO Admin: Should ServiceProvider.identifier be available in form?
+   - [[file:shoop/admin/modules/service_providers/views/edit.py::46]]
+
+** TODO Remove old BaseMethodModule etc.
+   - [ ] BaseMethodModule
+   - [ ] BaseShippingMethodModule
+   - [ ] BasePaymentMethodModule
+   - [ ] DefaultShippingMethodModule
+   - [ ] DefaultPaymentMethodModule
+   - [ ] PseudoPaymentMethodModule
+   - [ ] pseudo_payment.py totally
+   - [ ] Anything else?
+   - [[file:shoop/core/methods/base.py::23]]
+
+** TODO Clean-up provides
+   - [ ] shipping_method_module
+   - [ ] payment_method_module
+   - [ ] Check the documentation too (also the payment_method_module example)
+   - [ ] Anything else?
+   - [[file:shoop_tests/core/test_methods.py::48]]
