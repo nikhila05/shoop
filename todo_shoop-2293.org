@@ -35,6 +35,11 @@
    - See shoop-stripe for example
    - [[file:shoop/front/checkout/methods.py::136]]
 
+** TODO Amend shoop_init and populate_mock
+   - Make them create default payment and shipping methods for default shop
+   - [[file:shoop/testing/mock_population.py]]
+   - [[file:shoop/core/management/commands/shoop_init.py]]
+
 ** TODO Do we need ServiceBehaviorComponent.get_name?
    - [[file:shoop/core/models/_services_base.py::199]]
 
@@ -46,6 +51,8 @@
 
 ** TODO Port PseudoPaymentMethodModule to new architecture
    - [[file:shoop/testing/pseudo_payment.py::49]]
+
+** TODO Migrations
 
 ** TODO Document _service_providers.py
    - [[file:shoop/core/models/_service_providers.py::31]]
