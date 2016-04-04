@@ -19,7 +19,9 @@ from ._contacts import (
 )
 from ._counters import Counter, CounterType
 from ._manufacturers import Manufacturer
-from ._methods import PaymentMethod, ShippingMethod
+from ._methods import (
+    Carrier, PaymentMethod, PaymentProcessor, PaymentUrls, ShippingMethod
+)
 from ._order_lines import OrderLine, OrderLineTax, OrderLineType
 from ._orders import (
     Order, OrderLogEntry, OrderStatus, OrderStatusRole, PaymentStatus,
@@ -38,9 +40,7 @@ from ._products import (
     Product, ProductAttribute, ProductCrossSell, ProductCrossSellType,
     ProductMode, ProductType, ShippingMode, StockBehavior
 )
-from ._service_providers import (
-    Carrier, PaymentProcessor, PaymentUrls, ServiceChoice, ServiceProvider
-)
+from ._service_providers import ServiceChoice, ServiceProvider
 from ._services_base import Service, ServiceBehaviorComponent
 from ._services_concrete import (
     CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,

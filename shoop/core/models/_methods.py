@@ -8,14 +8,66 @@
 from __future__ import unicode_literals, with_statement
 
 from django.db import models
+from django.http.response import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from parler.models import TranslatedFields
+from polymorphic.models import PolymorphicModel
 
 from shoop.utils.dates import DurationRange
 
 from ._order_lines import OrderLineType
-from ._service_providers import Carrier, PaymentProcessor
+from ._orders import PaymentStatus
+from ._service_providers import ServiceProvider
 from ._services_base import Service
+
+
+class Carrier(PolymorphicModel, ServiceProvider):
+    translations = TranslatedFields(
+        name=models.CharField(_("name"), max_length=100),
+    )
+
+
+class PaymentProcessor(PolymorphicModel, ServiceProvider):
+    translations = TranslatedFields(
+        name=models.CharField(_("name"), max_length=100),
+    )
+
+    def get_payment_process_response(self, order, urls):
+        """
+        TODO(SHOOP-2293): Document!
+
+        :type order: shoop.core.models.Order
+        :type urls: PaymentUrls
+        :rtype: django.http.HttpResponse|None
+        """
+        return HttpResponseRedirect(urls.return_url)
+
+    def process_payment_return_request(self, order, request):
+        """
+        TODO(SHOOP-2293): Document!
+
+        Should set ``order.payment_status``.  Default implementation
+        just sets it to `~PaymentStatus.DEFERRED` if it is
+        `~PaymentStatus.NOT_PAID`.
+
+        :type order: shoop.core.models.Order
+        :type request: django.http.HttpRequest
+        :rtype: None
+        """
+        if order.payment_status == PaymentStatus.NOT_PAID:
+            order.payment_status = PaymentStatus.DEFERRED
+            order.add_log_entry("Payment status set to deferred by %s" % self.method)
+            order.save(update_fields=("payment_status",))
+
+
+class PaymentUrls(object):
+    """
+    TODO(SHOOP-2293): Document!
+    """
+    def __init__(self, payment_url, return_url, cancel_url):
+        self.payment_url = payment_url
+        self.return_url = return_url
+        self.cancel_url = cancel_url
 
 
 class ShippingMethod(Service):

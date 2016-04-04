@@ -5,15 +5,12 @@
 # This source code is licensed under the AGPLv3 license found in the
 # LICENSE file in the root directory of this source tree.
 from django.db import models
-from django.http.response import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
-from parler.models import TranslatedField, TranslatedFields
-from polymorphic.models import PolymorphicModel
+from parler.models import TranslatedField
 
 from shoop.core.fields import InternalIdentifierField
 
 from ._base import TranslatableShoopModel
-from ._orders import PaymentStatus
 from ._shops import Shop
 
 
@@ -28,22 +25,42 @@ class ServiceProvider(TranslatableShoopModel):
 
     def get_service_choices(self):
         """
+        TODO(SHOOP-2293): Document!
+
+        You may use `service_choice` to create the service choices.
+
         :rtype: list[ServiceChoice]
         """
         raise NotImplementedError
 
+    @classmethod
+    def service_choice(cls, identifier, name):
+        """
+        TODO(SHOOP-2293): Document!
+
+        :rtype: ServiceChoice
+        """
+        return ServiceChoice(identifier, name)
+
     def create_service(self, choice_identifier, **kwargs):
         """
+        TODO(SHOOP-2293): Document!
+
+        May attach some behavior components (`ServiceBehaviorComponent`)
+        to the created service.
+
         :type choice_identifier: str|None
         :param choice_identifier:
           Identifier of the service choice to use.  If None, use the
           default service choice.
         :rtype: shoop.core.models.Service
         """
-        raise NotImplementedError
+        if choice_identifier is None:
+            choice_identifier = self.get_service_choices()[0].identifier
+        return self._create_service(choice_identifier, **kwargs)
 
-    # TODO(SHOOP-2293): how to create the methods with good defaults for
-    # behavior components? ... maybe the above "create_service" is good?
+    def _create_service(self, choice_identifier, **kwargs):
+        raise NotImplementedError
 
 
 class ServiceChoice(object):
@@ -61,52 +78,3 @@ class ServiceChoice(object):
         """
         self.identifier = identifier
         self.name = name
-
-
-class Carrier(PolymorphicModel, ServiceProvider):
-    translations = TranslatedFields(
-        name=models.CharField(_("name"), max_length=100),
-    )
-
-
-class PaymentProcessor(PolymorphicModel, ServiceProvider):
-    translations = TranslatedFields(
-        name=models.CharField(_("name"), max_length=100),
-    )
-
-    def get_payment_process_response(self, order, urls):
-        """
-        TODO(SHOOP-2293): Document!
-
-        :type order: shoop.core.models.Order
-        :type urls: PaymentUrls
-        :rtype: django.http.HttpResponse|None
-        """
-        return HttpResponseRedirect(urls.return_url)
-
-    def process_payment_return_request(self, order, request):
-        """
-        TODO(SHOOP-2293): Document!
-
-        Should set ``order.payment_status``.  Default implementation
-        just sets it to `~PaymentStatus.DEFERRED` if it is
-        `~PaymentStatus.NOT_PAID`.
-
-        :type order: shoop.core.models.Order
-        :type request: django.http.HttpRequest
-        :rtype: None
-        """
-        if order.payment_status == PaymentStatus.NOT_PAID:
-            order.payment_status = PaymentStatus.DEFERRED
-            order.add_log_entry("Payment status set to deferred by %s" % self.method)
-            order.save(update_fields=("payment_status",))
-
-
-class PaymentUrls(object):
-    """
-    TODO(SHOOP-2293): Document!
-    """
-    def __init__(self, payment_url, return_url, cancel_url):
-        self.payment_url = payment_url
-        self.return_url = return_url
-        self.cancel_url = cancel_url
