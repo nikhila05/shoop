@@ -11,7 +11,7 @@ import pytest
 
 from shoop.apps.provides import override_provides
 from shoop.core.models import (
-    CustomCarrier, CustomPaymentProcessor, FixedPriceBehaviorComponent,
+    CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,
     get_person_contact, OrderLineType, ShippingMethod,
     WeightLimitsBehaviorComponent
 )

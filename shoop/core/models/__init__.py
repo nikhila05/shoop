@@ -43,7 +43,7 @@ from ._service_providers import (
 )
 from ._services_base import Service, ServiceBehaviorComponent
 from ._services_concrete import (
-    CustomCarrier, CustomPaymentProcessor, FixedPriceBehaviorComponent,
+    CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,
     WeightLimitsBehaviorComponent,
 )
 from ._shipments import Shipment, ShipmentProduct
@@ -71,7 +71,7 @@ __all__ = [
     "CustomCarrier",
     "CustomerTaxGroup",
     "CustomPaymentProcessor",
-    "FixedPriceBehaviorComponent",
+    "FixedCostBehaviorComponent",
     "get_person_contact",
     "Gender",
     "ImmutableAddress",

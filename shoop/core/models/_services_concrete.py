@@ -39,7 +39,7 @@ class CustomPaymentProcessor(PaymentProcessor):
             payment_processor=self, choice_identifier=choice_identifier, **kwargs)
 
 
-class FixedPriceBehaviorComponent(ServiceBehaviorComponent):
+class FixedCostBehaviorComponent(ServiceBehaviorComponent):
     price_value = MoneyValueField()
 
     def get_costs(self, service, source):
