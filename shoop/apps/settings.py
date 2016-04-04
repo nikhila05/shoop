@@ -34,7 +34,6 @@ def collect_settings(app_name, settings_module):
 def _declare_setting(app_name, module, name, default):
     if name in _KNOWN_SETTINGS:
         other_app = _KNOWN_SETTINGS[name].app_name
-        return  # TODO(SHOOP-2293): how to fix this properly?
         raise ImproperlyConfigured(
             'Apps %s and %s define same setting %s' % (
                 other_app, app_name, name))
@@ -112,10 +111,7 @@ def reload_apps():
     import django
     # Clear cache for any AppDirectoriesFinder instance.
     # This should be done before Django apps is reloaded.
-    try:
-        django.contrib.staticfiles.finders.get_finder.cache_clear()
-    except AttributeError:
-        pass
+    django.contrib.staticfiles.finders.get_finder.cache_clear()
 
     _KNOWN_SETTINGS.clear()
     django.apps.apps.app_configs.clear()
