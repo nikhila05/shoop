@@ -66,7 +66,8 @@ class WaivingCostBehaviorComponent(ServiceBehaviorComponent):
     def get_costs(self, service, source):
         waive_limit = source.create_price(self.waive_limit_value)
         product_total = source.total_price_of_products
+        price = source.create_price(self.price_value)
         if product_total and product_total >= waive_limit:
-            yield self.create_cost(source.create_price(0))
+            yield self.create_cost(source.create_price(0), base_price=price)
         else:
-            yield self.create_cost(source.create_price(self.price_value))
+            yield self.create_cost(price)

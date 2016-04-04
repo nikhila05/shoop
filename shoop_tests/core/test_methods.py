@@ -12,7 +12,7 @@ import pytest
 from shoop.core.models import (
     CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,
     get_person_contact, OrderLineType, ShippingMethod,
-    WeightLimitsBehaviorComponent
+    WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
 from shoop.testing.factories import (
     create_product, get_address, get_default_product, get_default_shop,
@@ -101,6 +101,56 @@ def test_waiver():
         quantity=1
     )
     assert sm.get_total_cost(source).price == source.create_price(0)
+
+
+@pytest.mark.django_db
+def test_fixed_cost_with_waiving_costs():
+    sm = get_shipping_method(name="Fixed and waiving", price=5)
+
+    sm.behavior_components.add(
+        *[WaivingCostBehaviorComponent.objects.create(
+            price_value=p, waive_limit_value=w)
+          for (p, w) in [(3, 5), (7, 10), (10, 30)]])
+
+    source = BasketishOrderSource(get_default_shop())
+    source.shipping_method = sm
+
+    def pricestr(pi):
+        assert pi.price.unit_matches_with(source.create_price(0))
+        return "%.0f EUR (%.0f EUR)" % (pi.price.value, pi.base_price.value)
+
+    assert pricestr(sm.get_total_cost(source)) == "25 EUR (25 EUR)"
+    assert source.total_price.value == 25
+
+    source.add_line(
+        type=OrderLineType.PRODUCT, product=get_default_product(),
+        base_unit_price=source.create_price(2), quantity=1)
+    assert pricestr(sm.get_total_cost(source)) == "25 EUR (25 EUR)"
+    assert source.total_price.value == 27
+
+    source.add_line(
+        type=OrderLineType.PRODUCT, product=get_default_product(),
+        base_unit_price=source.create_price(3), quantity=1)
+    assert pricestr(sm.get_total_cost(source)) == "22 EUR (25 EUR)"
+    assert source.total_price.value == 27
+
+    source.add_line(
+        type=OrderLineType.PRODUCT, product=get_default_product(),
+        base_unit_price=source.create_price(10), quantity=1)
+    assert pricestr(sm.get_total_cost(source)) == "15 EUR (25 EUR)"
+    assert source.total_price.value == 30
+
+    source.add_line(
+        type=OrderLineType.PRODUCT, product=get_default_product(),
+        base_unit_price=source.create_price(10), quantity=1)
+    assert pricestr(sm.get_total_cost(source)) == "15 EUR (25 EUR)"
+    assert source.total_price.value == 40
+
+    source.add_line(
+        type=OrderLineType.PRODUCT, product=get_default_product(),
+        base_unit_price=source.create_price(10), quantity=1)
+    assert pricestr(sm.get_total_cost(source)) == "5 EUR (25 EUR)"
+    assert source.total_price.value == 40
 
 
 @pytest.mark.django_db
