@@ -321,25 +321,9 @@ def get_default_payment_method():
 
 
 def get_payment_method(shop=None, identifier=None, price=None):
-    if shop is None and identifier is None and price is None:
-        identifier = DEFAULT_IDENTIFIER
-    elif identifier is None:
-        identifier = "payment-%d-%r" % (shop.pk, price)
-    if shop is None:
-        shop = get_default_shop()
-    payment_method = PaymentMethod.objects.filter(identifier=identifier).first()
-    if not payment_method:
-        payment_processor = get_custom_payment_processor(shop)
-        payment_method = payment_processor.create_service(
-            None, identifier=identifier, name="Payment method",
-            tax_class=get_default_tax_class(),
-        )
-        if price:
-            payment_method.behavior_components.add(
-                FixedCostBehaviorComponent.objects.create(price_value=price))
-    assert payment_method.pk and payment_method.identifier == identifier
-    assert payment_method.payment_processor.shop == shop
-    return payment_method
+    return _get_service(
+        PaymentMethod, CustomPaymentProcessor, name="Payment method",
+        shop=shop, identifier=identifier, price=price)
 
 
 def get_default_shipping_method():
@@ -347,25 +331,33 @@ def get_default_shipping_method():
 
 
 def get_shipping_method(shop=None, identifier=None, price=None):
+    return _get_service(
+        ShippingMethod, CustomCarrier, name="Shipping method",
+        shop=shop, identifier=identifier, price=price)
+
+
+def _get_service(
+        service_model, provider_model, name,
+        shop=None, identifier=None, price=None):
     if shop is None and identifier is None and price is None:
         identifier = DEFAULT_IDENTIFIER
     elif identifier is None:
-        identifier = "shipping-%d-%r" % (shop.pk, price)
+        identifier = "default-%d-%r" % (shop.pk, price)
     if shop is None:
         shop = get_default_shop()
-    shipping_method = ShippingMethod.objects.filter(identifier=identifier).first()
-    if not shipping_method:
-        carrier = get_custom_carrier(shop)
-        shipping_method = carrier.create_service(
-            None, identifier=identifier, name="Shipping method",
+    service = service_model.objects.filter(identifier=identifier).first()
+    if not service:
+        provider = _get_service_provider(provider_model, shop)
+        service = provider.create_service(
+            None, identifier=identifier, name=name,
             tax_class=get_default_tax_class(),
         )
         if price:
-            shipping_method.behavior_components.add(
+            service.behavior_components.add(
                 FixedCostBehaviorComponent.objects.create(price_value=price))
-    assert shipping_method.pk and shipping_method.identifier == identifier
-    assert shipping_method.carrier.shop == shop
-    return shipping_method
+    assert service.pk and service.identifier == identifier
+    assert service.provider.shop == shop
+    return service
 
 
 def get_default_customer_group():
