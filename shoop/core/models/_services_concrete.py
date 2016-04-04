@@ -10,7 +10,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from shoop.core.fields import MoneyValueField
-from shoop.core.pricing import PriceInfo
 
 from ._services_base import ServiceBehaviorComponent
 from ._methods import Carrier, PaymentMethod, PaymentProcessor, ShippingMethod
