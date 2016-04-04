@@ -195,6 +195,17 @@ def _sum_price_infos(price_infos, zero):
 
 
 class ServiceBehaviorComponent(ShoopModel, PolymorphicModel):
+    #: Name for the component (lazy translated)
+    name = None
+
+    #: Help text for the component (lazy translated)
+    help_text = None
+
+    def __init__(self, *args, **kwargs):
+        if type(self) != ServiceBehaviorComponent and self.name is None:
+            raise TypeError('%s.name is not defined' % type(self).__name__)
+        super(ServiceBehaviorComponent, self).__init__(*args, **kwargs)
+
     def get_name(self, service, source):
         """
         :type service: Service

@@ -34,6 +34,9 @@ class CustomPaymentProcessor(PaymentProcessor):
 
 
 class FixedCostBehaviorComponent(ServiceBehaviorComponent):
+    name = _("Fixed cost")
+    help_text = _("Add fixed cost to price of the service.")
+
     price_value = MoneyValueField()
 
     def get_costs(self, service, source):
@@ -41,6 +44,11 @@ class FixedCostBehaviorComponent(ServiceBehaviorComponent):
 
 
 class WaivingCostBehaviorComponent(ServiceBehaviorComponent):
+    name = _("Waiving cost")
+    help_text = _(
+        "Add cost to price of the service if total price "
+        "of products is less than a waive limit.")
+
     price_value = MoneyValueField()
     waive_limit_value = MoneyValueField()
 
@@ -55,6 +63,11 @@ class WaivingCostBehaviorComponent(ServiceBehaviorComponent):
 
 
 class WeightLimitsBehaviorComponent(ServiceBehaviorComponent):
+    name = _("Weight limits")
+    help_text = _(
+        "Limit availability of the service based on "
+        "total weight of products.")
+
     min_weight = models.DecimalField(
         max_digits=36, decimal_places=6, blank=True, null=True,
         verbose_name=_("minimum weight"))

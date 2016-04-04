@@ -15,8 +15,10 @@ from shoop.core.pricing import PriceInfo
 
 
 class ExpensiveSwedenBehaviorComponent(ServiceBehaviorComponent):
+    name = "Expenseefe-a Svedee Sheepping"
+
     def get_name(self, service, source):
-        return "Expenseefe-a Svedee Sheepping"
+        return self.name
 
     def get_costs(self, service, source):
         four = source.create_price('4.00')
