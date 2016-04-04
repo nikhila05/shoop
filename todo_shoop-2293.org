@@ -32,7 +32,7 @@
    - [[file:shoop/core/models/_services_base.py::197]]
    - [[file:shoop/core/models/_services_concrete.py::37]]
 
-** TODO Implement checkout_phase_class
+** STARTED Implement checkout_phase_class
    - [[file:shoop/front/checkout/methods.py::135]]
 
 ** TODO Add unit test for checkout_phase_class

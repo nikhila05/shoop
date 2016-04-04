@@ -89,7 +89,16 @@ class Service(TranslatableShoopModel):
 
     @property
     def provider(self):
+        """
+        :rtype: shoop.core.models.ServiceProvider
+        """
         return getattr(self, self.provider_attr)
+
+    def get_checkout_phase(self, **kwargs):
+        """
+        :rtype: shoop.core.front.checkout.CheckoutPhaseViewMixin|None
+        """
+        return self.provider.get_checkout_phase(service=self, **kwargs)
 
     def get_effective_name(self, source):
         return self.name  # TODO(SHOOP-2293): Do we need Service.get_effective_name?

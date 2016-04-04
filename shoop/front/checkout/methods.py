@@ -120,7 +120,7 @@ class _MethodDependentCheckoutPhase(CheckoutPhaseViewMixin):
 
     def get_method(self):
         """
-        :rtype: shoop.core.models.Method
+        :rtype: shoop.core.models.Service
         """
         raise NotImplementedError("Not implemented")
 
@@ -132,14 +132,11 @@ class _MethodDependentCheckoutPhase(CheckoutPhaseViewMixin):
             return self._checkout_phase_object
 
         meth = self.get_method()
-        # TODO(SHOOP-2293): Refactor checkout_phase_class
-        # TODO(SHOOP-2293): Add unit test for checkout_phase_class  (See shoop-stripe for example)
-        if not (meth and meth.module.checkout_phase_class):
+        if not meth:
             return None
-        phase = self.checkout_process.instantiate_phase_class(
-            meth.module.checkout_phase_class,
-            module=meth.module
-        )
+        phase = meth.get_checkout_phase(**self.checkout_process.phase_kwargs)
+        if not phase:
+            return None
         phase = self.checkout_process.add_phase_attributes(phase, self)
         self._checkout_phase_object = phase
         return phase

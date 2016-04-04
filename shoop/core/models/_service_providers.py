@@ -20,6 +20,8 @@ class ServiceProvider(TranslatableShoopModel):
     shop = models.ForeignKey(Shop)
     name = TranslatedField()
 
+    checkout_phase_class = None
+
     class Meta:
         abstract = True
 
@@ -61,6 +63,18 @@ class ServiceProvider(TranslatableShoopModel):
 
     def _create_service(self, choice_identifier, **kwargs):
         raise NotImplementedError
+
+    def get_checkout_phase(self, service, **kwargs):
+        """
+        :type service: shoop.core.models.Service
+        :rtype: shoop.front.checkout.CheckoutPhaseViewMixin|None
+        """
+        phase_class = self.checkout_phase_class
+        if not phase_class:
+            return None
+        from shoop.front.checkout import CheckoutPhaseViewMixin
+        assert issubclass(phase_class, CheckoutPhaseViewMixin)
+        return phase_class(service=service, **kwargs)
 
 
 class ServiceChoice(object):
