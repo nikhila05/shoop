@@ -40,6 +40,20 @@ class FixedCostBehaviorComponent(ServiceBehaviorComponent):
         yield self.create_cost(source.create_price(self.price_value))
 
 
+class WaivingCostBehaviorComponent(ServiceBehaviorComponent):
+    price_value = MoneyValueField()
+    waive_limit_value = MoneyValueField()
+
+    def get_costs(self, service, source):
+        waive_limit = source.create_price(self.waive_limit_value)
+        product_total = source.total_price_of_products
+        price = source.create_price(self.price_value)
+        if product_total and product_total >= waive_limit:
+            yield self.create_cost(source.create_price(0), base_price=price)
+        else:
+            yield self.create_cost(price)
+
+
 class WeightLimitsBehaviorComponent(ServiceBehaviorComponent):
     min_weight = models.DecimalField(
         max_digits=36, decimal_places=6, blank=True, null=True,
@@ -56,17 +70,3 @@ class WeightLimitsBehaviorComponent(ServiceBehaviorComponent):
         if self.max_weight:
             if weight > self.max_weight:
                 yield ValidationError(_("Maximum weight exceeded."), code="max_weight")
-
-
-class WaivingCostBehaviorComponent(ServiceBehaviorComponent):
-    price_value = MoneyValueField()
-    waive_limit_value = MoneyValueField()
-
-    def get_costs(self, service, source):
-        waive_limit = source.create_price(self.waive_limit_value)
-        product_total = source.total_price_of_products
-        price = source.create_price(self.price_value)
-        if product_total and product_total >= waive_limit:
-            yield self.create_cost(source.create_price(0), base_price=price)
-        else:
-            yield self.create_cost(price)
