@@ -58,7 +58,7 @@ def test_methods(admin_user, country):
     source.customer = contact
 
     source.shipping_method = get_expensive_sweden_shipping_method()
-    source.payment_method = get_payment_method(identifier="neat", price=4)
+    source.payment_method = get_payment_method(name="neat", price=4)
     assert source.shipping_method_id
     assert source.payment_method_id
 
@@ -121,7 +121,7 @@ def test_limited_methods():
     """
     Test that products can declare that they limit available shipping methods.
     """
-    unique_shipping_method = get_shipping_method(identifier="unique", price=0)
+    unique_shipping_method = get_shipping_method(name="unique", price=0)
     shop = get_default_shop()
     common_product = create_product(sku="SH_COMMON", shop=shop)  # A product that does not limit shipping methods
     unique_product = create_product(sku="SH_UNIQUE", shop=shop)  # A product that only supports unique_shipping_method

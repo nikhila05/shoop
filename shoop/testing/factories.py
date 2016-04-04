@@ -320,38 +320,37 @@ def get_default_payment_method():
     return get_payment_method()
 
 
-def get_payment_method(shop=None, identifier=None,
-                       price=None, waive_at=None, name=None):
+def get_payment_method(shop=None, price=None, waive_at=None, name=None):
     return _get_service(
-        PaymentMethod, CustomPaymentProcessor, name=(name or "Payment method"),
-        shop=shop, identifier=identifier, price=price, waive_at=waive_at)
+        PaymentMethod, CustomPaymentProcessor, name=name,
+        shop=shop, price=price, waive_at=waive_at)
 
 
 def get_default_shipping_method():
     return get_shipping_method()
 
 
-def get_shipping_method(shop=None, identifier=None,
-                        price=None, waive_at=None, name=None):
+def get_shipping_method(shop=None, price=None, waive_at=None, name=None):
     return _get_service(
-        ShippingMethod, CustomCarrier, name=(name or "Shipping method"),
-        shop=shop, identifier=identifier, price=price, waive_at=waive_at)
+        ShippingMethod, CustomCarrier, name=name,
+        shop=shop, price=price, waive_at=waive_at)
 
 
 def _get_service(
         service_model, provider_model, name,
-        shop=None, identifier=None, price=None, waive_at=None):
-    if all(x is None for x in [shop, identifier, price, waive_at]):
-        identifier = DEFAULT_IDENTIFIER
+        shop=None, price=None, waive_at=None):
+    default_shop = get_default_shop()
     if shop is None:
-        shop = get_default_shop()
-    if identifier is None:
-        identifier = "default-%d-%r-%r" % (shop.pk, price, waive_at)
+        shop = default_shop
+    if shop == default_shop and not price and not waive_at and not name:
+        identifier = DEFAULT_IDENTIFIER
+    else:
+        identifier = "%s-%d-%r-%r" % (name, shop.pk, price, waive_at)
     service = service_model.objects.filter(identifier=identifier).first()
     if not service:
         provider = _get_service_provider(provider_model, shop)
         service = provider.create_service(
-            None, identifier=identifier, name=name,
+            None, identifier=identifier, name=(name or service_model.__name__),
             tax_class=get_default_tax_class(),
         )
         if price and waive_at is None:
