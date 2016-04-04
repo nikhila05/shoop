@@ -35,6 +35,9 @@
 ** STARTED Implement checkout_phase_class
    - [[file:shoop/front/checkout/methods.py::135]]
 
+** TODO Port PseudoPaymentMethodModule to new architecture
+   - [[file:shoop/testing/pseudo_payment.py::49]]
+
 ** TODO Add unit test for checkout_phase_class
    - See shoop-stripe for example
    - [[file:shoop/front/checkout/methods.py::136]]
@@ -52,9 +55,6 @@
 
 ** TODO Check that method without a provider cannot be saved as enabled
    - [[file:shoop/core/models/_methods.py::55]]
-
-** TODO Port PseudoPaymentMethodModule to new architecture
-   - [[file:shoop/testing/pseudo_payment.py::49]]
 
 ** TODO Migrations
 
