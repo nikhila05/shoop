@@ -25,7 +25,7 @@
 ** DONE Implement WaivingCostBehaviorComponent
    - [[file:shoop/core/models/_services_concrete.py::63]]
 
-** TODO Port "test_waiver" to new WaivingCostBehaviorComponent
+** DONE Port "test_waiver" to new WaivingCostBehaviorComponent
    - [[file:shoop_tests/core/test_methods.py::96]]
 
 ** TODO Implement checkout_phase_class
@@ -34,6 +34,9 @@
 ** TODO Add unit test for checkout_phase_class
    - See shoop-stripe for example
    - [[file:shoop/front/checkout/methods.py::136]]
+
+** TODO Do we need ServiceBehaviorComponent.get_name?
+   - [[file:shoop/core/models/_services_base.py::199]]
 
 ** TODO Do we need Service.get_effective_name?
    - [[file:shoop/core/models/_services_base.py::95]]
@@ -50,6 +53,9 @@
    - [[file:shoop/core/models/_service_providers.py::83]]
    - [[file:shoop/core/models/_service_providers.py::93]]
    - [[file:shoop/core/models/_service_providers.py::111]]
+
+** TODO Document _services_base.py
+   - [[file:shoop/core/models/_services_base.py]]
 
 ** TODO Document _methods.py
    - [[file:shoop/core/models/_methods.py]]
