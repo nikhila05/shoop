@@ -28,6 +28,10 @@
 ** DONE Port "test_waiver" to new WaivingCostBehaviorComponent
    - [[file:shoop_tests/core/test_methods.py::96]]
 
+** TODO Add verbose_name and help_text to ServiceBehaviorComponent
+   - [[file:shoop/core/models/_services_base.py::197]]
+   - [[file:shoop/core/models/_services_concrete.py::37]]
+
 ** TODO Implement checkout_phase_class
    - [[file:shoop/front/checkout/methods.py::135]]
 
