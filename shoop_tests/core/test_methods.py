@@ -9,7 +9,6 @@ from decimal import Decimal
 
 import pytest
 
-from shoop.apps.provides import override_provides
 from shoop.core.models import (
     CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,
     get_person_contact, OrderLineType, ShippingMethod,
@@ -42,11 +41,6 @@ def get_expensive_sweden_shipping_method():
             waive_limit_value="370"),
     )
     return sm
-
-
-def override_provides_for_expensive_sweden_shipping_method():
-    # TODO(SHOOP-2293): Clean-up shipping_method_module provide
-    return override_provides("shipping_method_module", [])
 
 
 @pytest.mark.django_db
@@ -98,8 +92,6 @@ def test_methods(admin_user, country):
             assert line.price == source.create_price(4)
 
 
-# TODO(SHOOP-2293): Implement campaign for waiving shipping/payment costs
-@pytest.mark.xfail
 @pytest.mark.django_db
 def test_waiver():
     sm = ShippingMethod(name="Waivey", tax_class=get_default_tax_class(),
