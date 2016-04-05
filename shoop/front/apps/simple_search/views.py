@@ -57,9 +57,9 @@ class SearchView(ListView):
     context_object_name = "products"
 
     def dispatch(self, request, *args, **kwargs):
-        q = self.request.GET.get("q")
+        q = self.request.REQUEST.get("q")
         if q:
-            data = dict(self.request.GET)
+            data = dict(self.request.REQUEST)
         else:
             data = None
         self.form = SearchForm(data=data)

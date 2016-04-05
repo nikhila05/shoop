@@ -35,7 +35,7 @@ class RegistrationViewMixin(object):
     template_name = "shoop/registration/register.jinja"
 
     def get_success_url(self, request, user):
-        url = self.request.GET.get(REDIRECT_FIELD_NAME)
+        url = self.request.REQUEST.get(REDIRECT_FIELD_NAME)
         if url and is_safe_url(url, request.get_host()):
             return url
         return ('shoop:registration_complete', (), {})

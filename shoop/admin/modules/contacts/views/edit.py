@@ -9,8 +9,8 @@
 from __future__ import unicode_literals
 
 from django import forms
-from django.apps import apps
 from django.contrib.auth import get_user_model
+from django.db.models.loading import get_model
 from django.db.transaction import atomic
 from django.forms import BaseModelForm
 from django.utils.translation import ugettext_lazy as _
@@ -116,7 +116,7 @@ class ContactBaseForm(BaseModelForm):
             contact_type = str(self._meta.model.__name__)
 
         self._meta.fields = set(self.fields_by_model["Contact"]) | set(self.fields_by_model[contact_type])
-        self._meta.model = apps.get_model("shoop", contact_type)
+        self._meta.model = get_model("shoop", contact_type)
         if not self.instance.pk:  # For new objects, "materialize" the abstract superclass.
             self.instance = self._meta.model()
         assert issubclass(self._meta.model, Contact)
@@ -139,7 +139,7 @@ class ContactBaseFormPart(FormPart):
     priority = -1000  # Show this first, no matter what
 
     def get_form_defs(self):
-        bind_user_id = self.request.POST.get("user_id")
+        bind_user_id = self.request.REQUEST.get("user_id")
         if bind_user_id:
             bind_user = get_user_model().objects.get(pk=bind_user_id)
             if PersonContact.objects.filter(user=bind_user).exists():
