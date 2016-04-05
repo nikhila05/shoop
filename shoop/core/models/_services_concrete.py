@@ -12,25 +12,17 @@ from django.utils.translation import ugettext_lazy as _
 from shoop.core.fields import MoneyValueField
 
 from ._services_base import ServiceBehaviorComponent
-from ._methods import Carrier, PaymentMethod, PaymentProcessor, ShippingMethod
+from ._methods import Carrier, PaymentProcessor
 
 
 class CustomCarrier(Carrier):
     def get_service_choices(self):
         return [self.service_choice('custom', _("Custom shipping"))]
 
-    def _create_service(self, choice_identifier, **kwargs):
-        return ShippingMethod.objects.create(
-            carrier=self, choice_identifier=choice_identifier, **kwargs)
-
 
 class CustomPaymentProcessor(PaymentProcessor):
     def get_service_choices(self):
         return [self.service_choice('custom', _("Custom payment"))]
-
-    def _create_service(self, choice_identifier, **kwargs):
-        return PaymentMethod.objects.create(
-            payment_processor=self, choice_identifier=choice_identifier, **kwargs)
 
 
 class FixedCostBehaviorComponent(ServiceBehaviorComponent):

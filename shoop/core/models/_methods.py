@@ -27,17 +27,18 @@ class Carrier(ServiceProvider):
 
 
 class PaymentProcessor(ServiceProvider):
-    def get_payment_process_response(self, order, urls):
+    def get_payment_process_response(self, service, order, urls):
         """
         TODO(SHOOP-2293): Document!
 
+        :type service: shoop.core.models.Service
         :type order: shoop.core.models.Order
         :type urls: PaymentUrls
         :rtype: django.http.HttpResponse|None
         """
         return HttpResponseRedirect(urls.return_url)
 
-    def process_payment_return_request(self, order, request):
+    def process_payment_return_request(self, service, order, request):
         """
         TODO(SHOOP-2293): Document!
 
@@ -45,6 +46,7 @@ class PaymentProcessor(ServiceProvider):
         just sets it to `~PaymentStatus.DEFERRED` if it is
         `~PaymentStatus.NOT_PAID`.
 
+        :type service: shoop.core.models.Service
         :type order: shoop.core.models.Order
         :type request: django.http.HttpRequest
         :rtype: None
@@ -53,6 +55,10 @@ class PaymentProcessor(ServiceProvider):
             order.payment_status = PaymentStatus.DEFERRED
             order.add_log_entry("Payment status set to deferred by %s" % self.method)
             order.save(update_fields=("payment_status",))
+
+    def _create_service(self, choice_identifier, **kwargs):
+        return PaymentMethod.objects.create(
+            payment_processor=self, choice_identifier=choice_identifier, **kwargs)
 
 
 class PaymentUrls(object):
@@ -121,8 +127,8 @@ class PaymentMethod(Service):
 
     def get_payment_process_response(self, order, urls):
         self._make_sure_is_usable()
-        return self.payment_processor.get_payment_process_response(order, urls)
+        return self.provider.get_payment_process_response(self, order, urls)
 
     def process_payment_return_request(self, order, request):
         self._make_sure_is_usable()
-        self.payment_processor.process_payment_return_request(order, request)
+        self.provider.process_payment_return_request(self, order, request)
