@@ -35,7 +35,7 @@
 ** DONE Implement checkout_phase_class
    - [[file:shoop/front/checkout/methods.py::135]]
 
-** STARTED Remove admin_detail_view_class support
+** DONE Remove admin_detail_view_class support
 
 ** STARTED Port PseudoPaymentMethodModule to new architecture
    - [[file:shoop/testing/pseudo_payment.py::49]]
