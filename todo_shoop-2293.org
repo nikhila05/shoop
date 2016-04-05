@@ -32,11 +32,13 @@
    - [[file:shoop/core/models/_services_base.py::197]]
    - [[file:shoop/core/models/_services_concrete.py::37]]
 
-** STARTED Implement checkout_phase_class
+** DONE Implement checkout_phase_class
    - [[file:shoop/front/checkout/methods.py::135]]
 
-** TODO Port PseudoPaymentMethodModule to new architecture
+** STARTED Port PseudoPaymentMethodModule to new architecture
    - [[file:shoop/testing/pseudo_payment.py::49]]
+
+** TODO Fix flake8 and isort errors
 
 ** TODO Add unit test for checkout_phase_class
    - See shoop-stripe for example
