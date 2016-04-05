@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView
 
-from shoop.core.models import Order
+from shoop.core.models import Order, PaymentUrls
 
 
 def get_payment_urls(request, order):
