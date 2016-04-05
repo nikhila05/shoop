@@ -37,10 +37,10 @@
 
 ** DONE Remove admin_detail_view_class support
 
-** STARTED Port PseudoPaymentMethodModule to new architecture
+** DONE Port PseudoPaymentMethodModule to new architecture
    - [[file:shoop/testing/pseudo_payment.py::49]]
 
-** TODO Fix flake8 and isort errors
+** DONE Fix flake8 and isort errors
 
 ** TODO Add unit test for checkout_phase_class
    - See shoop-stripe for example
