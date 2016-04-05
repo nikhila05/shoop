@@ -5,7 +5,8 @@
 #
 # This source code is licensed under the AGPLv3 license found in the
 # LICENSE file in the root directory of this source tree.
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
+
 from django.utils.encoding import force_text
 
 from shoop.admin.module_registry import get_modules
@@ -46,4 +47,5 @@ def get_menu_entry_categories(request):
                 )
             category.entries.append(entry)
 
-    return SortedDict(sorted((c.name, c) for c in sorted(menu_categories.values(), key=lambda c: c.name)))
+    sorted_categories = sorted(menu_categories.values(), key=lambda c: c.name)
+    return OrderedDict((c.name, c) for c in sorted_categories)
