@@ -27,11 +27,6 @@ class MethodModule(AdminModule):
         }
         return [
             admin_url(
-                "^methods/%(url_part)s/(?P<pk>\d+)/detail/$" % ns,
-                "shoop.admin.modules.methods.views.%(class_name_prefix)sEditDetailView" % ns,
-                name="%(url_name_prefix)s.edit-detail" % ns
-            ),
-            admin_url(
                 "^methods/%(url_part)s/(?P<pk>\d+)/$" % ns,
                 "shoop.admin.modules.methods.views.%(class_name_prefix)sEditView" % ns,
                 name="%(url_name_prefix)s.edit" % ns

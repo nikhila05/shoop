@@ -16,12 +16,9 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from shoop.admin.base import MenuEntry
-from shoop.admin.toolbar import (
-    get_default_edit_toolbar, Toolbar, URLActionButton
-)
+from shoop.admin.toolbar import get_default_edit_toolbar, Toolbar
 from shoop.admin.utils.views import CreateOrUpdateView
 from shoop.core.models import PaymentMethod, ShippingMethod
-from shoop.core.modules.interface import ModuleNotFound
 from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
 
 
@@ -30,28 +27,6 @@ class MethodEditToolbar(Toolbar):
         super(Toolbar, self).__init__()
         self.view_object = view_object
         get_default_edit_toolbar(toolbar=self, view_object=view_object, save_form_id="method_form")
-        method = view_object.object
-        if method.pk:
-            self.build_detail_button(method)
-
-    def build_detail_button(self, method):
-        disable_reason = None
-        try:
-            if not method.module.admin_detail_view_class:
-                disable_reason = _("The selected module has no details to configure")
-        except ModuleNotFound:
-            disable_reason = _("The selected module is not currently available")
-
-        self.append(URLActionButton(
-            url=reverse(
-                "shoop_admin:%s.edit-detail" % self.view_object.action_url_name_prefix,
-                kwargs={"pk": method.pk}
-            ),
-            text=_("Edit Details"),
-            icon="fa fa-pencil",
-            extra_css_class="btn-info",
-            disable_reason=disable_reason
-        ))
 
 
 class _BaseMethodEditView(CreateOrUpdateView):
