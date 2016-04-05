@@ -11,7 +11,6 @@ from django.db import models
 from django.http.response import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from parler.models import TranslatedFields
-from polymorphic.models import PolymorphicModel
 
 from shoop.utils.dates import DurationRange
 
@@ -21,17 +20,13 @@ from ._service_providers import ServiceProvider
 from ._services_base import Service
 
 
-class Carrier(PolymorphicModel, ServiceProvider):
-    translations = TranslatedFields(
-        name=models.CharField(_("name"), max_length=100),
-    )
+class Carrier(ServiceProvider):
+    def _create_service(self, choice_identifier, **kwargs):
+        return ShippingMethod.objects.create(
+            carrier=self, choice_identifier=choice_identifier, **kwargs)
 
 
-class PaymentProcessor(PolymorphicModel, ServiceProvider):
-    translations = TranslatedFields(
-        name=models.CharField(_("name"), max_length=100),
-    )
-
+class PaymentProcessor(ServiceProvider):
     def get_payment_process_response(self, order, urls):
         """
         TODO(SHOOP-2293): Document!

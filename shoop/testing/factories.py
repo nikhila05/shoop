@@ -304,7 +304,7 @@ def get_custom_carrier(shop):
 
 
 def _get_service_provider(model, shop):
-    identifier = 'default-%d' % shop.pk
+    identifier = '%s-%d' % (model.__name__, shop.pk)
     service_provider = model.objects.filter(identifier=identifier).first()
     if not service_provider:
         service_provider = model.objects.create(
