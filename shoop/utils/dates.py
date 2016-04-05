@@ -10,7 +10,8 @@ from __future__ import unicode_literals
 import datetime
 
 import six
-from django.utils.translation import ungettext, ugettext as _
+from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext
 
 __all__ = ("parse_date", "parse_time", "try_parse_date", "try_parse_time")
 

@@ -11,8 +11,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from shoop.core.fields import MoneyValueField
 
-from ._services_base import ServiceBehaviorComponent
 from ._methods import Carrier, PaymentProcessor
+from ._services_base import ServiceBehaviorComponent
 
 
 class CustomCarrier(Carrier):

@@ -24,8 +24,8 @@ from django_countries import countries
 
 from shoop.admin.modules.orders.json_order_creator import JsonOrderCreator
 from shoop.core.models import (
-    AnonymousContact, CompanyContact, Contact, Order,
-    PaymentMethod, Product, ShippingMethod, Shop, ShopStatus
+    AnonymousContact, CompanyContact, Contact, Order, PaymentMethod, Product,
+    ShippingMethod, Shop, ShopStatus
 )
 from shoop.core.pricing import get_pricing_module
 from shoop.utils.i18n import (
