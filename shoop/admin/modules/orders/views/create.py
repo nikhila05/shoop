@@ -64,15 +64,8 @@ def encode_shop(shop):
     }
 
 
-def encode_method_extras(method):
-    return {
-        "price": "0",  # TODO(SHOOP-2293): order creator: encode_method_extras
-    }
-
-
 def encode_method(method):
     basic_data = {"id": method.pk, "name": force_text(method)}
-    basic_data.update(encode_method_extras(method))
     return basic_data
 
 
