@@ -42,6 +42,8 @@
 
 ** DONE Fix flake8 and isort errors
 
+** DONE Admin / Order creator: encode_method_extras
+
 ** DONE Check Python 2 compatibility
    - On Python 2 class creation code of ServiceProvider is givin
      "AttributeError: 'NoneType' object has no attribute 'name'" for
@@ -52,6 +54,14 @@
    - Result: No: We can use ServiceProvider.get_effective_name or
      something like that for dynamic service naming.
    - [[file:shoop/core/models/_services_base.py::199]]
+
+** DONE Migrations
+
+** DONE Admin / Order creator: check ShippingMethod.objects.enabled()
+   - [[file:shoop/admin/modules/orders/views/create.py::122]]
+
+** DONE Admin / Order creator: check PaymentMethod.objects.enabled()
+   - [[file:shoop/admin/modules/orders/views/create.py::123]]
 
 ** TODO Move model classes to better named submodules
    - Current names of the service/method submodules under
@@ -77,8 +87,6 @@
 ** TODO Check that method without a provider cannot be saved as enabled
    - [[file:shoop/core/models/_methods.py::55]]
 
-** TODO Migrations
-
 ** TODO Document _service_providers.py
    - [[file:shoop/core/models/_service_providers.py::31]]
    - [[file:shoop/core/models/_service_providers.py::39]]
@@ -91,15 +99,6 @@
 
 ** TODO Document _methods.py
    - [[file:shoop/core/models/_methods.py]]
-
-** TODO Admin / Order creator: encode_method_extras
-   - [[file:shoop/admin/modules/orders/views/create.py::69]]
-
-** TODO Admin / Order creator: check ShippingMethod.objects.enabled()
-   - [[file:shoop/admin/modules/orders/views/create.py::122]]
-
-** TODO Admin / Order creator: check PaymentMethod.objects.enabled()
-   - [[file:shoop/admin/modules/orders/views/create.py::123]]
 
 ** TODO Admin: Should ServiceProvider.identifier be available in form?
    - [[file:shoop/admin/modules/service_providers/views/edit.py::46]]
