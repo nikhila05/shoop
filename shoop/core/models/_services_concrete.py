@@ -12,9 +12,10 @@ from parler.models import TranslatedField, TranslatedFields
 
 from shoop.core.fields import MoneyValueField
 
-from ._base import PolymorphicTranslatableShoopModel
 from ._methods import Carrier, PaymentProcessor
-from ._services_base import ServiceBehaviorComponent
+from ._services_base import (
+    ServiceBehaviorComponent, TranslatableServiceBehaviorComponent
+)
 
 
 class CustomCarrier(Carrier):
@@ -27,8 +28,7 @@ class CustomPaymentProcessor(PaymentProcessor):
         return [self.service_choice('custom', _("Custom payment"))]
 
 
-class FixedCostBehaviorComponent(
-        PolymorphicTranslatableShoopModel, ServiceBehaviorComponent):
+class FixedCostBehaviorComponent(TranslatableServiceBehaviorComponent):
     name = _("Fixed cost")
     help_text = _("Add fixed cost to price of the service.")
 
@@ -45,8 +45,7 @@ class FixedCostBehaviorComponent(
         yield self.create_cost(price, description)
 
 
-class WaivingCostBehaviorComponent(
-        PolymorphicTranslatableShoopModel, ServiceBehaviorComponent):
+class WaivingCostBehaviorComponent(TranslatableServiceBehaviorComponent):
     name = _("Waiving cost")
     help_text = _(
         "Add cost to price of the service if total price "

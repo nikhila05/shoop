@@ -66,9 +66,9 @@ class _PolyTransManager(PolymorphicManager, TranslatableManager):
     queryset_class = _PolyTransQuerySet
 
 
-class _PolymorphicTranslatableShoopModelBase(PolymorphicModelBase):
+class PolyTransModelBase(PolymorphicModelBase):
     def get_inherited_managers(self, attrs):
-        parent = super(_PolymorphicTranslatableShoopModelBase, self)
+        parent = super(PolyTransModelBase, self)
         result = []
         for (base_name, key, manager) in parent.get_inherited_managers(attrs):
             if base_name == 'PolymorphicModel':
@@ -84,7 +84,7 @@ class _PolymorphicTranslatableShoopModelBase(PolymorphicModelBase):
 
 
 class PolymorphicTranslatableShoopModel(six.with_metaclass(
-        _PolymorphicTranslatableShoopModelBase,
+        PolyTransModelBase,
         PolymorphicShoopModel, TranslatableShoopModel)):
     _default_manager = _PolyTransManager()
 

@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 import functools
 import random
 
+import six
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -19,7 +20,9 @@ from parler.models import TranslatedField
 from shoop.core.fields import InternalIdentifierField
 from shoop.core.pricing import PriceInfo
 
-from ._base import PolymorphicShoopModel, TranslatableShoopModel
+from ._base import (
+    PolymorphicShoopModel, PolyTransModelBase, TranslatableShoopModel
+)
 from ._product_shops import ShopProduct
 
 
@@ -253,6 +256,13 @@ class ServiceBehaviorComponent(PolymorphicShoopModel):
     def create_cost(cls, price, description=None,
                     tax_class=None, base_price=None):
         return Cost(price, description, tax_class, base_price)
+
+
+class TranslatableServiceBehaviorComponent(six.with_metaclass(
+        PolyTransModelBase,
+        ServiceBehaviorComponent, TranslatableShoopModel)):
+    class Meta:
+        abstract = True
 
 
 class Cost(object):
