@@ -42,11 +42,16 @@
 
 ** DONE Fix flake8 and isort errors
 
-** STARTED Check Python 2 compatibility
+** DONE Check Python 2 compatibility
    - On Python 2 class creation code of ServiceProvider is givin
      "AttributeError: 'NoneType' object has no attribute 'name'" for
      Panu. Check this out.
    - [[file:shoop/core/models/_service_providers.py::18]]
+
+** DONE Do we need ServiceBehaviorComponent.get_name?
+   - Result: No: We can use ServiceProvider.get_effective_name or
+     something like that for dynamic service naming.
+   - [[file:shoop/core/models/_services_base.py::199]]
 
 ** TODO Move model classes to better named submodules
    - Current names of the service/method submodules under
@@ -60,9 +65,6 @@
    - Make them create default payment and shipping methods for default shop
    - [[file:shoop/testing/mock_population.py]]
    - [[file:shoop/core/management/commands/shoop_init.py]]
-
-** TODO Do we need ServiceBehaviorComponent.get_name?
-   - [[file:shoop/core/models/_services_base.py::199]]
 
 ** TODO Do we need Service.get_effective_name?
    - [[file:shoop/core/models/_services_base.py::95]]
