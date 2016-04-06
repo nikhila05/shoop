@@ -6,21 +6,21 @@
 # LICENSE file in the root directory of this source tree.
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from parler.models import TranslatedFields
-from polymorphic.models import PolymorphicModel
+from parler.models import TranslatedField, TranslatedFields
 
 from shoop.core.fields import InternalIdentifierField
 
-from ._base import TranslatableShoopModel
+from ._base import PolymorphicTranslatableShoopModel
 from ._shops import Shop
 
 
-class ServiceProvider(TranslatableShoopModel, PolymorphicModel):
+class ServiceProvider(PolymorphicTranslatableShoopModel):
     identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
     shop = models.ForeignKey(Shop)
+    name = TranslatedField(any_language=True)
 
-    translations = TranslatedFields(
+    base_translations = TranslatedFields(
         name=models.CharField(_("name"), max_length=100),
     )
 
