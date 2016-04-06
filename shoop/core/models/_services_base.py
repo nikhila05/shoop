@@ -15,12 +15,11 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from parler.managers import TranslatableQuerySet
 from parler.models import TranslatedField
-from polymorphic.models import PolymorphicModel
 
 from shoop.core.fields import InternalIdentifierField
 from shoop.core.pricing import PriceInfo
 
-from ._base import ShoopModel, TranslatableShoopModel
+from ._base import PolymorphicShoopModel, TranslatableShoopModel
 from ._product_shops import ShopProduct
 
 
@@ -75,7 +74,7 @@ class Service(TranslatableShoopModel):
     # Initialized from ServiceChoice.identifier
     choice_identifier = models.CharField(blank=True, max_length=64)
 
-    name = TranslatedField()
+    name = TranslatedField(any_language=True)
 
     tax_class = models.ForeignKey(
         'TaxClass', verbose_name=_("tax class"), on_delete=models.PROTECT)
@@ -203,7 +202,7 @@ def _sum_price_infos(price_infos, zero):
     return functools.reduce(plus, price_infos, zero)
 
 
-class ServiceBehaviorComponent(ShoopModel, PolymorphicModel):
+class ServiceBehaviorComponent(PolymorphicShoopModel):
     #: Name for the component (lazy translated)
     name = None
 
