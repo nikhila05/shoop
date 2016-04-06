@@ -34,14 +34,12 @@ def _get_type_choices(forms):
     return choices
 
 
-class _BaseMethodEditView(CreateOrUpdateView):
-    model = ServiceProvider  # Overridden below
-    action_url_name_prefix = None
+class ServiceProviderEditView(CreateOrUpdateView):
+    model = ServiceProvider
     template_name = "shoop/admin/service_providers/edit.jinja"
-    form_class = forms.Form
+    form_class = forms.Form  # Overridden in get_form
     context_object_name = "service_provider"
-    default_provider_models = []
-    provider_model_provide_key = ""
+    provider_model_provide_key = "service_provider_admin_forms"
     add_form_errors_as_messages = True
 
     @property
@@ -52,7 +50,7 @@ class _BaseMethodEditView(CreateOrUpdateView):
         return [
             MenuEntry(
                 text=force_text(self.model._meta.verbose_name_plural).title(),
-                url="shoop_admin:%s.list" % self.action_url_name_prefix
+                url="shoop_admin:service_provider.list"
             )
         ]
 
@@ -64,13 +62,12 @@ class _BaseMethodEditView(CreateOrUpdateView):
             )
             return self.form_class(**self.get_form_kwargs())
         else:
-            selected_type = self.request.GET.get("type")
             self.form_class = provider_service_forms[0]
+            selected_type = self.request.GET.get("type")
             if selected_type:
                 self.form_class = first(
                     f for f in provider_service_forms if selected_type == _get_type_choice_value(f)
                 )
-
             self.object = _get_model(self.form_class)()
             form = self.form_class(**self.get_form_kwargs())
             form.fields["type"] = forms.ChoiceField(
@@ -82,17 +79,4 @@ class _BaseMethodEditView(CreateOrUpdateView):
             return form
 
     def get_success_url(self):
-        return reverse("shoop_admin:%s.edit" % self.action_url_name_prefix, kwargs={"pk": self.object.pk})
-
-    def save_form(self, form):
-        self.object = form.save()
-
-
-class CarrierEditView(_BaseMethodEditView):
-    action_url_name_prefix = "service_provider.carrier"
-    provider_model_provide_key = "carrier_model"
-
-
-class PaymentProcessorEditView(_BaseMethodEditView):
-    action_url_name_prefix = "service_provider.payment_processor"
-    provider_model_provide_key = "payment_processor_model"
+        return reverse("shoop_admin:service_provider.edit", kwargs={"pk": self.object.pk})

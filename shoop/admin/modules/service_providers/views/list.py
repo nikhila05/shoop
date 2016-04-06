@@ -11,32 +11,23 @@ from django.utils.translation import ugettext_lazy as _
 
 from shoop.admin.utils.picotable import Column, TextFilter
 from shoop.admin.utils.views import PicotableListView
-from shoop.core.models import Carrier, PaymentProcessor
+from shoop.core.models import ServiceProvider
 
 
-class _BaseServiceProviderListView(PicotableListView):
-    model = None  # Overridden below
+class ServiceProviderListView(PicotableListView):
+    model = ServiceProvider
     columns = [
         Column(
-            "name",
-            _(u"Name"),
-            sort_field="translations__name",
-            filter_config=TextFilter(
-                filter_field="name",
-                placeholder=_("Filter by name...")
-            )
-        )
+            "name", _("Name"), sort_field="translations__name",
+            filter_config=TextFilter(filter_field="name", placeholder=_("Filter by name..."))
+        ),
+        Column("type", _(u"Type"), display="get_type_display", sortable=False)
     ]
+
+    def get_type_display(self, instance):
+        return instance._meta.verbose_name.capitalize()
 
     def get_object_abstract(self, instance, item):
         return [
             {"text": "%s" % instance, "class": "header"},
         ]
-
-
-class CarrierListView(_BaseServiceProviderListView):
-    model = Carrier
-
-
-class PaymentProcessorListView(_BaseServiceProviderListView):
-    model = PaymentProcessor

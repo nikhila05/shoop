@@ -1,15 +1,9 @@
-{% if request.is_ajax() %}
-{% extends "shoop/admin/service_providers/ajax_content.jinja" %}
-{% else %}
 {% extends "shoop/admin/base.jinja" %}
-{% endif %}
 {% from "shoop/admin/macros/general.jinja" import content_block, content_with_sidebar %}
 {% from "shoop/admin/macros/multilanguage.jinja" import language_dependent_content_tabs, render_monolingual_fields %}
 
 {% block content %}
     {% call content_with_sidebar(content_id="service_provider_form") %}
-        <div id="ajax_content">
-        {% block ajax_content %}
         <form method="post" id="service_provider_form">
             {% csrf_token %}
             {% call content_block(_("General information"), "fa-info-circle") %}
@@ -21,8 +15,6 @@
                 {{ render_monolingual_fields(form, exclude=["type"]) }}
             {% endcall %}
         </form>
-        {% endblock %}
-        </div>
     {% endcall %}
 {% endblock %}
 
@@ -33,8 +25,7 @@
     <script>
         $(function () {
             $("#id_type").on("change", function() {
-                location.href = location.href + "?type=" + $(this).val();
-                //$("#ajax_content").load(location.href + "?type=" + $(this).val());
+                location.href = "{{ url('shoop_admin:service_provider.new') }}?type=" + $(this).val();
             });
         });
     </script>

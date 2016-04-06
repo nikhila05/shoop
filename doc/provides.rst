@@ -116,6 +116,10 @@ Core
 ``pricing_module``
     Pricing module classes; the pricing module in use is set with the ``SHOOP_PRICING_MODULE`` setting.
 
+``service_provider_admin_forms``
+    ``ServiceProvider`` subclass admin forms; admin enables creating new ``ServiceProvider`` subclasses
+    based on these forms.
+
 ``shipping_method_module``
     Shipping method module classes (deriving from `~shoop.core.methods.base.BaseShippingMethodModule`),
     as used by `~shoop.core.models.ShippingMethod`.
