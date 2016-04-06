@@ -8,9 +8,11 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from parler.models import TranslatedFields, TranslatedField
 
 from shoop.core.fields import MoneyValueField
 
+from ._base import PolymorphicTranslatableShoopModel
 from ._methods import Carrier, PaymentProcessor
 from ._services_base import ServiceBehaviorComponent
 
@@ -25,14 +27,22 @@ class CustomPaymentProcessor(PaymentProcessor):
         return [self.service_choice('custom', _("Custom payment"))]
 
 
-class FixedCostBehaviorComponent(ServiceBehaviorComponent):
+class FixedCostBehaviorComponent(
+        PolymorphicTranslatableShoopModel, ServiceBehaviorComponent):
     name = _("Fixed cost")
     help_text = _("Add fixed cost to price of the service.")
 
     price_value = MoneyValueField()
+    description = TranslatedField(any_language=True)
+
+    translations = TranslatedFields(
+        description=models.CharField(max_length=100, blank=True),
+    )
 
     def get_costs(self, service, source):
-        yield self.create_cost(source.create_price(self.price_value))
+        price = source.create_price(self.price_value)
+        description = self.safe_translation_getter('description')
+        yield self.create_cost(price, description)
 
 
 class WaivingCostBehaviorComponent(ServiceBehaviorComponent):

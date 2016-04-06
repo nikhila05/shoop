@@ -8,6 +8,7 @@
 from decimal import Decimal
 
 import pytest
+from django.utils import translation
 
 from shoop.core.models import (
     CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,
@@ -153,6 +154,41 @@ def test_fixed_cost_with_waiving_costs():
         base_unit_price=source.create_price(10), quantity=1)
     assert pricestr(sm.get_total_cost(source)) == "5 EUR (25 EUR)"
     assert source.total_price.value == 40
+
+
+@pytest.mark.django_db
+def test_translations_of_method_and_component():
+    sm = get_shipping_method(name="Unique shipping")
+    sm.set_current_language('en')
+    sm.name = "Shipping"
+    sm.set_current_language('fi')
+    sm.name = "Toimitus"
+    sm.save()
+
+    cost = FixedCostBehaviorComponent.objects.language('fi').create(
+        price_value=10, description="kymppi")
+    cost.set_current_language('en')
+    cost.description = "ten bucks"
+    cost.save()
+    sm.behavior_components.add(cost)
+
+    source = BasketishOrderSource(get_default_shop())
+    source.shipping_method = sm
+
+    translation.activate('fi')
+    shipping_lines = [
+        line for line in source.get_final_lines()
+        if line.type == OrderLineType.SHIPPING]
+    assert len(shipping_lines) == 1
+    assert shipping_lines[0].text == 'Toimitus: kymppi'
+
+    translation.activate('en')
+    source.uncache()
+    shipping_lines = [
+        line for line in source.get_final_lines()
+        if line.type == OrderLineType.SHIPPING]
+    assert len(shipping_lines) == 1
+    assert shipping_lines[0].text == 'Shipping: ten bucks'
 
 
 @pytest.mark.django_db
