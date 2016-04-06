@@ -33,6 +33,13 @@ class ShoopAdminAppConfig(AppConfig):
             "shoop.admin.modules.demo:DemoModule",
             "shoop.admin.modules.manufacturers:ManufacturerModule",
             "shoop.admin.modules.suppliers:SupplierModule"
+        ],
+        "carrier_model": [
+            "shoop.admin.modules.service_providers.forms:CustomCarrierForm",
+            "shoop.admin.modules.service_providers.forms:CustomPaymentProcessorForm"
+        ],
+        "payment_processor_model": [
+            "shoop.admin.modules.service_providers.forms:CustomPaymentProcessorForm"
         ]
     }
 

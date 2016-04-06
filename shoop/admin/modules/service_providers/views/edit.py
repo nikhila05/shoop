@@ -8,24 +8,41 @@
 from __future__ import unicode_literals
 
 from django import forms
-from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.forms.models import modelform_factory
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from shoop.admin.base import MenuEntry
 from shoop.admin.utils.views import CreateOrUpdateView
-from shoop.core.models import Carrier, PaymentProcessor
-from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
+from shoop.apps.provides import get_provide_objects
+from shoop.core.models import ServiceProvider
+from shoop.utils.iterables import first
+
+
+def _get_model(form):
+    return form._meta.model
+
+
+def _get_type_choice_value(form):
+    return _get_model(form).__name__
+
+
+def _get_type_choices(forms):
+    choices = []
+    for form in forms:
+        choices.append((_get_type_choice_value(form), _get_model(form)._meta.verbose_name.capitalize()))
+    return choices
 
 
 class _BaseMethodEditView(CreateOrUpdateView):
-    model = None  # Overridden below
+    model = ServiceProvider  # Overridden below
     action_url_name_prefix = None
     template_name = "shoop/admin/service_providers/edit.jinja"
     form_class = forms.Form
     context_object_name = "service_provider"
+    default_provider_models = []
+    provider_model_provide_key = ""
+    add_form_errors_as_messages = True
 
     @property
     def title(self):
@@ -40,25 +57,42 @@ class _BaseMethodEditView(CreateOrUpdateView):
         ]
 
     def get_form(self, form_class=None):
-        form_class = modelform_factory(
-            model=self.model,
-            form=MultiLanguageModelForm,
-            exclude=("identifier",)  # TODO(SHOOP-2293): Should this be available (InternalIdentifierField)
-        )
-        return form_class(languages=settings.LANGUAGES, **self.get_form_kwargs())
+        provider_service_forms = list(get_provide_objects(self.provider_model_provide_key))
+        if self.object and self.object.pk:
+            self.form_class = first(
+                f for f in provider_service_forms if isinstance(self.object, _get_model(f))
+            )
+            return self.form_class(**self.get_form_kwargs())
+        else:
+            selected_type = self.request.GET.get("type")
+            self.form_class = provider_service_forms[0]
+            if selected_type:
+                self.form_class = first(
+                    f for f in provider_service_forms if selected_type == _get_type_choice_value(f)
+                )
+
+            self.object = _get_model(self.form_class)()
+            form = self.form_class(**self.get_form_kwargs())
+            form.fields["type"] = forms.ChoiceField(
+                choices=_get_type_choices(provider_service_forms),
+                label=_("Type"),
+                required=False,
+                initial=_get_type_choice_value(self.form_class)
+            )
+            return form
 
     def get_success_url(self):
         return reverse("shoop_admin:%s.edit" % self.action_url_name_prefix, kwargs={"pk": self.object.pk})
 
     def save_form(self, form):
-        form.save()
+        self.object = form.save()
 
 
 class CarrierEditView(_BaseMethodEditView):
-    model = Carrier
     action_url_name_prefix = "service_provider.carrier"
+    provider_model_provide_key = "carrier_model"
 
 
 class PaymentProcessorEditView(_BaseMethodEditView):
-    model = PaymentProcessor
     action_url_name_prefix = "service_provider.payment_processor"
+    provider_model_provide_key = "payment_processor_model"

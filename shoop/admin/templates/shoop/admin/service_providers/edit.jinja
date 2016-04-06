@@ -1,16 +1,42 @@
+{% if request.is_ajax() %}
+{% extends "shoop/admin/service_providers/ajax_content.jinja" %}
+{% else %}
 {% extends "shoop/admin/base.jinja" %}
+{% endif %}
 {% from "shoop/admin/macros/general.jinja" import content_block, content_with_sidebar %}
 {% from "shoop/admin/macros/multilanguage.jinja" import language_dependent_content_tabs, render_monolingual_fields %}
 
 {% block content %}
-    {% call content_with_sidebar(content_id="method_form") %}
-        <form method="post" id="method_form">
+    {% call content_with_sidebar(content_id="service_provider_form") %}
+        <div id="ajax_content">
+        {% block ajax_content %}
+        <form method="post" id="service_provider_form">
             {% csrf_token %}
             {% call content_block(_("General information"), "fa-info-circle") %}
+                {% if is_new %}
+                    {{ bs3.field(form["type"]) }}
+                {% endif %}
                 {{ language_dependent_content_tabs(form) }}
                 <div class="form-divider"></div>
-                {{ render_monolingual_fields(form) }}
+                {{ render_monolingual_fields(form, exclude=["type"]) }}
             {% endcall %}
         </form>
+        {% endblock %}
+        </div>
     {% endcall %}
+{% endblock %}
+
+
+{% block extra_js %}
+    {{ super() }}
+    {% if is_new %}
+    <script>
+        $(function () {
+            $("#id_type").on("change", function() {
+                location.href = location.href + "?type=" + $(this).val();
+                //$("#ajax_content").load(location.href + "?type=" + $(this).val());
+            });
+        });
+    </script>
+    {% endif %}
 {% endblock %}
