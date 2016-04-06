@@ -42,6 +42,16 @@
 
 ** DONE Fix flake8 and isort errors
 
+** TODO Check Python 2 compatibility
+   - On Python 2 class creation code of ServiceProvider is givin
+     "AttributeError: 'NoneType' object has no attribute 'name'" for
+     Panu. Check this out.
+   - [[file:shoop/core/models/_services_base.py::197]]
+
+** TODO Move model classes to better named submodules
+   - Current names of the service/method submodules under
+     shoop.core.models is stupid.  Make it better.
+
 ** TODO Add unit test for checkout_phase_class
    - See shoop-stripe for example
    - [[file:shoop/front/checkout/methods.py::136]]
