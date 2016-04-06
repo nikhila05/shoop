@@ -66,6 +66,8 @@
    - [[file:shoop/testing/mock_population.py]]
    - [[file:shoop/core/management/commands/shoop_init.py]]
 
+** TODO Should we create default methods in migrations too?
+
 ** TODO Add unit test for process_payment_return_request
    - [[file:shoop/core/models/_methods.py::41]]
 
