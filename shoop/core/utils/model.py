@@ -21,7 +21,8 @@ class ModelInitDataModifier(object):
         assert len(args) <= len(meta.fields)
         self._argsdata = dict((f.name, v) for (f, v) in zip(meta.fields, args))
 
-    def get_all(self, *keys, default=None):
+    def get_all(self, *keys, **kwargs):
+        default = kwargs.get('default')
         return tuple(self.get(key, default) for key in keys)
 
     def get(self, key, default=None):
