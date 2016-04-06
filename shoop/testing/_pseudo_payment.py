@@ -16,6 +16,7 @@ from django.utils.timezone import now
 
 from shoop.core.models import PaymentProcessor
 from shoop.utils.excs import Problem
+from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
 
 
 HTML_TEMPLATE = u"""
@@ -96,3 +97,9 @@ class PseudoPaymentProcessor(PaymentProcessor):
             return type("")
         else:
             raise ValueError('Invalid service choice: %r' % choice)
+
+
+class PseudoPaymentProcessorForm(MultiLanguageModelForm):
+    class Meta:
+        model = PseudoPaymentProcessor
+        exclude = ("identifier", )
