@@ -29,7 +29,9 @@ def get_expensive_sweden_shipping_method():
         name="Expensive Sweden Shipping",
         shop=get_default_shop(),
     )
-    sm = carrier.create_service(None, tax_class=get_default_tax_class())
+    sm = carrier.create_service(
+        None, tax_class=get_default_tax_class(),
+        name="Expenseefe-a Svedee Sheepping")
     sm.behavior_components.add(
         ExpensiveSwedenBehaviorComponent.objects.create(),
         WeightLimitsBehaviorComponent.objects.create(

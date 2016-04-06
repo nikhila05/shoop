@@ -7,18 +7,12 @@
 from __future__ import unicode_literals
 
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
 
-from shoop.core.fields import MoneyValueField
 from shoop.core.models import ServiceBehaviorComponent
-from shoop.core.pricing import PriceInfo
 
 
 class ExpensiveSwedenBehaviorComponent(ServiceBehaviorComponent):
     name = "Expenseefe-a Svedee Sheepping"
-
-    def get_name(self, service, source):
-        return self.name
 
     def get_costs(self, service, source):
         four = source.create_price('4.00')

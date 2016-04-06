@@ -150,9 +150,11 @@ class Service(TranslatableShoopModel):
         """
         for component in self.behavior_components.all():
             for cost in component.get_costs(self, source):
-                desc = (cost.description or component.get_name(self, source))
-                tax_class = (cost.tax_class or self.tax_class)
-                yield Cost(cost.price, desc, tax_class, cost.base_price)
+                yield Cost(
+                    price=cost.price,
+                    description=cost.description,
+                    tax_class=(cost.tax_class or self.tax_class),
+                    base_price=cost.base_price)
 
     def get_lines(self, source):
         """
@@ -168,14 +170,19 @@ class Service(TranslatableShoopModel):
 
         costs = (
             list(self.get_costs(source)) or
-            [Cost(source.create_price(0), self.name, self.tax_class)])
+            [Cost(source.create_price(0), None, self.tax_class)])
         for (n, cost) in enumerate(costs):
+            if cost.description:
+                description = _('%(service_name)s: %(sub_item)s') % {
+                    'service_name': self, 'sub_item': cost.description}
+            else:
+                description = '%s' % self
             price_info = cost.price_info
             yield source.create_line(
                 line_id="%s_%02d_%x" % (line_prefix, n, rand_int()),
                 type=self.line_type,
                 quantity=cost.price_info.quantity,
-                text=cost.description,
+                text=description,
                 base_unit_price=price_info.base_unit_price,
                 discount_amount=price_info.discount_amount,
                 tax_class=cost.tax_class,
@@ -213,14 +220,6 @@ class ServiceBehaviorComponent(PolymorphicShoopModel):
         if type(self) != ServiceBehaviorComponent and self.name is None:
             raise TypeError('%s.name is not defined' % type(self).__name__)
         super(ServiceBehaviorComponent, self).__init__(*args, **kwargs)
-
-    def get_name(self, service, source):
-        """
-        :type service: Service
-        :type source: shoop.core.order_creator.OrderSource
-        :rtype: str
-        """
-        return ""
 
     def get_unavailability_reasons(self, service, source):
         """
@@ -262,7 +261,7 @@ class Cost(object):
             tax_class=None, base_price=None):
         """
         :type price: shoop.core.pricing.Price
-        :type description: str
+        :type description: str|None
         :type tax_class: shoop.core.models.TaxClass|None
         :type base_price: shoop.core.pricing.Price|None
         """
