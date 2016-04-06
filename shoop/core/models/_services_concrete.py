@@ -45,7 +45,8 @@ class FixedCostBehaviorComponent(
         yield self.create_cost(price, description)
 
 
-class WaivingCostBehaviorComponent(ServiceBehaviorComponent):
+class WaivingCostBehaviorComponent(
+        PolymorphicTranslatableShoopModel, ServiceBehaviorComponent):
     name = _("Waiving cost")
     help_text = _(
         "Add cost to price of the service if total price "
@@ -53,15 +54,22 @@ class WaivingCostBehaviorComponent(ServiceBehaviorComponent):
 
     price_value = MoneyValueField()
     waive_limit_value = MoneyValueField()
+    description = TranslatedField(any_language=True)
+
+    translations = TranslatedFields(
+        description=models.CharField(max_length=100, blank=True),
+    )
 
     def get_costs(self, service, source):
         waive_limit = source.create_price(self.waive_limit_value)
         product_total = source.total_price_of_products
         price = source.create_price(self.price_value)
+        description = self.safe_translation_getter('description')
+        zero_price = source.create_price(0)
         if product_total and product_total >= waive_limit:
-            yield self.create_cost(source.create_price(0), base_price=price)
+            yield self.create_cost(zero_price, description, base_price=price)
         else:
-            yield self.create_cost(price)
+            yield self.create_cost(price, description)
 
 
 class WeightLimitsBehaviorComponent(ServiceBehaviorComponent):
