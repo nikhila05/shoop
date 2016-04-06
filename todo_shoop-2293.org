@@ -42,11 +42,11 @@
 
 ** DONE Fix flake8 and isort errors
 
-** TODO Check Python 2 compatibility
+** STARTED Check Python 2 compatibility
    - On Python 2 class creation code of ServiceProvider is givin
      "AttributeError: 'NoneType' object has no attribute 'name'" for
      Panu. Check this out.
-   - [[file:shoop/core/models/_services_base.py::197]]
+   - [[file:shoop/core/models/_service_providers.py::18]]
 
 ** TODO Move model classes to better named submodules
    - Current names of the service/method submodules under
