@@ -11,7 +11,7 @@ import pytest
 from django.utils import translation
 
 from shoop.core.models import (
-    CustomCarrier, CustomPaymentProcessor, FixedCostBehaviorComponent,
+    CustomCarrier, FixedCostBehaviorComponent,
     get_person_contact, OrderLineType, ShippingMethod,
     WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
