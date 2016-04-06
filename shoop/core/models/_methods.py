@@ -53,7 +53,7 @@ class PaymentProcessor(ServiceProvider):
         """
         if order.payment_status == PaymentStatus.NOT_PAID:
             order.payment_status = PaymentStatus.DEFERRED
-            order.add_log_entry("Payment status set to deferred by %s" % self.method)
+            order.add_log_entry("Payment status set to deferred by %s" % self)
             order.save(update_fields=("payment_status",))
 
     def _create_service(self, choice_identifier, **kwargs):

@@ -66,6 +66,9 @@
    - [[file:shoop/testing/mock_population.py]]
    - [[file:shoop/core/management/commands/shoop_init.py]]
 
+** TODO Add unit test for process_payment_return_request
+   - [[file:shoop/core/models/_methods.py::41]]
+
 ** TODO Do we need Service.get_effective_name?
    - [[file:shoop/core/models/_services_base.py::95]]
 
