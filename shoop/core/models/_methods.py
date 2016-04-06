@@ -105,8 +105,6 @@ class ShippingMethod(Service):
             return None
         return DurationRange(min(times), max(times))
 
-    # TODO(SHOOP-2293): Check that method without a provider cannot be saved as enabled
-
 
 class PaymentMethod(Service):
     payment_processor = models.ForeignKey(

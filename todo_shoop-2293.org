@@ -63,13 +63,16 @@
 ** DONE Admin / Order creator: check PaymentMethod.objects.enabled()
    - [[file:shoop/admin/modules/orders/views/create.py::123]]
 
+** DONE Check that method without a provider cannot be saved as enabled
+   - There is no need to do that, since the queryset will check it.
+   - [[file:shoop/core/models/_methods.py::107]]
+
 ** TODO Move model classes to better named submodules
    - Current names of the service/method submodules under
-     shoop.core.models is stupid.  Make it better.
+     shoop.core.models are stupid.  Make them better.
 
-** TODO Add unit test for checkout_phase_class
-   - See shoop-stripe for example
-   - [[file:shoop/front/checkout/methods.py::136]]
+** TODO Do we need Service.get_effective_name?
+   - [[file:shoop/core/models/_services_base.py::95]]
 
 ** TODO Amend shoop_init and populate_mock
    - Make them create default payment and shipping methods for default shop
@@ -78,30 +81,14 @@
 
 ** TODO Should we create default methods in migrations too?
 
-** TODO Add unit test for process_payment_return_request
-   - [[file:shoop/core/models/_methods.py::41]]
-
-** TODO Do we need Service.get_effective_name?
-   - [[file:shoop/core/models/_services_base.py::95]]
-
-** TODO Check that method without a provider cannot be saved as enabled
-   - [[file:shoop/core/models/_methods.py::55]]
-
-** TODO Document _service_providers.py
+** TODO Document models etc.
    - [[file:shoop/core/models/_service_providers.py::31]]
    - [[file:shoop/core/models/_service_providers.py::39]]
    - [[file:shoop/core/models/_service_providers.py::83]]
    - [[file:shoop/core/models/_service_providers.py::93]]
    - [[file:shoop/core/models/_service_providers.py::111]]
-
-** TODO Document _services_base.py
    - [[file:shoop/core/models/_services_base.py]]
-
-** TODO Document _methods.py
    - [[file:shoop/core/models/_methods.py]]
-
-** TODO Admin: Should ServiceProvider.identifier be available in form?
-   - [[file:shoop/admin/modules/service_providers/views/edit.py::46]]
 
 ** TODO Remove old BaseMethodModule etc.
    - [ ] BaseMethodModule
@@ -120,3 +107,10 @@
    - [ ] Check the documentation too (also the payment_method_module example)
    - [ ] Anything else?
    - [[file:shoop_tests/core/test_methods.py::48]]
+
+** TODO Add unit test for checkout_phase_class
+   - See shoop-stripe for example
+   - [[file:shoop/front/checkout/methods.py::136]]
+
+** TODO Add unit test for process_payment_return_request
+   - [[file:shoop/core/models/_methods.py::41]]
