@@ -10,7 +10,6 @@ import pytest
 from shoop.core.models import CustomCarrier, ServiceProvider
 from shoop.testing.factories import get_default_shop
 
-
 caching_was_enabled = None
 
 

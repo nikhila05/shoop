@@ -11,16 +11,15 @@ import pytest
 from django.utils import translation
 
 from shoop.core.models import (
-    CustomCarrier, FixedCostBehaviorComponent,
-    get_person_contact, OrderLineType, ShippingMethod,
-    WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
+    CustomCarrier, FixedCostBehaviorComponent, get_person_contact,
+    OrderLineType, ShippingMethod, WaivingCostBehaviorComponent,
+    WeightLimitsBehaviorComponent
 )
 from shoop.testing.factories import (
     create_product, get_address, get_default_product, get_default_shop,
     get_default_supplier, get_default_tax_class, get_payment_method,
-    get_shipping_method,
+    get_shipping_method
 )
-
 from shoop_tests.dummyapp.models import ExpensiveSwedenBehaviorComponent
 from shoop_tests.utils.basketish_order_source import BasketishOrderSource
 

@@ -8,7 +8,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from parler.models import TranslatedFields, TranslatedField
+from parler.models import TranslatedField, TranslatedFields
 
 from shoop.core.fields import MoneyValueField
 
