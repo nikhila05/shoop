@@ -71,24 +71,24 @@
    - Yes we do, see ServiceProvider.get_effective_name.
    - [[file:shoop/core/models/_services_base.py::95]]
 
-** STARTED Move ServiceProvider.shop to Service
+** DONE Move ServiceProvider.shop to Service
 
-** TODO Move model classes to better named submodules
+** DONE Move model classes to better named submodules
    - Current names of the service/method submodules under
      shoop.core.models are stupid.  Make them better.
 
-** TODO Amend shoop_init and populate_mock
+** DONE Amend shoop_init and populate_mock
    - Make them create default payment and shipping methods for default shop
    - [[file:shoop/testing/mock_population.py]]
    - [[file:shoop/core/management/commands/shoop_init.py]]
 
+** DONE Add verbose_names for every new model and fields
+
+** STARTED Re-implement shipping time combining
+
 ** TODO Create service providers in migrations
 
-** TODO Reimplement shipping time combining
-
 ** TODO Combining costs without description to single line
-
-** TODO Add verbose_names for every new model and fields
 
 ** TODO Document models etc.
    - Remember to regenerate API docs too.
