@@ -7,6 +7,8 @@
 
 from __future__ import unicode_literals
 
+from collections import OrderedDict
+
 from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.encoding import force_text
@@ -19,27 +21,12 @@ from shoop.core.models import ServiceProvider
 from shoop.utils.iterables import first
 
 
-def _get_model(form):
-    return form._meta.model
-
-
-def _get_type_choice_value(form):
-    return _get_model(form).__name__
-
-
-def _get_type_choices(forms):
-    choices = []
-    for form in forms:
-        choices.append((_get_type_choice_value(form), _get_model(form)._meta.verbose_name.capitalize()))
-    return choices
-
-
 class ServiceProviderEditView(CreateOrUpdateView):
     model = ServiceProvider
     template_name = "shoop/admin/service_providers/edit.jinja"
     form_class = forms.Form  # Overridden in get_form
     context_object_name = "service_provider"
-    provider_model_provide_key = "service_provider_admin_forms"
+    form_provide_key = "service_provider_admin_forms"
     add_form_errors_as_messages = True
 
     @property
@@ -55,28 +42,66 @@ class ServiceProviderEditView(CreateOrUpdateView):
         ]
 
     def get_form(self, form_class=None):
-        provider_service_forms = list(get_provide_objects(self.provider_model_provide_key))
+        form_classes = list(get_provide_objects(self.form_provide_key))
+        form_infos = _FormInfoMap(form_classes)
         if self.object and self.object.pk:
-            self.form_class = first(
-                f for f in provider_service_forms if isinstance(self.object, _get_model(f))
-            )
-            return self.form_class(**self.get_form_kwargs())
+            return self._get_concrete_form(form_infos)
         else:
-            self.form_class = provider_service_forms[0]
-            selected_type = self.request.GET.get("type")
-            if selected_type:
-                self.form_class = first(
-                    f for f in provider_service_forms if selected_type == _get_type_choice_value(f)
-                )
-            self.object = _get_model(self.form_class)()
-            form = self.form_class(**self.get_form_kwargs())
-            form.fields["type"] = forms.ChoiceField(
-                choices=_get_type_choices(provider_service_forms),
-                label=_("Type"),
-                required=False,
-                initial=_get_type_choice_value(self.form_class)
-            )
-            return form
+            return self._get_type_choice_form(form_infos)
+
+    def _get_concrete_form(self, form_infos):
+        form_info = form_infos.get_by_object(self.object)
+        self.form_class = form_info.form_class
+        return self. _get_form(form_infos, form_info, type_enabled=False)
+
+    def _get_type_choice_form(self, form_infos):
+        selected_type = self.request.GET.get("type")
+        if selected_type:
+            form_info = form_infos.get_by_choice_value(selected_type)
+        else:
+            form_info = form_infos.values()[0]
+        self.form_class = form_info.form_class
+        self.object = form_info.model()
+        return self. _get_form(form_infos, form_info, type_enabled=True)
+
+    def _get_form(self, form_infos, selected, type_enabled):
+        form = self.form_class(**self.get_form_kwargs())
+        type_field = forms.ChoiceField(
+            choices=form_infos.get_type_choices(),
+            label=_("Type"),
+            required=type_enabled,
+            initial=selected.choice_value,
+        )
+        if not type_enabled:
+            type_field.widget.attrs['disabled'] = True
+        form.fields["type"] = type_field
+        return form
 
     def get_success_url(self):
         return reverse("shoop_admin:service_provider.edit", kwargs={"pk": self.object.pk})
+
+
+class _FormInfoMap(OrderedDict):
+    def __init__(self, form_classes):
+        form_infos = (_FormInfo(formcls) for formcls in form_classes)
+        super(_FormInfoMap, self).__init__(
+            (form_info.choice_value, form_info) for form_info in form_infos)
+
+    def get_by_object(self, obj):
+        return first(
+            fi for fi in self.values() if isinstance(obj, fi.model))
+
+    def get_by_choice_value(self, choice_value):
+        return self.get(choice_value)
+
+    def get_type_choices(self):
+        return [(x.choice_value, x.choice_text) for x in self.values()]
+
+
+class _FormInfo(object):
+    def __init__(self, form_class):
+        self.form_class = form_class
+        self.model = form_class._meta.model
+        modelmeta = self.model._meta
+        self.choice_value = modelmeta.app_label + '.' + modelmeta.model_name
+        self.choice_text = modelmeta.verbose_name.capitalize()
