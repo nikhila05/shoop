@@ -19,11 +19,19 @@ from ._services_base import (
 
 
 class CustomCarrier(Carrier):
+    class Meta:
+        verbose_name = _("custom carrier")
+        verbose_name_plural = _("custom carriers")
+
     def get_service_choices(self):
         return [self.service_choice('custom', _("Custom shipping"))]
 
 
 class CustomPaymentProcessor(PaymentProcessor):
+    class Meta:
+        verbose_name = _("custom payment processor")
+        verbose_name_plural = _("custom payment processors")
+
     def get_service_choices(self):
         return [self.service_choice('custom', _("Custom payment"))]
 

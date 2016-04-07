@@ -88,6 +88,8 @@
 
 ** TODO Combining costs without description to single line
 
+** TODO Add verbose_names for every new model and fields
+
 ** TODO Document models etc.
    - Remember to regenerate API docs too.
    - [[file:shoop/core/models/_service_providers.py::31]]
