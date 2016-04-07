@@ -65,6 +65,19 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
     def _create_service(self, choice_identifier, **kwargs):
         raise NotImplementedError
 
+    def get_effective_name(self, service, source):
+        """
+        Get effective name of the service for given order source.
+
+        Base class implementation will just return name of the given
+        service, but that may be changed in a subclass.
+
+        :type service: shoop.core.models.Service
+        :type source: shoop.core.order_creator.OrderSource
+        :rtype: str
+        """
+        return service.name
+
     def get_checkout_phase(self, service, **kwargs):
         """
         :type service: shoop.core.models.Service

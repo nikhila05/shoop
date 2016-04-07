@@ -67,12 +67,13 @@
    - There is no need to do that, since the queryset will check it.
    - [[file:shoop/core/models/_methods.py::107]]
 
+** DONE Do we need Service.get_effective_name?
+   - Yes we do, see ServiceProvider.get_effective_name.
+   - [[file:shoop/core/models/_services_base.py::95]]
+
 ** TODO Move model classes to better named submodules
    - Current names of the service/method submodules under
      shoop.core.models are stupid.  Make them better.
-
-** TODO Do we need Service.get_effective_name?
-   - [[file:shoop/core/models/_services_base.py::95]]
 
 ** TODO Amend shoop_init and populate_mock
    - Make them create default payment and shipping methods for default shop

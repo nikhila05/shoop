@@ -103,7 +103,20 @@ class Service(TranslatableShoopModel):
         return self.provider.get_checkout_phase(service=self, **kwargs)
 
     def get_effective_name(self, source):
-        return self.name  # TODO(SHOOP-2293): Do we need Service.get_effective_name?
+        """
+        Get effective name of the service for given order source.
+
+        By default, effective name is the same as name of this service,
+        but if there is a service provider with a custom implementation
+        for `~shoop.core.models.ServiceProvider.get_effective_name`
+        method, then this can be different.
+
+        :type source: shoop.core.order_creator.OrderSource
+        :rtype: str
+        """
+        if not self.provider:
+            return self.name
+        return self.provider.get_effective_name(self, source)
 
     def is_available_for(self, source):
         """
