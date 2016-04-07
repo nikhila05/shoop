@@ -295,22 +295,21 @@ def get_default_tax_class():
     return tax_class
 
 
-def get_custom_payment_processor(shop):
-    return _get_service_provider(CustomPaymentProcessor, shop)
+def get_custom_payment_processor():
+    return _get_service_provider(CustomPaymentProcessor)
 
 
-def get_custom_carrier(shop):
-    return _get_service_provider(CustomCarrier, shop)
+def get_custom_carrier():
+    return _get_service_provider(CustomCarrier)
 
 
-def _get_service_provider(model, shop):
-    identifier = '%s-%d' % (model.__name__, shop.pk)
+def _get_service_provider(model):
+    identifier = model.__name__
     service_provider = model.objects.filter(identifier=identifier).first()
     if not service_provider:
         service_provider = model.objects.create(
             identifier=identifier,
-            name=model.__name__,
-            shop=shop
+            name=model.__name__
         )
         assert service_provider.pk and service_provider.identifier == identifier
     return service_provider
@@ -348,9 +347,9 @@ def _get_service(
         identifier = "%s-%d-%r-%r" % (name, shop.pk, price, waive_at)
     service = service_model.objects.filter(identifier=identifier).first()
     if not service:
-        provider = _get_service_provider(provider_model, shop)
+        provider = _get_service_provider(provider_model)
         service = provider.create_service(
-            None, identifier=identifier, name=(name or service_model.__name__),
+            None, identifier=identifier, shop=shop, name=(name or service_model.__name__),
             tax_class=get_default_tax_class(),
         )
         if price and waive_at is None:
@@ -361,7 +360,7 @@ def _get_service(
                 WaivingCostBehaviorComponent.objects.create(
                     price_value=price, waive_limit_value=waive_at))
     assert service.pk and service.identifier == identifier
-    assert service.provider.shop == shop
+    assert service.shop == shop
     return service
 
 

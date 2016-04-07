@@ -55,7 +55,7 @@ def test_new_service_providers_type_select(rf, admin_user, sp_model, type_param)
     an language.
     """
     with override_settings(LANGUAGES=[("en", "en")]):
-        shop = get_default_shop()
+        get_default_shop()
         view = ServiceProviderEditView.as_view()
         url = "/"
         if type_param:
@@ -75,8 +75,7 @@ def test_new_service_providers_type_select(rf, admin_user, sp_model, type_param)
             data = {
                 "type": type_param,
                 "name__en": name,
-                "enabled": True,
-                "shop": shop.pk,
+                "enabled": True
             }
             assert sp_model.objects.count() == 0
             get_bs_object_for_view(rf.post(url, data=data), view, admin_user)
@@ -147,10 +146,10 @@ def test_service_provide_edit_view(rf, admin_user, sp_model, extra_inputs):
     """
     with override_settings(LANGUAGES=[("en", "en")]):
         base_inputs = ["name__en", "enabled"]
-        shop = get_default_shop()
+        get_default_shop()
         view = ServiceProviderEditView.as_view()
         provider_name = "some name"
-        service_provider = sp_model.objects.create(shop=shop, name=provider_name)
+        service_provider = sp_model.objects.create(name=provider_name)
         soup = get_bs_object_for_view(rf.get("/"), view, admin_user, object=service_provider)
         provider_form = soup.find("form", attrs={"id": "service_provider_form"})
         rendered_fields = []

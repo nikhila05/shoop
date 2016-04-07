@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import django.db.models.deletion
 import shoop.core.fields
 
@@ -114,6 +114,11 @@ class Migration(migrations.Migration):
             field=models.BooleanField(default=True, verbose_name='enabled'),
         ),
         migrations.AddField(
+            model_name='paymentmethod',
+            name='shop',
+            field=models.ForeignKey(verbose_name='shop', blank=True, to='shoop.Shop', null=True),
+        ),
+        migrations.AddField(
             model_name='shippingmethod',
             name='choice_identifier',
             field=models.CharField(max_length=64, blank=True),
@@ -122,6 +127,11 @@ class Migration(migrations.Migration):
             model_name='shippingmethod',
             name='enabled',
             field=models.BooleanField(default=True, verbose_name='enabled'),
+        ),
+        migrations.AddField(
+            model_name='shippingmethod',
+            name='shop',
+            field=models.ForeignKey(verbose_name='shop', blank=True, to='shoop.Shop', null=True),
         ),
         migrations.AlterField(
             model_name='paymentmethodtranslation',
@@ -199,11 +209,6 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(related_name='polymorphic_shoop.serviceprovider_set+', editable=False, to='contenttypes.ContentType', null=True),
         ),
         migrations.AddField(
-            model_name='serviceprovider',
-            name='shop',
-            field=models.ForeignKey(to='shoop.Shop'),
-        ),
-        migrations.AddField(
             model_name='servicebehaviorcomponent',
             name='polymorphic_ctype',
             field=models.ForeignKey(related_name='polymorphic_shoop.servicebehaviorcomponent_set+', editable=False, to='contenttypes.ContentType', null=True),
@@ -223,7 +228,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('carrier_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='shoop.Carrier')),
             ],
-            options={'verbose_name': 'custom carrier', 'verbose_name_plural': 'custom carriers'},
+            options={
+                'verbose_name': 'custom carrier',
+                'verbose_name_plural': 'custom carriers',
+            },
             bases=('shoop.carrier',),
         ),
         migrations.CreateModel(
@@ -231,7 +239,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('paymentprocessor_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='shoop.PaymentProcessor')),
             ],
-            options={'verbose_name': 'custom payment processor', 'verbose_name_plural': 'custom payment processors'},
+            options={
+                'verbose_name': 'custom payment processor',
+                'verbose_name_plural': 'custom payment processors',
+            },
             bases=('shoop.paymentprocessor',),
         ),
         migrations.AddField(

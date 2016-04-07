@@ -11,7 +11,6 @@ from parler.models import TranslatedField, TranslatedFields
 from shoop.core.fields import InternalIdentifierField
 
 from ._base import PolymorphicTranslatableShoopModel
-from ._shops import Shop
 
 
 class ServiceChoice(object):
@@ -34,7 +33,6 @@ class ServiceChoice(object):
 class ServiceProvider(PolymorphicTranslatableShoopModel):
     identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
-    shop = models.ForeignKey(Shop)
     name = TranslatedField(any_language=True)
 
     base_translations = TranslatedFields(

@@ -27,9 +27,9 @@ def teardown_module(module):
 
 @pytest.mark.django_db
 def test_service_provider_name_is_translatable():
-    shop = get_default_shop()
+    get_default_shop()
 
-    obj = CustomCarrier.objects.create(shop=shop)
+    obj = CustomCarrier.objects.create()
     obj.set_current_language('en')
     obj.name = "Car"
     obj.set_current_language('se')
@@ -51,8 +51,8 @@ def test_service_provider_name_is_translatable():
 
 @pytest.mark.django_db
 def test_service_provider_translations_get_saved():
-    shop = get_default_shop()
-    obj = CustomCarrier.objects.language('en').create(shop=shop, name="Car")
+    get_default_shop()
+    obj = CustomCarrier.objects.language('en').create(name="Car")
     obj.set_current_language('se')
     obj.name = "Bil"
     assert set(obj.get_available_languages(include_unsaved=True)) == set(['en', 'se'])
@@ -68,9 +68,9 @@ def test_service_provider_default_manager():
     """
     Default manager of ServiceProvider is polymorphic and translatable.
     """
-    shop = get_default_shop()
+    get_default_shop()
 
-    obj = CustomCarrier.objects.language('en').create(shop=shop, name="Car")
+    obj = CustomCarrier.objects.language('en').create(name="Car")
     obj.set_current_language('se')
     obj.name = "Bil"
     obj.save()
@@ -106,8 +106,8 @@ def test_service_provider_base_manager():
     """
     Base manager of ServiceProvider is translatable.
     """
-    shop = get_default_shop()
-    obj = CustomCarrier.objects.language('en').create(shop=shop, name="Car")
+    get_default_shop()
+    obj = CustomCarrier.objects.language('en').create(name="Car")
     found = ServiceProvider.base_objects.language('en').get(pk=obj.pk)
     assert found.pk == obj.pk
     assert type(found) == ServiceProvider

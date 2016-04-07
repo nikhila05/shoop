@@ -24,6 +24,7 @@ from ._base import (
     PolymorphicShoopModel, PolyTransModelBase, TranslatableShoopModel
 )
 from ._product_shops import ShopProduct
+from ._shops import Shop
 
 
 class ServiceQuerySet(TranslatableQuerySet):
@@ -57,7 +58,7 @@ class ServiceQuerySet(TranslatableQuerySet):
             shop_product_limiter_attr: True
         }
 
-        available_ids = set(self.enabled().values_list("pk", flat=True))
+        available_ids = set(self.filter(shop=shop).enabled().values_list("pk", flat=True))
 
         for shop_product in ShopProduct.objects.filter(**limiting_products_query):
             available_ids &= set(getattr(shop_product, shop_product_m2m).values_list("pk", flat=True))
@@ -73,6 +74,7 @@ class ServiceQuerySet(TranslatableQuerySet):
 class Service(TranslatableShoopModel):
     identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
+    shop = models.ForeignKey(Shop, blank=True, null=True, verbose_name=_("shop"))
 
     # Initialized from ServiceChoice.identifier
     choice_identifier = models.CharField(blank=True, max_length=64)
@@ -137,7 +139,7 @@ class Service(TranslatableShoopModel):
         if not self.provider or not self.provider.enabled or not self.enabled:
             yield ValidationError(_("%s is disabled") % self, code='disabled')
 
-        if source.shop != self.provider.shop:
+        if source.shop != self.shop:
             yield ValidationError(
                 _("%s is for different shop") % self, code='wrong_shop')
 

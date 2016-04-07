@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PseudoPaymentProcessor',
             fields=[
-                ('paymentprocessor_ptr', models.OneToOneField(parent_link=True, to='shoop.PaymentProcessor', serialize=False, primary_key=True, auto_created=True)),
+                ('paymentprocessor_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='shoop.PaymentProcessor')),
                 ('bg_color', models.CharField(default='white', max_length=20, verbose_name='Payment Page Background Color', blank=True)),
                 ('fg_color', models.CharField(default='black', max_length=20, verbose_name='Payment Page Text Color', blank=True)),
             ],
