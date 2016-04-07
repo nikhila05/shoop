@@ -56,10 +56,9 @@ class ServiceProviderEditView(CreateOrUpdateView):
 
     def _get_type_choice_form(self, form_infos):
         selected_type = self.request.GET.get("type")
-        if selected_type:
-            form_info = form_infos.get_by_choice_value(selected_type)
-        else:
-            form_info = form_infos.values()[0]
+        form_info = form_infos.get_by_choice_value(selected_type)
+        if not form_info:
+            form_info = list(form_infos.values())[0]
         self.form_class = form_info.form_class
         self.object = form_info.model()
         return self. _get_form(form_infos, form_info, type_enabled=True)
