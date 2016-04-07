@@ -1,0 +1,23 @@
+{% extends "shoop/admin/base.jinja" %}
+{% from "shoop/admin/macros/multilanguage.jinja" import language_dependent_content_tabs, render_monolingual_fields %}
+{% from "shoop/admin/macros/general.jinja" import content_block, content_with_sidebar %}
+
+{% block content %}
+    {% call content_with_sidebar(content_id="shipping_method_form") %}
+        <form method="post" id="shipping_method_form">
+            {% csrf_token %}
+            {% set form_defs = form.form_defs %}
+                {% include form_defs["base"].template_name with context %}
+                {% call content_block(_("Behaviors"), ("fa-cubes")) %}
+                    {% for form_name in behavior_component_form_names %}
+                        {% set component_form_prefix = form_name %}
+                        {% set component_form = form[form_name] %}
+                            {% include "shoop/admin/shipping_methods/_edit_behavior_components_form.jinja" with context %}
+                        {% if not loop.last %}
+                            <div class="form-divider"></div>
+                        {% endif %}
+                    {% endfor %}
+                {% endcall %}
+        </form>
+    {% endcall %}
+{% endblock %}

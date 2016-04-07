@@ -116,6 +116,12 @@ Core
     ``ServiceProvider`` subclass admin forms; admin enables creating new ``ServiceProvider`` subclasses
     based on these forms.
 
+``shipping_method_behavior_component_forms``
+
+``shipping_method_module``
+    Shipping method module classes (deriving from `~shoop.core.methods.base.BaseShippingMethodModule`),
+    as used by `~shoop.core.models.ShippingMethod`.
+
 ``supplier_module``
     Supplier module classes (deriving from `~shoop.core.suppliers.base.BaseSupplierModule`),
     as used by `~shoop.core.models.Supplier`.
