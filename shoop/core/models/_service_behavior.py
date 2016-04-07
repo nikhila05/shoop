@@ -12,28 +12,9 @@ from parler.models import TranslatedField, TranslatedFields
 
 from shoop.core.fields import MoneyValueField
 
-from ._methods import Carrier, PaymentProcessor
-from ._services_base import (
+from ._service_base import (
     ServiceBehaviorComponent, TranslatableServiceBehaviorComponent
 )
-
-
-class CustomCarrier(Carrier):
-    class Meta:
-        verbose_name = _("custom carrier")
-        verbose_name_plural = _("custom carriers")
-
-    def get_service_choices(self):
-        return [self.service_choice('custom', _("Custom shipping"))]
-
-
-class CustomPaymentProcessor(PaymentProcessor):
-    class Meta:
-        verbose_name = _("custom payment processor")
-        verbose_name_plural = _("custom payment processors")
-
-    def get_service_choices(self):
-        return [self.service_choice('custom', _("Custom payment"))]
 
 
 class FixedCostBehaviorComponent(TranslatableServiceBehaviorComponent):
@@ -44,7 +25,7 @@ class FixedCostBehaviorComponent(TranslatableServiceBehaviorComponent):
     description = TranslatedField(any_language=True)
 
     translations = TranslatedFields(
-        description=models.CharField(max_length=100, blank=True),
+        description=models.CharField(max_length=100, blank=True, verbose_name=_("description")),
     )
 
     def get_costs(self, service, source):
@@ -64,7 +45,7 @@ class WaivingCostBehaviorComponent(TranslatableServiceBehaviorComponent):
     description = TranslatedField(any_language=True)
 
     translations = TranslatedFields(
-        description=models.CharField(max_length=100, blank=True),
+        description=models.CharField(max_length=100, blank=True, verbose_name=_("description")),
     )
 
     def get_costs(self, service, source):
