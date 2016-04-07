@@ -80,9 +80,14 @@
    - [[file:shoop/testing/mock_population.py]]
    - [[file:shoop/core/management/commands/shoop_init.py]]
 
-** TODO Should we create default methods in migrations too?
+** TODO Create service providers in migrations
+
+** TODO Reimplement shipping time combining
+
+** TODO Combining costs without description to single line
 
 ** TODO Document models etc.
+   - Remember to regenerate API docs too.
    - [[file:shoop/core/models/_service_providers.py::31]]
    - [[file:shoop/core/models/_service_providers.py::39]]
    - [[file:shoop/core/models/_service_providers.py::83]]
