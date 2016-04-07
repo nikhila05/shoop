@@ -223,9 +223,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('carrier_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='shoop.Carrier')),
             ],
-            options={
-                'abstract': False,
-            },
+            options={'verbose_name': 'custom carrier', 'verbose_name_plural': 'custom carriers'},
             bases=('shoop.carrier',),
         ),
         migrations.CreateModel(
@@ -233,9 +231,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('paymentprocessor_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='shoop.PaymentProcessor')),
             ],
-            options={
-                'abstract': False,
-            },
+            options={'verbose_name': 'custom payment processor', 'verbose_name_plural': 'custom payment processors'},
             bases=('shoop.paymentprocessor',),
         ),
         migrations.AddField(
