@@ -42,7 +42,7 @@ class FixedCostBehaviorComponent(TranslatableServiceBehaviorComponent):
     def get_costs(self, service, source):
         price = source.create_price(self.price_value)
         description = self.safe_translation_getter('description')
-        yield self.create_cost(price, description)
+        yield self.cost(price, description)
 
 
 class WaivingCostBehaviorComponent(TranslatableServiceBehaviorComponent):
@@ -66,9 +66,9 @@ class WaivingCostBehaviorComponent(TranslatableServiceBehaviorComponent):
         description = self.safe_translation_getter('description')
         zero_price = source.create_price(0)
         if product_total and product_total >= waive_limit:
-            yield self.create_cost(zero_price, description, base_price=price)
+            yield self.cost(zero_price, description, base_price=price)
         else:
-            yield self.create_cost(price, description)
+            yield self.cost(price, description)
 
 
 class WeightLimitsBehaviorComponent(ServiceBehaviorComponent):

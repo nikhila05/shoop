@@ -18,9 +18,9 @@ class ExpensiveSwedenBehaviorComponent(ServiceBehaviorComponent):
         four = source.create_price('4.00')
         five = source.create_price('5.00')
         if source.shipping_address and source.shipping_address.country == "SE":
-            yield self.create_cost(five, base_price=four)
+            yield self.cost(five, base_price=four)
         else:
-            yield self.create_cost(four)
+            yield self.cost(four)
 
     def get_unavailability_reasons(self, service, source):
         if source.shipping_address and source.shipping_address.country == "FI":

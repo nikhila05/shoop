@@ -14,6 +14,23 @@ from ._base import PolymorphicTranslatableShoopModel
 from ._shops import Shop
 
 
+class ServiceChoice(object):
+    def __init__(self, identifier, name):
+        """
+        Initialize service choice.
+
+        :type identifier: str
+        :param identifier:
+          Internal identifier for the service.  Should be unique within
+          a single `ServiceProvider`.
+        :type name: str
+        :param name:
+          Descriptive name of the service in currently active language.
+        """
+        self.identifier = identifier
+        self.name = name
+
+
 class ServiceProvider(PolymorphicTranslatableShoopModel):
     identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
@@ -26,6 +43,9 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
 
     checkout_phase_class = None
 
+    #: Helper for creating `ServiceChoice` objects.
+    service_choice = ServiceChoice
+
     def get_service_choices(self):
         """
         TODO(SHOOP-2293): Document!
@@ -35,15 +55,6 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
         :rtype: list[ServiceChoice]
         """
         raise NotImplementedError
-
-    @classmethod
-    def service_choice(cls, identifier, name):
-        """
-        TODO(SHOOP-2293): Document!
-
-        :rtype: ServiceChoice
-        """
-        return ServiceChoice(identifier, name)
 
     def create_service(self, choice_identifier, **kwargs):
         """
@@ -89,20 +100,3 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
         from shoop.front.checkout import CheckoutPhaseViewMixin
         assert issubclass(phase_class, CheckoutPhaseViewMixin)
         return phase_class(service=service, **kwargs)
-
-
-class ServiceChoice(object):
-    def __init__(self, identifier, name):
-        """
-        Initialize service choice.
-
-        :type identifier: str
-        :param identifier:
-          Internal identifier for the service.  Should be unique within
-          a single `ServiceProvider`.
-        :type name: str
-        :param name:
-          Descriptive name of the service in currently active language.
-        """
-        self.identifier = identifier
-        self.name = name

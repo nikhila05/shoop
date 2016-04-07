@@ -225,59 +225,6 @@ def _sum_price_infos(price_infos, zero):
     return functools.reduce(plus, price_infos, zero)
 
 
-class ServiceBehaviorComponent(PolymorphicShoopModel):
-    #: Name for the component (lazy translated)
-    name = None
-
-    #: Help text for the component (lazy translated)
-    help_text = None
-
-    def __init__(self, *args, **kwargs):
-        if type(self) != ServiceBehaviorComponent and self.name is None:
-            raise TypeError('%s.name is not defined' % type(self).__name__)
-        super(ServiceBehaviorComponent, self).__init__(*args, **kwargs)
-
-    def get_unavailability_reasons(self, service, source):
-        """
-        :type service: Service
-        :type source: shoop.core.order_creator.OrderSource
-        :rtype: Iterable[ValidationError]
-        """
-        return ()
-
-    def get_costs(self, service, source):
-        """
-        TODO: Document!
-
-        Costs may be created with the `create_cost` function.
-
-        :type service: Service
-        :type source: shoop.core.order_creator.OrderSource
-        :rtype: Iterable[Cost]
-        """
-        return ()
-
-    def get_delivery_time(self, service, source):
-        """
-        :type service: Service
-        :type source: shoop.core.order_creator.OrderSource
-        :rtype: shoop.utils.dates.DurationRange|None
-        """
-        return None
-
-    @classmethod
-    def create_cost(cls, price, description=None,
-                    tax_class=None, base_price=None):
-        return Cost(price, description, tax_class, base_price)
-
-
-class TranslatableServiceBehaviorComponent(six.with_metaclass(
-        PolyTransModelBase,
-        ServiceBehaviorComponent, TranslatableShoopModel)):
-    class Meta:
-        abstract = True
-
-
 class Cost(object):
     def __init__(
             self, price, description=None,
@@ -296,3 +243,54 @@ class Cost(object):
     @property
     def price_info(self):
         return PriceInfo(self.price, self.base_price, quantity=1)
+
+
+class ServiceBehaviorComponent(PolymorphicShoopModel):
+    #: Name for the component (lazy translated)
+    name = None
+
+    #: Help text for the component (lazy translated)
+    help_text = None
+
+    #: Helper for creating `Cost` objects.
+    cost = Cost
+
+    def __init__(self, *args, **kwargs):
+        if type(self) != ServiceBehaviorComponent and self.name is None:
+            raise TypeError('%s.name is not defined' % type(self).__name__)
+        super(ServiceBehaviorComponent, self).__init__(*args, **kwargs)
+
+    def get_unavailability_reasons(self, service, source):
+        """
+        :type service: Service
+        :type source: shoop.core.order_creator.OrderSource
+        :rtype: Iterable[ValidationError]
+        """
+        return ()
+
+    def get_costs(self, service, source):
+        """
+        TODO: Document!
+
+        Costs may be created with the `cost` helper.
+
+        :type service: Service
+        :type source: shoop.core.order_creator.OrderSource
+        :rtype: Iterable[Cost]
+        """
+        return ()
+
+    def get_delivery_time(self, service, source):
+        """
+        :type service: Service
+        :type source: shoop.core.order_creator.OrderSource
+        :rtype: shoop.utils.dates.DurationRange|None
+        """
+        return None
+
+
+class TranslatableServiceBehaviorComponent(six.with_metaclass(
+        PolyTransModelBase,
+        ServiceBehaviorComponent, TranslatableShoopModel)):
+    class Meta:
+        abstract = True
