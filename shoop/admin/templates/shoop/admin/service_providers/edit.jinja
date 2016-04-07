@@ -7,9 +7,7 @@
         <form method="post" id="service_provider_form">
             {% csrf_token %}
             {% call content_block(_("General information"), "fa-info-circle") %}
-                {% if is_new %}
-                    {{ bs3.field(form["type"]) }}
-                {% endif %}
+              {{ bs3.field(form["type"]) }}
                 {{ language_dependent_content_tabs(form) }}
                 <div class="form-divider"></div>
                 {{ render_monolingual_fields(form, exclude=["type"]) }}
