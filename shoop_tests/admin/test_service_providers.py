@@ -42,8 +42,8 @@ def get_bs_object_for_view(request, view, user, object=None):
 
 @pytest.mark.parametrize("sp_model,type_param", [
     (None, None),
-    (CustomCarrier, "CustomCarrier"),
-    (CustomPaymentProcessor, "CustomPaymentProcessor")
+    (CustomCarrier, "shoop.customcarrier"),
+    (CustomPaymentProcessor, "shoop.custompaymentprocessor")
 ])
 def test_new_service_providers_type_select(rf, admin_user, sp_model, type_param):
     """
@@ -65,11 +65,15 @@ def test_new_service_providers_type_select(rf, admin_user, sp_model, type_param)
         if type_param:
             assert type_param == selected_type
         else:
-            assert selected_type in ["CustomCarrier", "CustomPaymentProcessor", "PseudoPaymentProcessor"]
+            assert selected_type in [
+                "shoop.customcarrier", "shoop.custompaymentprocessor",
+                "shoop_testing.pseudopaymentprocessor"
+            ]
 
         if sp_model:
             name = "Some provider"
             data = {
+                "type": type_param,
                 "name__en": name,
                 "enabled": True,
                 "shop": shop.pk,
@@ -82,20 +86,30 @@ def test_new_service_providers_type_select(rf, admin_user, sp_model, type_param)
 
 def test_invalid_service_provider_type(rf, admin_user):
     """
-    Test `ServiceProvideEditView`` raises when used in with wrong
-    type parameter.
+    Test ServiceProvideEditView with invalid type parameter.
+
+    Should just select the first type option then.
     """
     get_default_shop()
     view = ServiceProviderEditView.as_view()
     url ="/?type=SomethingThatIsNotProvided"
 
-    with pytest.raises(AttributeError):
-        get_bs_object_for_view(rf.get(url), view, admin_user)
+    soup = get_bs_object_for_view(rf.get(url), view, admin_user)
+    provider_form = soup.find("form", attrs={"id": "service_provider_form"})
+    type_select = provider_form.find("select", attrs={"id": "id_type"})
+    options = []
+    for option in type_select.findAll("option"):
+        options.append({
+            "selected": bool(option.get("selected")),
+            "value": option["value"],
+        })
+    assert options[0]["selected"] is True
+    assert [x["selected"] for x in options[1:]] == [False, False]
 
 
 @pytest.mark.parametrize("type,extra_inputs", [
-    ("CustomPaymentProcessor", []),
-    ("PseudoPaymentProcessor", ["bg_color", "fg_color"])
+    ("shoop.custompaymentprocessor", []),
+    ("shoop_testing.pseudopaymentprocessor", ["bg_color", "fg_color"])
 ])
 def test_new_service_provider_form_fields(rf, admin_user, type, extra_inputs):
     """
