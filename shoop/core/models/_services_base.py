@@ -38,6 +38,9 @@ class ServiceQuerySet(TranslatableQuerySet):
         }
         return self.exclude(**no_provider_filter).filter(**enabled_filter)
 
+    def for_shop(self, shop):
+        return self.filter(shop=shop)
+
     def available_ids(self, shop, products):
         """
         Retrieve common available services for a shop and product IDs.
@@ -57,8 +60,8 @@ class ServiceQuerySet(TranslatableQuerySet):
             "product__in": products,
             shop_product_limiter_attr: True
         }
-
-        available_ids = set(self.filter(shop=shop).enabled().values_list("pk", flat=True))
+        enabled_for_shop = self.enabled().for_shop(shop)
+        available_ids = set(enabled_for_shop.values_list("pk", flat=True))
 
         for shop_product in ShopProduct.objects.filter(**limiting_products_query):
             available_ids &= set(getattr(shop_product, shop_product_m2m).values_list("pk", flat=True))

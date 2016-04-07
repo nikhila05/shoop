@@ -8,7 +8,6 @@ import parler.appsettings
 import pytest
 
 from shoop.core.models import CustomCarrier, ServiceProvider
-from shoop.testing.factories import get_default_shop
 
 caching_was_enabled = None
 
@@ -27,8 +26,6 @@ def teardown_module(module):
 
 @pytest.mark.django_db
 def test_service_provider_name_is_translatable():
-    get_default_shop()
-
     obj = CustomCarrier.objects.create()
     obj.set_current_language('en')
     obj.name = "Car"
@@ -51,7 +48,6 @@ def test_service_provider_name_is_translatable():
 
 @pytest.mark.django_db
 def test_service_provider_translations_get_saved():
-    get_default_shop()
     obj = CustomCarrier.objects.language('en').create(name="Car")
     obj.set_current_language('se')
     obj.name = "Bil"
@@ -68,8 +64,6 @@ def test_service_provider_default_manager():
     """
     Default manager of ServiceProvider is polymorphic and translatable.
     """
-    get_default_shop()
-
     obj = CustomCarrier.objects.language('en').create(name="Car")
     obj.set_current_language('se')
     obj.name = "Bil"
@@ -106,7 +100,6 @@ def test_service_provider_base_manager():
     """
     Base manager of ServiceProvider is translatable.
     """
-    get_default_shop()
     obj = CustomCarrier.objects.language('en').create(name="Car")
     found = ServiceProvider.base_objects.language('en').get(pk=obj.pk)
     assert found.pk == obj.pk

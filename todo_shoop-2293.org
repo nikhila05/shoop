@@ -71,7 +71,7 @@
    - Yes we do, see ServiceProvider.get_effective_name.
    - [[file:shoop/core/models/_services_base.py::95]]
 
-** TODO Move ServiceProvider.shop to Service
+** STARTED Move ServiceProvider.shop to Service
 
 ** TODO Move model classes to better named submodules
    - Current names of the service/method submodules under

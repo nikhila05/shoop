@@ -309,7 +309,7 @@ def _get_service_provider(model):
     if not service_provider:
         service_provider = model.objects.create(
             identifier=identifier,
-            name=model.__name__
+            name=model.__name__,
         )
         assert service_provider.pk and service_provider.identifier == identifier
     return service_provider
@@ -349,7 +349,8 @@ def _get_service(
     if not service:
         provider = _get_service_provider(provider_model)
         service = provider.create_service(
-            None, identifier=identifier, shop=shop, name=(name or service_model.__name__),
+            None, identifier=identifier, shop=shop,
+            name=(name or service_model.__name__),
             tax_class=get_default_tax_class(),
         )
         if price and waive_at is None:
