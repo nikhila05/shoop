@@ -130,3 +130,6 @@
 
 ** TODO: How to deal with Service lines with different taxes?
    - Now ``FixedCostBehaviorComponent`` costs tax_class is always None
+
+** TODO: Fix ContentType matching query does not exist.
+   - SHOOP-
