@@ -1,0 +1,8 @@
+{% extends "shoop/front/checkout/_base.jinja" %}
+
+{% block content %}
+<form role="form" method="post" action="">
+    {% csrf_token %}
+    {{ bs3.field(form[accept]) }}
+</form>
+{% endblock %}
