@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 
 import functools
 import random
+from collections import defaultdict
 
 import six
 from django.core.exceptions import ValidationError
@@ -265,6 +266,20 @@ class Service(TranslatableShoopModel):
                     tax_class=(cost.tax_class or self.tax_class),
                     base_price=cost.base_price)
 
+    def _get_line(self, source, line_prefix, line_no, price_info, tax_class, description=None):
+        def rand_int():
+            return random.randint(0, 0x7FFFFFFF)
+
+        return source.create_line(
+            line_id="%s_%02d_%x" % (line_prefix, line_no, rand_int()),
+            type=self.line_type,
+            quantity=price_info.quantity,
+            text=(description or self.get_effective_name(source)),
+            base_unit_price=price_info.base_unit_price,
+            discount_amount=price_info.discount_amount,
+            tax_class=tax_class,
+        )
+
     def get_lines(self, source):
         """
         Get lines for given source.
@@ -273,29 +288,28 @@ class Service(TranslatableShoopModel):
         :rtype: Iterable[shoop.core.order_creator.SourceLine]
         """
         line_prefix = type(self).__name__.lower()
-
-        def rand_int():
-            return random.randint(0, 0x7FFFFFFF)
-
         costs = (
             list(self.get_costs(source)) or
             [Cost(source.create_price(0), None, self.tax_class)])
-        for (n, cost) in enumerate(costs):
+        costs_without_description = defaultdict(list)
+        line_no = 0
+        for cost in costs:
             if cost.description:
+                line_no +=1
                 description = _('%(service_name)s: %(sub_item)s') % {
                     'service_name': self, 'sub_item': cost.description}
             else:
-                description = '%s' % self
-            price_info = cost.price_info
-            yield source.create_line(
-                line_id="%s_%02d_%x" % (line_prefix, n, rand_int()),
-                type=self.line_type,
-                quantity=cost.price_info.quantity,
-                text=description,
-                base_unit_price=price_info.base_unit_price,
-                discount_amount=price_info.discount_amount,
-                tax_class=cost.tax_class,
-            )
+                costs_without_description[cost.tax_class].append(cost)
+                continue
+            yield self._get_line(source, line_prefix, line_no, cost.price_info, cost.tax_class, description)
+
+        for tax_class, costs_for_tax_class in six.iteritems(costs_without_description):
+            line_no += 1
+            zero = source.create_price(0)
+            price_info = _sum_price_infos(
+                [cost.price_info for cost in costs_for_tax_class],
+                PriceInfo(zero, zero, quantity=1))
+            yield self._get_line(source, line_prefix, line_no, price_info, tax_class)
 
     def _make_sure_is_usable(self):
         if not self.provider:

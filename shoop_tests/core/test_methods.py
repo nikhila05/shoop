@@ -12,7 +12,7 @@ from django.utils import translation
 
 from shoop.core.models import (
     CustomCarrier, FixedCostBehaviorComponent, get_person_contact,
-    OrderLineType, ShippingMethod, WaivingCostBehaviorComponent,
+    OrderLineType, ShippingMethod, TaxClass, WaivingCostBehaviorComponent,
     WeightLimitsBehaviorComponent
 )
 from shoop.testing.factories import (
@@ -227,3 +227,41 @@ def test_limited_methods():
     ]:
         product_ids = set(product_ids)
         assert ShippingMethod.objects.available_ids(shop=shop, products=product_ids) == set(method_ids)
+
+
+def get_total_price_value(lines):
+    return sum([line.price.value for line in lines])
+
+
+@pytest.mark.django_db
+def test_source_lines_with_multiple_fixed_costs():
+    """
+    Costs with description creates new line always and costs without
+    description is combined into one line.
+    """
+    translation.activate("en")
+    starting_price_value = 5
+    sm = get_shipping_method(name="Multiple costs", price=starting_price_value)
+    sm.behavior_components.clear()
+
+    source = BasketishOrderSource(get_default_shop())
+    source.shipping_method = sm
+
+    lines = list(sm.get_lines(source))
+    assert len(lines) == 1
+    assert get_total_price_value(lines) == Decimal("0")
+
+    sm.behavior_components.add(FixedCostBehaviorComponent.objects.create(price_value=10))
+    lines = list(sm.get_lines(source))
+    assert len(lines) == 1
+    assert get_total_price_value(lines) == Decimal("10")
+
+    sm.behavior_components.add(FixedCostBehaviorComponent.objects.create(price_value=15, description="extra"))
+    lines = list(sm.get_lines(source))
+    assert len(lines) == 2
+    assert get_total_price_value(lines) == Decimal("25")
+
+    sm.behavior_components.add(FixedCostBehaviorComponent.objects.create(price_value=1))
+    lines = list(sm.get_lines(source))
+    assert len(lines) == 2
+    assert get_total_price_value(lines) == Decimal("26")

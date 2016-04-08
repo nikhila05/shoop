@@ -84,21 +84,11 @@
 
 ** DONE Add verbose_names for every new model and fields
 
-** STARTED Re-implement shipping time combining
+** DONE Re-implement shipping time combining
+
+** DONE Combining costs without description to single line
 
 ** TODO Create service providers in migrations
-
-** TODO Combining costs without description to single line
-
-** TODO Document models etc.
-   - Remember to regenerate API docs too.
-   - [[file:shoop/core/models/_service_providers.py::31]]
-   - [[file:shoop/core/models/_service_providers.py::39]]
-   - [[file:shoop/core/models/_service_providers.py::83]]
-   - [[file:shoop/core/models/_service_providers.py::93]]
-   - [[file:shoop/core/models/_service_providers.py::111]]
-   - [[file:shoop/core/models/_services_base.py]]
-   - [[file:shoop/core/models/_methods.py]]
 
 ** TODO Remove old BaseMethodModule etc.
    - [ ] BaseMethodModule
@@ -118,9 +108,25 @@
    - [ ] Anything else?
    - [[file:shoop_tests/core/test_methods.py::48]]
 
+** TODO Document models etc.
+   - Remember to regenerate API docs too.
+   - [[file:shoop/core/models/_service_providers.py::31]]
+   - [[file:shoop/core/models/_service_providers.py::39]]
+   - [[file:shoop/core/models/_service_providers.py::83]]
+   - [[file:shoop/core/models/_service_providers.py::93]]
+   - [[file:shoop/core/models/_service_providers.py::111]]
+   - [[file:shoop/core/models/_services_base.py]]
+   - [[file:shoop/core/models/_methods.py]]
+
+
 ** TODO Add unit test for checkout_phase_class
    - See shoop-stripe for example
    - [[file:shoop/front/checkout/methods.py::136]]
 
 ** TODO Add unit test for process_payment_return_request
    - [[file:shoop/core/models/_methods.py::41]]
+
+** TODO: Test shipping times
+
+** TODO: How to deal with Service lines with different taxes?
+   - Now ``FixedCostBehaviorComponent`` costs tax_class is always None
