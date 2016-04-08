@@ -118,7 +118,7 @@
    - [ ] Anything else?
    - [[file:shoop_tests/core/test_methods.py::48]]
 
-** TODO Document models etc.
+** STARTED Document models etc.
    - Remember to regenerate API docs too.
    - [[file:shoop/core/models/_service_providers.py::31]]
    - [[file:shoop/core/models/_service_providers.py::39]]
@@ -127,9 +127,6 @@
    - [[file:shoop/core/models/_service_providers.py::111]]
    - [[file:shoop/core/models/_services_base.py]]
    - [[file:shoop/core/models/_methods.py]]
-
-** TODO Re generate api documentation
-   -
 
 ** TODO Add all new translation
    - At lest core and admin should have some
