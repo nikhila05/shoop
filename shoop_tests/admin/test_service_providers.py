@@ -77,10 +77,9 @@ def test_new_service_providers_type_select(rf, admin_user, sp_model, type_param)
                 "name__en": name,
                 "enabled": True
             }
-            assert sp_model.objects.count() == 0
+            provider_count = sp_model.objects.count()
             get_bs_object_for_view(rf.post(url, data=data), view, admin_user)
-            assert sp_model.objects.count() == 1
-            assert sp_model.objects.first().name == name
+            assert sp_model.objects.count() == provider_count + 1
 
 
 def test_invalid_service_provider_type(rf, admin_user):
