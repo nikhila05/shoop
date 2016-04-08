@@ -62,7 +62,8 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
 
     def get_service_choices(self):
         """
-        TODO(SHOOP-2293): Document!
+        Retrieve all ``ServiceChoice`` objects for this provider.
+        Subclass should implement this method.
 
         You may use `service_choice` to create the service choices.
 
@@ -72,7 +73,8 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
 
     def create_service(self, choice_identifier, **kwargs):
         """
-        TODO(SHOOP-2293): Document!
+        Create ``Service`` object based on choice_identifier parameter.
+        Actual _create_service-method should be implemented in subclass.
 
         May attach some behavior components (`ServiceBehaviorComponent`)
         to the created service.
@@ -377,7 +379,9 @@ class ServiceBehaviorComponent(PolymorphicShoopModel):
 
     def get_costs(self, service, source):
         """
-        TODO: Document!
+        Return costs for for this object. This should be implemented
+        in subclass. This method is used to calculate price for
+        ``ShippingMethod`` and ``PaymentMethod`` objects.
 
         Costs may be created with the `cost` helper.
 
