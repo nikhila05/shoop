@@ -12,11 +12,12 @@ from django.utils import translation
 
 from shoop.core.models import (
     CustomCarrier, FixedCostBehaviorComponent, get_person_contact,
-    OrderLineType, ShippingMethod, TaxClass, WaivingCostBehaviorComponent,
-    WeightLimitsBehaviorComponent
+    OrderLineType, PaymentMethod, PaymentStatus, ShippingMethod,
+    WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
 from shoop.testing.factories import (
-    create_product, get_address, get_default_product, get_default_shop,
+    create_empty_order, create_product, get_address,
+    get_custom_payment_processor, get_default_product, get_default_shop,
     get_default_supplier, get_default_tax_class, get_payment_method,
     get_shipping_method
 )
@@ -265,3 +266,41 @@ def test_source_lines_with_multiple_fixed_costs():
     lines = list(sm.get_lines(source))
     assert len(lines) == 2
     assert get_total_price_value(lines) == Decimal("26")
+
+
+@pytest.mark.django_db
+def test_process_payment_return_request(rf):
+    """
+    Order payment with default payment method with ``CustomPaymentProcessor``
+    should be deferred.
+
+    Payment can't be processed if method doesn't have provider or provider
+    is not enabled or payment method is not enabled.
+    """
+    pm = PaymentMethod.objects.create(
+        shop=get_default_shop(), name="Test method", enabled=False, tax_class=get_default_tax_class())
+    order = create_empty_order()
+    order.payment_method = pm
+    order.save()
+    assert order.payment_status == PaymentStatus.NOT_PAID
+    with pytest.raises(ValueError):  # Can't process payment with unusable method
+        order.payment_method.process_payment_return_request(order, rf.get("/"))
+    assert order.payment_status == PaymentStatus.NOT_PAID
+    pm.payment_processor = get_custom_payment_processor()
+    pm.payment_processor.enabled = False
+    pm.save()
+
+    with pytest.raises(ValueError):  # Can't process payment with unusable method
+        order.payment_method.process_payment_return_request(order, rf.get("/"))
+    assert order.payment_status == PaymentStatus.NOT_PAID
+    pm.payment_processor.enabled = True
+    pm.save()
+
+    with pytest.raises(ValueError):  # Can't process payment with unusable method
+        order.payment_method.process_payment_return_request(order, rf.get("/"))
+    assert order.payment_status == PaymentStatus.NOT_PAID
+    pm.enabled = True
+    pm.save()
+
+    order.payment_method.process_payment_return_request(order, rf.get("/"))
+    assert order.payment_status == PaymentStatus.DEFERRED
