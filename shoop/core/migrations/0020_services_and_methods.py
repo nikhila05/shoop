@@ -1,9 +1,44 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import shoop.core.fields
+
+
+def add_service_provider_for_methods(
+        method_model, module_identifier, sp_model, sp_trans_model, identifier, name, field):
+    provider = sp_model.objects.create(identifier=identifier)
+    sp_trans_model.objects.create(
+        master_id=provider.pk,
+        language_code=settings.LANGUAGE_CODE,
+        name=name
+    )
+    method_model.objects.filter(module_identifier=module_identifier).update(**{field: provider})
+
+
+def create_service_providers(apps, schema_editor):
+    sp_translation_model = apps.get_model("shoop", "ServiceProviderTranslation")
+    add_service_provider_for_methods(
+        apps.get_model("shoop", "ShippingMethod"),
+        "default_shipping",
+        apps.get_model("shoop", "CustomCarrier"),
+        sp_translation_model,
+        "default_carrier",
+        "Custom Carrier",
+        "carrier"
+    )
+
+    add_service_provider_for_methods(
+        apps.get_model("shoop", "PaymentMethod"),
+        "default_payment",
+        apps.get_model("shoop", "CustomPaymentProcessor"),
+        sp_translation_model,
+        "default_payment_processor",
+        "Custom Payment Processor",
+        "payment_processor"
+    )
 
 
 class Migration(migrations.Migration):
@@ -19,7 +54,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('language_code', models.CharField(max_length=15, verbose_name='Language', db_index=True)),
-                ('description', models.CharField(max_length=100, blank=True)),
+                ('description', models.CharField(max_length=100, verbose_name='description', blank=True)),
             ],
             options={
                 'managed': True,
@@ -69,7 +104,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('language_code', models.CharField(max_length=15, verbose_name='Language', db_index=True)),
-                ('description', models.CharField(max_length=100, blank=True)),
+                ('description', models.CharField(max_length=100, verbose_name='description', blank=True)),
             ],
             options={
                 'managed': True,
@@ -85,10 +120,6 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='paymentmethod',
-            name='module_identifier',
-        ),
-        migrations.RemoveField(
-            model_name='paymentmethod',
             name='status',
         ),
         migrations.RemoveField(
@@ -97,16 +128,12 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='shippingmethod',
-            name='module_identifier',
-        ),
-        migrations.RemoveField(
-            model_name='shippingmethod',
             name='status',
         ),
         migrations.AddField(
             model_name='paymentmethod',
             name='choice_identifier',
-            field=models.CharField(max_length=64, blank=True),
+            field=models.CharField(max_length=64, verbose_name='choice identifier', blank=True),
         ),
         migrations.AddField(
             model_name='paymentmethod',
@@ -121,7 +148,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='shippingmethod',
             name='choice_identifier',
-            field=models.CharField(max_length=64, blank=True),
+            field=models.CharField(max_length=64, verbose_name='choice identifier', blank=True),
         ),
         migrations.AddField(
             model_name='shippingmethod',
@@ -216,12 +243,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paymentmethod',
             name='behavior_components',
-            field=models.ManyToManyField(to='shoop.ServiceBehaviorComponent'),
+            field=models.ManyToManyField(to='shoop.ServiceBehaviorComponent', verbose_name='behavior components'),
         ),
         migrations.AddField(
             model_name='shippingmethod',
             name='behavior_components',
-            field=models.ManyToManyField(to='shoop.ServiceBehaviorComponent'),
+            field=models.ManyToManyField(to='shoop.ServiceBehaviorComponent', verbose_name='behavior components'),
         ),
         migrations.CreateModel(
             name='CustomCarrier',
@@ -276,5 +303,14 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='fixedcostbehaviorcomponenttranslation',
             unique_together=set([('language_code', 'master')]),
+        ),
+        migrations.RunPython(create_service_providers, migrations.RunPython.noop),
+        migrations.RemoveField(
+            model_name='shippingmethod',
+            name='module_identifier',
+        ),
+        migrations.RemoveField(
+            model_name='paymentmethod',
+            name='module_identifier',
         ),
     ]
