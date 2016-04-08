@@ -88,17 +88,20 @@
 
 ** DONE Combining costs without description to single line
 
-** TODO Create service providers in migrations
+** STARTED Fix ContentType matching query does not exist.
+   - SHOOP-2356
 
-** TODO Remove old BaseMethodModule etc.
-   - [ ] BaseMethodModule
-   - [ ] BaseShippingMethodModule
-   - [ ] BasePaymentMethodModule
-   - [ ] DefaultShippingMethodModule
-   - [ ] DefaultPaymentMethodModule
-   - [ ] PseudoPaymentMethodModule
-   - [ ] pseudo_payment.py totally
-   - [ ] Anything else?
+** STARTED Create service providers in migrations
+
+** STARTED Remove old BaseMethodModule etc.
+   - [X] BaseMethodModule
+   - [X] BaseShippingMethodModule
+   - [X] BasePaymentMethodModule
+   - [X] DefaultShippingMethodModule
+   - [X] DefaultPaymentMethodModule
+   - [X] PseudoPaymentMethodModule
+   - [X] pseudo_payment.py totally
+   - [No] Anything else?
    - [[file:shoop/core/methods/base.py::23]]
 
 ** TODO Clean-up provides
@@ -130,6 +133,3 @@
 
 ** TODO: How to deal with Service lines with different taxes?
    - Now ``FixedCostBehaviorComponent`` costs tax_class is always None
-
-** TODO: Fix ContentType matching query does not exist.
-   - SHOOP-
