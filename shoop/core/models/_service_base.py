@@ -295,7 +295,7 @@ class Service(TranslatableShoopModel):
         line_no = 0
         for cost in costs:
             if cost.description:
-                line_no +=1
+                line_no += 1
                 description = _('%(service_name)s: %(sub_item)s') % {
                     'service_name': self, 'sub_item': cost.description}
             else:
