@@ -111,9 +111,9 @@
    - See shoop-stripe for example
    - [[file:shoop/front/checkout/methods.py::136]]
 
-** TODO Clean-up provides
-   - [ ] shipping_method_module
-   - [ ] payment_method_module
+** STARTED Clean-up provides
+   - [X] shipping_method_module
+   - [X] payment_method_module
    - [ ] Check the documentation too (also the payment_method_module example)
    - [ ] Anything else?
    - [[file:shoop_tests/core/test_methods.py::48]]
@@ -128,8 +128,14 @@
    - [[file:shoop/core/models/_services_base.py]]
    - [[file:shoop/core/models/_methods.py]]
 
+** TODO Re generate api documentation
+   -
+
 ** TODO Add all new translation
    - At lest core and admin should have some
+
+** TODO Consider combining new testing migrations
+   - SHOOP-2366
 
 ** TODO: Test shipping times?
    - SHOOP-2362
