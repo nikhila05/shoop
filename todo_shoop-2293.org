@@ -104,6 +104,25 @@
    - [No] Anything else?
    - [[file:shoop/core/methods/base.py::23]]
 
+** TODO Add unit test for checkout_phase_class
+   - See shoop-stripe for example
+   - [[file:shoop/front/checkout/methods.py::136]]
+
+** TODO Add unit test for process_payment_return_request
+   - [[file:shoop/core/models/_methods.py::41]]
+** TODO: Test shipping times
+
+** TODO: How to deal with Service lines with different taxes?
+   - Now ``FixedCostBehaviorComponent`` costs tax_class is always None
+
+** TODO Add all new translation
+   - At lest core and admin should have some
+
+** TODO What should we do with the InternalIdentifier?
+   - ServiceProvider
+   - Service
+   - Probably no need to update these from admin? Since these are internal?
+
 ** TODO Clean-up provides
    - [ ] shipping_method_module
    - [ ] payment_method_module
@@ -120,16 +139,3 @@
    - [[file:shoop/core/models/_service_providers.py::111]]
    - [[file:shoop/core/models/_services_base.py]]
    - [[file:shoop/core/models/_methods.py]]
-
-
-** TODO Add unit test for checkout_phase_class
-   - See shoop-stripe for example
-   - [[file:shoop/front/checkout/methods.py::136]]
-
-** TODO Add unit test for process_payment_return_request
-   - [[file:shoop/core/models/_methods.py::41]]
-
-** TODO: Test shipping times
-
-** TODO: How to deal with Service lines with different taxes?
-   - Now ``FixedCostBehaviorComponent`` costs tax_class is always None

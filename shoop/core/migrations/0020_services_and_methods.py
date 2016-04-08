@@ -7,8 +7,8 @@ import django.db.models.deletion
 import shoop.core.fields
 
 
-def add_default_service_provider(sp_model, identifier, name, sp_trans_model):
-    provider = sp_model.objects.create(identifier=identifier)
+def add_default_service_provider(sp_model, name, sp_trans_model):
+    provider = sp_model.objects.create(identifier=sp_model.__name__)
     sp_trans_model.objects.create(
         master_id=provider.pk,
         language_code=settings.LANGUAGE_CODE,
@@ -37,12 +37,12 @@ def create_service_providers(apps, schema_editor):
     CustomPaymentProcessor = apps.get_model("shoop", "CustomPaymentProcessor")
 
     carrier = add_default_service_provider(
-        CustomCarrier, "default_carrier", "Custom Carrier", ServiceProviderTranslation)
+        CustomCarrier, "Custom Carrier", ServiceProviderTranslation)
     link_to_method(
         carrier, apps.get_model("shoop", "ShippingMethod"), "default_shipping", "carrier")
 
     payment_processor = add_default_service_provider(
-        CustomPaymentProcessor, "default_payment_processor", "Custom Payment Processor", ServiceProviderTranslation)
+        CustomPaymentProcessor, "Custom Payment Processor", ServiceProviderTranslation)
     link_to_method(
         payment_processor, apps.get_model("shoop", "PaymentMethod"),
         "default_payment_processor", "payment_processor")

@@ -30,12 +30,12 @@ class Initializer(object):
         schema(ProductType, "download", name="Download Product"),
         schema(TaxClass, "default", name="Default Tax Class"),
         schema(
-            CustomPaymentProcessor, "default_payment_processor",
+            CustomPaymentProcessor, CustomPaymentProcessor.__name__,
             name="Default Payment Processor"),
         schema(
             PaymentMethod, identifier="default_payment_method", name="Default Payment Method",
             payment_processor=CustomPaymentProcessor, shop=Shop, tax_class=TaxClass),
-        schema(CustomCarrier, "default_carrier", name="Custom Carrier"),
+        schema(CustomCarrier, CustomCarrier.__name__, name="Custom Carrier"),
         schema(
             ShippingMethod, identifier="default_shipping_method", name="Default Shipping Method",
             carrier=CustomCarrier, shop=Shop, tax_class=TaxClass),
