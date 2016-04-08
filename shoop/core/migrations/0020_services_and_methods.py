@@ -7,38 +7,51 @@ import django.db.models.deletion
 import shoop.core.fields
 
 
-def add_service_provider_for_methods(
-        method_model, module_identifier, sp_model, sp_trans_model, identifier, name, field):
+def add_default_service_provider(sp_model, identifier, name, sp_trans_model):
     provider = sp_model.objects.create(identifier=identifier)
     sp_trans_model.objects.create(
         master_id=provider.pk,
         language_code=settings.LANGUAGE_CODE,
         name=name
     )
-    method_model.objects.filter(module_identifier=module_identifier).update(**{field: provider})
+    return provider
+
+
+def link_to_method(service_provider, method_model, module_identifier, field):
+    method_model.objects.filter(module_identifier=module_identifier).update(**{field: service_provider})
 
 
 def create_service_providers(apps, schema_editor):
-    sp_translation_model = apps.get_model("shoop", "ServiceProviderTranslation")
-    add_service_provider_for_methods(
-        apps.get_model("shoop", "ShippingMethod"),
-        "default_shipping",
-        apps.get_model("shoop", "CustomCarrier"),
-        sp_translation_model,
-        "default_carrier",
-        "Custom Carrier",
-        "carrier"
-    )
+    """
+    Create defaults for CustomCarrier and CustomPaymentProcessor.
 
-    add_service_provider_for_methods(
-        apps.get_model("shoop", "PaymentMethod"),
-        "default_payment",
-        apps.get_model("shoop", "CustomPaymentProcessor"),
-        sp_translation_model,
-        "default_payment_processor",
-        "Custom Payment Processor",
-        "payment_processor"
-    )
+    Link existing these default service providers into the ShippingMethods
+    and PaymentMethods which uses default module.
+
+    Update polymorphic_ctypes for CustomerCarrier and CustomPaymentProcessors
+    if needed. See: http://django-polymorphic.readthedocs.org/en/latest/migrating.html
+    """
+    ContentType = apps.get_model("contenttypes", "ContentType")
+    ServiceProviderTranslation = apps.get_model("shoop", "ServiceProviderTranslation")
+    CustomCarrier = apps.get_model("shoop", "CustomCarrier")
+    CustomPaymentProcessor = apps.get_model("shoop", "CustomPaymentProcessor")
+
+    carrier = add_default_service_provider(
+        CustomCarrier, "default_carrier", "Custom Carrier", ServiceProviderTranslation)
+    link_to_method(
+        carrier, apps.get_model("shoop", "ShippingMethod"), "default_shipping", "carrier")
+
+    payment_processor = add_default_service_provider(
+        CustomPaymentProcessor, "default_payment_processor", "Custom Payment Processor", ServiceProviderTranslation)
+    link_to_method(
+        payment_processor, apps.get_model("shoop", "PaymentMethod"),
+        "default_payment_processor", "payment_processor")
+
+    # Update polymorphic_ctypes for CustomCarrier and CustomPaymentProcessors
+    new_cc_ct = ContentType.objects.get_for_model(CustomCarrier)
+    CustomCarrier.objects.filter(polymorphic_ctype__isnull=True).update(polymorphic_ctype=new_cc_ct)
+    new_cpp_ct = ContentType.objects.get_for_model(CustomPaymentProcessor )
+    CustomPaymentProcessor.objects.filter(polymorphic_ctype__isnull=True).update(polymorphic_ctype=new_cpp_ct)
 
 
 class Migration(migrations.Migration):
