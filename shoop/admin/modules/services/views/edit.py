@@ -10,13 +10,15 @@ import six
 from django.conf import settings
 from django.db.transaction import atomic
 
-from shoop.admin.modules.methods.shipping.forms import ShippingMethodForm
 from shoop.admin.form_part import (
     FormPart, FormPartsViewMixin, SaveFormPartsMixin, TemplatedFormDef
 )
+from shoop.admin.modules.services.forms import (
+    PaymentMethodForm, ShippingMethodForm
+)
 from shoop.admin.utils.views import CreateOrUpdateView
 from shoop.apps.provides import get_provide_specs_and_objects
-from shoop.core.models import ShippingMethod
+from shoop.core.models import PaymentMethod, ShippingMethod
 from shoop.utils.form_group import FormDef
 from shoop.utils.multilanguage_model_form import TranslatableModelForm
 
@@ -32,24 +34,22 @@ def _get_default_component(components, form_class, form=None):
     return component
 
 
-class MethodBaseFormPart(FormPart):
+class ServiceBaseFormPart(FormPart):
     priority = -1000  # Show this first
+    form = None  # Override in subclass
 
     def __init__(self, *args, **kwargs):
-        super(MethodBaseFormPart, self).__init__(*args, **kwargs)
+        super(ServiceBaseFormPart, self).__init__(*args, **kwargs)
         # Make this more general
         # self.method_form = kwargs["method_form_class"]
 
     def get_form_defs(self):
         yield TemplatedFormDef(
             "base",
-            ShippingMethodForm,
+            self.form,
             required=True,
-            template_name="shoop/admin/shipping_methods/_edit_base_form.jinja",
-            kwargs={
-                "instance": self.object,
-                "languages": settings.LANGUAGES,
-            }
+            template_name="shoop/admin/services/_edit_base_form.jinja",
+            kwargs={"instance": self.object, "languages": settings.LANGUAGES}
         )
 
     def form_valid(self, form):
@@ -57,34 +57,12 @@ class MethodBaseFormPart(FormPart):
         return self.object
 
 
-class MethodEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView):
-    model = ShippingMethod
-    template_name = "shoop/admin/shipping_methods/edit.jinja"
-    context_object_name = "shipping_method"
-    base_form_part_classes = [
-        MethodBaseFormPart,
-    ]
-    behavior_component_form_names = []
+class ShippingMethodBaseFormPart(ServiceBaseFormPart):
+    form = ShippingMethodForm
 
-    @atomic
-    def form_valid(self, form):
-        return self.save_form_parts(form)
 
-    def get_form_parts(self, object):
-        form_parts = super(MethodEditView, self).get_form_parts(object)
-        provides_forms = get_provide_specs_and_objects("shipping_method_behavior_component_forms")
-        for spec, form in six.iteritems(provides_forms):
-            name = spec.replace(":", "").replace(".", "")  # Take out delimiters characters
-            if name not in self.behavior_component_form_names:
-                self.behavior_component_form_names.append(name)
-            default = _get_default_component(object.behavior_components, form)
-            form_parts.append(BehaviorComponentFormPart(name, form, self.request, object=default))
-        return form_parts
-
-    def get_context_data(self, **kwargs):
-        data = super(MethodEditView, self).get_context_data(**kwargs)
-        data["behavior_component_form_names"] = self.behavior_component_form_names
-        return data
+class PaymentMethodBaseFormPart(ServiceBaseFormPart):
+    form = PaymentMethodForm
 
 
 class BehaviorComponentFormPart(FormPart):
@@ -110,3 +88,42 @@ class BehaviorComponentFormPart(FormPart):
         component_form = form[self.form_name]
         if component_form.is_valid():
             component_form.save()
+
+
+class ServiceEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView):
+    model = ShippingMethod
+    template_name = "shoop/admin/services/edit.jinja"
+    context_object_name = "shipping_method"
+    base_form_part_classes = []  # Override in subclass
+    behavior_component_form_names = []
+    provide_key = "service_behavior_component_forms"
+
+    @atomic
+    def form_valid(self, form):
+        return self.save_form_parts(form)
+
+    def get_form_parts(self, object):
+        form_parts = super(ServiceEditView, self).get_form_parts(object)
+        provides_forms = get_provide_specs_and_objects(self.provide_key)
+        for spec, form in six.iteritems(provides_forms):
+            name = spec.replace(":", "").replace(".", "")  # Take out delimiters characters
+            if name not in self.behavior_component_form_names:
+                self.behavior_component_form_names.append(name)
+            default = _get_default_component(object.behavior_components, form)
+            form_parts.append(BehaviorComponentFormPart(name, form, self.request, object=default))
+        return form_parts
+
+    def get_context_data(self, **kwargs):
+        data = super(ServiceEditView, self).get_context_data(**kwargs)
+        data["behavior_component_form_names"] = self.behavior_component_form_names
+        return data
+
+
+class ShippingMethodEditView(ServiceEditView):
+    model = ShippingMethod
+    base_form_part_classes = [ShippingMethodBaseFormPart]
+
+
+class PaymentMethodEditView(ServiceEditView):
+    model = PaymentMethod
+    base_form_part_classes = [PaymentMethodBaseFormPart]

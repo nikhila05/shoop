@@ -12,7 +12,7 @@
                     {% for form_name in behavior_component_form_names %}
                         {% set component_form_prefix = form_name %}
                         {% set component_form = form[form_name] %}
-                            {% include "shoop/admin/shipping_methods/_edit_behavior_components_form.jinja" with context %}
+                            {% include "shoop/admin/services/_edit_behavior_components_form.jinja" with context %}
                         {% if not loop.last %}
                             <div class="form-divider"></div>
                         {% endif %}

@@ -25,9 +25,10 @@ class ShoopAdminAppConfig(AppConfig):
             "shoop.admin.modules.categories:CategoryModule",
             "shoop.admin.modules.contacts:ContactModule",
             "shoop.admin.modules.contact_groups:ContactGroupModule",
-            "shoop.admin.modules.methods.shipping:ShippingMethodModule",
             "shoop.admin.modules.users:UserModule",
             "shoop.admin.modules.service_providers:ServiceProviderModule",
+            "shoop.admin.modules.services:PaymentMethodModule",
+            "shoop.admin.modules.services:ShippingMethodModule",
             "shoop.admin.modules.attributes:AttributeModule",
             "shoop.admin.modules.sales_units:SalesUnitModule",
             "shoop.admin.modules.shops:ShopModule",
@@ -39,10 +40,10 @@ class ShoopAdminAppConfig(AppConfig):
             "shoop.admin.modules.service_providers.forms:CustomCarrierForm",
             "shoop.admin.modules.service_providers.forms:CustomPaymentProcessorForm"
         ],
-        "shipping_method_behavior_component_forms": [
-            "shoop.admin.modules.methods.shipping.forms:FixedCostBehaviorComponentForm",
-            "shoop.admin.modules.methods.shipping.forms:WaivingCostBehaviorComponentForm",
-            "shoop.admin.modules.methods.shipping.forms:WeightLimitsBehaviorComponentForm",
+        "service_behavior_component_forms": [
+            "shoop.admin.modules.services.forms:FixedCostBehaviorComponentForm",
+            "shoop.admin.modules.services.forms:WaivingCostBehaviorComponentForm",
+            "shoop.admin.modules.services.forms:WeightLimitsBehaviorComponentForm",
         ]
     }
 

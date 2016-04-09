@@ -11,8 +11,8 @@ from __future__ import unicode_literals
 from django import forms
 
 from shoop.core.models import (
-    FixedCostBehaviorComponent, ShippingMethod, WaivingCostBehaviorComponent,
-    WeightLimitsBehaviorComponent
+    FixedCostBehaviorComponent, PaymentMethod, ShippingMethod,
+    WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
 from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
 
@@ -20,6 +20,12 @@ from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
 class ShippingMethodForm(MultiLanguageModelForm):
     class Meta:
         model = ShippingMethod
+        exclude = ("identifier", "behavior_components")
+
+
+class PaymentMethodForm(MultiLanguageModelForm):
+    class Meta:
+        model = PaymentMethod
         exclude = ("identifier", "behavior_components")
 
 

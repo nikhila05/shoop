@@ -11,11 +11,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from shoop.admin.utils.picotable import Column, TextFilter
 from shoop.admin.utils.views import PicotableListView
-from shoop.core.models import ShippingMethod
+from shoop.core.models import PaymentMethod, ShippingMethod
 
 
-class MethodListView(PicotableListView):
-    model = ShippingMethod
+class ServiceListView(PicotableListView):
+    model = None  # Override in subclass
     columns = [
         Column(
             "name", _("Name"), sort_field="translations__name",
@@ -31,3 +31,11 @@ class MethodListView(PicotableListView):
         return [
             {"text": "%s" % instance, "class": "header"},
         ]
+
+
+class ShippingMethodListView(ServiceListView):
+    model = ShippingMethod
+
+
+class PaymentMethodListView(ServiceListView):
+    model = PaymentMethod
