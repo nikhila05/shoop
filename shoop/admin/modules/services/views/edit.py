@@ -23,14 +23,12 @@ from shoop.utils.form_group import FormDef
 from shoop.utils.multilanguage_model_form import TranslatableModelForm
 
 
-def _get_default_component(components, form_class, form=None):
-    if not hasattr(form_class._meta, "model"):
+def _get_current_component(method_object, form_class):
+    if not method_object.pk or not hasattr(form_class._meta, "model"):
         return None
     model_class = form_class._meta.model
+    components = method_object.behavior_components
     component = components.instance_of(model_class).first()
-    if not component and form:
-        component = form.save()
-        components.add(component)
     return component
 
 
@@ -86,8 +84,12 @@ class BehaviorComponentFormPart(FormPart):
 
     def form_valid(self, form):
         component_form = form[self.form_name]
-        if component_form.is_valid():
-            component_form.save()
+        method_object = form["base"].instance
+        current = _get_current_component(method_object, self.form_class)
+        if component_form.is_valid() and component_form.cleaned_data:
+            component = component_form.save()
+            if component not in method_object.behavior_components.all():
+                method_object.behavior_components.add(component)
 
 
 class ServiceEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView):
@@ -109,7 +111,7 @@ class ServiceEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView
             name = spec.replace(":", "").replace(".", "")  # Take out delimiters characters
             if name not in self.behavior_component_form_names:
                 self.behavior_component_form_names.append(name)
-            default = _get_default_component(object.behavior_components, form)
+            current = _get_current_component(object, form)
             form_parts.append(BehaviorComponentFormPart(name, form, self.request, object=default))
         return form_parts
 
