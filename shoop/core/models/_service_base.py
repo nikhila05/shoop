@@ -268,20 +268,6 @@ class Service(TranslatableShoopModel):
                     tax_class=(cost.tax_class or self.tax_class),
                     base_price=cost.base_price)
 
-    def _get_line(self, source, line_prefix, line_no, price_info, tax_class, description=None):
-        def rand_int():
-            return random.randint(0, 0x7FFFFFFF)
-
-        return source.create_line(
-            line_id="%s_%02d_%x" % (line_prefix, line_no, rand_int()),
-            type=self.line_type,
-            quantity=price_info.quantity,
-            text=(description or self.get_effective_name(source)),
-            base_unit_price=price_info.base_unit_price,
-            discount_amount=price_info.discount_amount,
-            tax_class=tax_class,
-        )
-
     def get_lines(self, source):
         """
         Get lines for given source.
@@ -312,6 +298,20 @@ class Service(TranslatableShoopModel):
                 [cost.price_info for cost in costs_for_tax_class],
                 PriceInfo(zero, zero, quantity=1))
             yield self._get_line(source, line_prefix, line_no, price_info, tax_class)
+
+    def _get_line(self, source, line_prefix, line_no, price_info, tax_class, description=None):
+        def rand_int():
+            return random.randint(0, 0x7FFFFFFF)
+
+        return source.create_line(
+            line_id="%s_%02d_%x" % (line_prefix, line_no, rand_int()),
+            type=self.line_type,
+            quantity=price_info.quantity,
+            text=(description or self.get_effective_name(source)),
+            base_unit_price=price_info.base_unit_price,
+            discount_amount=price_info.discount_amount,
+            tax_class=tax_class,
+        )
 
     def _make_sure_is_usable(self):
         if not self.provider:
