@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import shoop.core.fields
+from shoop.core.models import ShopStatus
 
 
 def create_default_service_providers(apps, schema_editor):
@@ -43,6 +44,35 @@ def create_service_provider(apps, model_name, name):
         polymorphic_ctype__isnull=True).update(polymorphic_ctype=new_ct)
 
     return provider
+
+
+def set_shop_for_methods(apps, schema_editor):
+    shop = None
+    method_models = [
+        apps.get_model("shoop", "PaymentMethod"),
+        apps.get_model("shoop", "ShippingMethod"),
+    ]
+    for method_model in method_models:
+        methods = method_model.objects.filter(shop=None)
+        if methods:
+            if not shop:
+                shop = get_default_shop(apps)
+            methods.update(shop=shop)
+
+
+def get_default_shop(apps):
+    shop_model = apps.get_model("shoop", "Shop")
+    shop = shop_model.objects.filter(identifier="default").first()
+    if not shop:
+        shop = shop_model.objects.first()
+    if not shop:
+        shop = shop_model.objects.create(
+            identifier="default", status=ShopStatus.DISABLED,
+            maintenance_mode=True)
+        apps.get_model("shoop", "ShopTranslation").objects.create(
+            master_id=shop.pk, language_code="en",
+            name="Shop", public_name="Shop")
+    return shop
 
 
 class Migration(migrations.Migration):
@@ -321,4 +351,15 @@ class Migration(migrations.Migration):
             unique_together=set([('language_code', 'master')]),
         ),
         migrations.RunPython(create_default_service_providers, migrations.RunPython.noop),
+        migrations.RunPython(set_shop_for_methods, migrations.RunPython.noop),
+        migrations.AlterField(
+            model_name='paymentmethod',
+            name='shop',
+            field=models.ForeignKey(to='shoop.Shop', blank=False, null=False, verbose_name='shop'),
+        ),
+        migrations.AlterField(
+            model_name='shippingmethod',
+            name='shop',
+            field=models.ForeignKey(to='shoop.Shop', blank=False, null=False, verbose_name='shop'),
+        ),
     ]
