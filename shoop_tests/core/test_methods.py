@@ -21,7 +21,7 @@ from shoop.testing.factories import (
     get_default_supplier, get_default_tax_class, get_payment_method,
     get_shipping_method
 )
-from shoop_tests.dummyapp.models import ExpensiveSwedenBehaviorComponent
+from shoop.testing.models import ExpensiveSwedenBehaviorComponent
 from shoop_tests.utils.basketish_order_source import BasketishOrderSource
 
 
