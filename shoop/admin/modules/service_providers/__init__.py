@@ -17,6 +17,7 @@ from shoop.core.models import ServiceProvider
 
 class ServiceProviderModule(AdminModule):
     name = _("Service Providers")
+    category = _("Methods")
 
     def get_urls(self):
         return get_edit_and_list_urls(
@@ -26,7 +27,7 @@ class ServiceProviderModule(AdminModule):
         )
 
     def get_menu_category_icons(self):
-        return {self.name: "fa fa-cubes"}
+        return {self.category: "fa fa-cubes"}
 
     def get_menu_entries(self, request):
         return [
@@ -34,7 +35,7 @@ class ServiceProviderModule(AdminModule):
                 text=self.name,
                 icon="fa fa-truck",
                 url="shoop_admin:service_provider.list",
-                category=self.name
+                category=self.category
             )
         ]
 
