@@ -1,57 +1,48 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import shoop.core.fields
 
 
-def add_default_service_provider(sp_model, name, sp_trans_model):
+def create_default_service_providers(apps, schema_editor):
+    """
+    Create default carrier and payment processor.
+
+    Link existing ShippingMethods and PaymentMethods which use the
+    previous default module to the created carrier or payment processor.
+
+    Update polymorphic_ctypes for CustomerCarrier and
+    CustomPaymentProcessors if needed.  See
+    http://django-polymorphic.readthedocs.org/en/latest/migrating.html
+    """
+    carrier = create_service_provider(apps, "CustomCarrier", "Carrier")
+    apps.get_model("shoop", "ShippingMethod").objects.filter(
+        old_module_identifier="default_shipping").update(
+            carrier=carrier)
+
+    payment_processor = create_service_provider(
+        apps, "CustomPaymentProcessor", "Manual payment processing")
+    apps.get_model("shoop", "PaymentMethod").objects.filter(
+        old_module_identifier="default_payment").update(
+            payment_processor=payment_processor)
+
+
+def create_service_provider(apps, model_name, name):
+    sp_model = apps.get_model("shoop", model_name)
+    sp_trans_model = apps.get_model("shoop", "ServiceProviderTranslation")
     provider = sp_model.objects.create(identifier=sp_model.__name__)
     sp_trans_model.objects.create(
-        master_id=provider.pk,
-        language_code=settings.LANGUAGE_CODE,
-        name=name
-    )
+        master_id=provider.pk, language_code="en", name=name)
+
+    # Update polymorphic_ctype
+    content_type_model = apps.get_model("contenttypes", "ContentType")
+    new_ct = content_type_model.objects.get_for_model(sp_model)
+    sp_model.objects.filter(
+        polymorphic_ctype__isnull=True).update(polymorphic_ctype=new_ct)
+
     return provider
-
-
-def link_to_method(service_provider, method_model, module_identifier, field):
-    method_model.objects.filter(module_identifier=module_identifier).update(**{field: service_provider})
-
-
-def create_service_providers(apps, schema_editor):
-    """
-    Create defaults for CustomCarrier and CustomPaymentProcessor.
-
-    Link existing these default service providers into the ShippingMethods
-    and PaymentMethods which uses default module.
-
-    Update polymorphic_ctypes for CustomerCarrier and CustomPaymentProcessors
-    if needed. See: http://django-polymorphic.readthedocs.org/en/latest/migrating.html
-    """
-    ContentType = apps.get_model("contenttypes", "ContentType")
-    ServiceProviderTranslation = apps.get_model("shoop", "ServiceProviderTranslation")
-    CustomCarrier = apps.get_model("shoop", "CustomCarrier")
-    CustomPaymentProcessor = apps.get_model("shoop", "CustomPaymentProcessor")
-
-    carrier = add_default_service_provider(
-        CustomCarrier, "Custom Carrier", ServiceProviderTranslation)
-    link_to_method(
-        carrier, apps.get_model("shoop", "ShippingMethod"), "default_shipping", "carrier")
-
-    payment_processor = add_default_service_provider(
-        CustomPaymentProcessor, "Custom Payment Processor", ServiceProviderTranslation)
-    link_to_method(
-        payment_processor, apps.get_model("shoop", "PaymentMethod"),
-        "default_payment_processor", "payment_processor")
-
-    # Update polymorphic_ctypes for CustomCarrier and CustomPaymentProcessors
-    new_cc_ct = ContentType.objects.get_for_model(CustomCarrier)
-    CustomCarrier.objects.filter(polymorphic_ctype__isnull=True).update(polymorphic_ctype=new_cc_ct)
-    new_cpp_ct = ContentType.objects.get_for_model(CustomPaymentProcessor )
-    CustomPaymentProcessor.objects.filter(polymorphic_ctype__isnull=True).update(polymorphic_ctype=new_cpp_ct)
 
 
 class Migration(migrations.Migration):
@@ -127,17 +118,29 @@ class Migration(migrations.Migration):
                 'verbose_name': 'waiving cost behavior component Translation',
             },
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='paymentmethod',
-            name='module_data',
+            old_name='module_identifier',
+            new_name='old_module_identifier',
+        ),
+        migrations.RenameField(
+            model_name='paymentmethod',
+            old_name='module_data',
+            new_name='old_module_data',
+        ),
+        migrations.RenameField(
+            model_name='shippingmethod',
+            old_name='module_identifier',
+            new_name='old_module_identifier',
+        ),
+        migrations.RenameField(
+            model_name='shippingmethod',
+            old_name='module_data',
+            new_name='old_module_data',
         ),
         migrations.RemoveField(
             model_name='paymentmethod',
             name='status',
-        ),
-        migrations.RemoveField(
-            model_name='shippingmethod',
-            name='module_data',
         ),
         migrations.RemoveField(
             model_name='shippingmethod',
@@ -317,13 +320,5 @@ class Migration(migrations.Migration):
             name='fixedcostbehaviorcomponenttranslation',
             unique_together=set([('language_code', 'master')]),
         ),
-        migrations.RunPython(create_service_providers, migrations.RunPython.noop),
-        migrations.RemoveField(
-            model_name='shippingmethod',
-            name='module_identifier',
-        ),
-        migrations.RemoveField(
-            model_name='paymentmethod',
-            name='module_identifier',
-        ),
+        migrations.RunPython(create_default_service_providers, migrations.RunPython.noop),
     ]

@@ -14,6 +14,7 @@ import six
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from jsonfield import JSONField
 from parler.managers import TranslatableQuerySet
 from parler.models import TranslatedField, TranslatedFields
 
@@ -170,7 +171,13 @@ class Service(TranslatableShoopModel):
     shop = models.ForeignKey(Shop, blank=True, null=True, verbose_name=_("shop"))
 
     # Initialized from ServiceChoice.identifier
-    choice_identifier = models.CharField(blank=True, max_length=64, verbose_name=_("choice identifier"))
+    choice_identifier = models.CharField(
+        blank=True, max_length=64, verbose_name=_("choice identifier"))
+
+    old_module_identifier = models.CharField(
+        max_length=64, blank=True, verbose_name=_('module'))
+    old_module_data = JSONField(
+        blank=True, null=True, verbose_name=_('module data'))
 
     name = TranslatedField(any_language=True)
 

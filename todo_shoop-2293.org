@@ -111,6 +111,8 @@
    - See shoop-stripe for example
    - [[file:shoop/front/checkout/methods.py::136]]
 
+** STARTED Preserve old module_identifier and module_data
+
 ** STARTED Clean-up provides
    - [X] shipping_method_module
    - [X] payment_method_module
