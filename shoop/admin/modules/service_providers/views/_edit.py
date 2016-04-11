@@ -26,7 +26,7 @@ class ServiceProviderEditView(CreateOrUpdateView):
     template_name = "shoop/admin/service_providers/edit.jinja"
     form_class = forms.Form  # Overridden in get_form
     context_object_name = "service_provider"
-    form_provide_key = "service_provider_admin_forms"
+    form_provide_key = "service_provider_admin_form"
     add_form_errors_as_messages = True
 
     @property

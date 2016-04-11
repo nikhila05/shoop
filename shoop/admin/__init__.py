@@ -36,15 +36,15 @@ class ShoopAdminAppConfig(AppConfig):
             "shoop.admin.modules.manufacturers:ManufacturerModule",
             "shoop.admin.modules.suppliers:SupplierModule"
         ],
-        "service_provider_admin_forms": [
+        "service_provider_admin_form": [
             "shoop.admin.modules.service_providers.forms:CustomCarrierForm",
             "shoop.admin.modules.service_providers.forms:CustomPaymentProcessorForm"
         ],
-        "service_behavior_component_forms": [
+        "service_behavior_component_form": [
             "shoop.admin.modules.services.forms:FixedCostBehaviorComponentForm",
             "shoop.admin.modules.services.forms:WaivingCostBehaviorComponentForm",
             "shoop.admin.modules.services.forms:WeightLimitsBehaviorComponentForm",
-        ]
+        ],
     }
 
     def ready(self):

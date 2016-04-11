@@ -24,10 +24,10 @@ def get_bs_object_for_view(request, view, user, object=None):
     Help function to get BeautifulSoup object from the html rendered
     by the edit view.
 
-    Also override ``service_provider_admin_forms`` here to enable
+    Also override ``service_provider_admin_form`` here to enable
     ``PseudoPaymentProcessor``
     """
-    with override_provides("service_provider_admin_forms", [
+    with override_provides("service_provider_admin_form", [
         "shoop.testing.payment_forms.PseudoPaymentProcessorForm",
         "shoop.admin.modules.service_providers.forms:CustomCarrierForm",
         "shoop.admin.modules.service_providers.forms:CustomPaymentProcessorForm"

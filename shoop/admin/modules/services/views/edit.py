@@ -96,7 +96,7 @@ class ServiceEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView
     context_object_name = "shipping_method"
     base_form_part_classes = []  # Override in subclass
     behavior_component_form_names = []
-    provide_key = "service_behavior_component_forms"
+    provide_key = "service_behavior_component_form"
 
     @atomic
     def form_valid(self, form):
