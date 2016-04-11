@@ -121,6 +121,23 @@
    - [X] Check the documentation too (also the payment_method_module example)
    - [X] Anything else? No.
 
+** DONE Consider combining new testing migrations
+   - SHOOP-2366
+
+** DONE: How to deal with Service lines with different taxes?
+   - Now ``FixedCostBehaviorComponent`` costs tax_class is always None
+   - SHOOP-2363
+   - It seems that this already refactored correctly by Tuomas
+
+** POSTPONED: Test shipping times?
+   - SHOOP-2362
+
+** ACTIONS NOT NEEDED What should we do with the InternalIdentifier?
+   - ServiceProvider
+   - Service
+   - Probably no need to update these from admin? Since these are internal?
+   - SHOOP-2365
+
 ** STARTED Document models etc.
    - Remember to regenerate API docs too.
    - [[file:shoop/core/models/_service_providers.py::31]]
@@ -131,21 +148,6 @@
    - [[file:shoop/core/models/_services_base.py]]
    - [[file:shoop/core/models/_methods.py]]
 
-** TODO Add all new translation
+** STARTED Add all new translation
    - At lest core and admin should have some
-
-** TODO Consider combining new testing migrations
-   - SHOOP-2366
-
-** TODO: Test shipping times?
-   - SHOOP-2362
-
-** TODO: How to deal with Service lines with different taxes?
-   - Now ``FixedCostBehaviorComponent`` costs tax_class is always None
-   - SHOOP-2363
-
-** TODO What should we do with the InternalIdentifier?
-   - ServiceProvider
-   - Service
-   - Probably no need to update these from admin? Since these are internal?
-   - SHOOP-2365
+   - If no new translation is done this seems to be done
