@@ -115,12 +115,11 @@
 
 ** DONE Make Service.shop required
 
-** STARTED Clean-up provides
+** DONE Clean-up provides
    - [X] shipping_method_module
    - [X] payment_method_module
-   - [ ] Check the documentation too (also the payment_method_module example)
-   - [ ] Anything else?
-   - [[file:shoop_tests/core/test_methods.py::48]]
+   - [X] Check the documentation too (also the payment_method_module example)
+   - [X] Anything else? No.
 
 ** STARTED Document models etc.
    - Remember to regenerate API docs too.

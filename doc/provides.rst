@@ -30,9 +30,9 @@ the keys and lists of loading specs as values for new provides to be discovered.
    class PigeonAppConfig(AppConfig):
 
        provides = {
-           "shipping_method_module": [
-               "pigeon.module:PigeonShippingModule"
-           ]
+           'service_provider_admin_form': [
+               'pigeon.admin_forms:PigeonShippingAdminForm',
+           ],
        }
 
 .. note:: Some provides also require the class named by the spec string to include
@@ -124,10 +124,6 @@ Core
     (e.g. `carrier <shoop.core.models.Carrier>` or `payment processor
     <shoop.core.models.PaymentProcessor>`), provide a form for it via
     this provide.
-
-``shipping_method_module``
-    Shipping method module classes (deriving from `~shoop.core.methods.base.BaseShippingMethodModule`),
-    as used by `~shoop.core.models.ShippingMethod`.
 
 ``supplier_module``
     Supplier module classes (deriving from `~shoop.core.suppliers.base.BaseSupplierModule`),
