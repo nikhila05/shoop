@@ -9,7 +9,6 @@ from __future__ import unicode_literals
 
 import functools
 import random
-from collections import defaultdict
 
 import six
 from django.core.exceptions import ValidationError
@@ -248,9 +247,7 @@ class Service(TranslatableShoopModel):
         :type source: shoop.core.order_creator.OrderSource
         :rtype: PriceInfo
         """
-        price_infos = (x.price_info for x in self.get_costs(source))
-        zero = source.create_price(0)
-        return _sum_price_infos(price_infos, PriceInfo(zero, zero, quantity=1))
+        return _sum_costs(self.get_costs(source), source)
 
     def get_costs(self, source):
         """
@@ -262,56 +259,66 @@ class Service(TranslatableShoopModel):
         """
         for component in self.behavior_components.all():
             for cost in component.get_costs(self, source):
-                yield Cost(
-                    price=cost.price,
-                    description=cost.description,
-                    tax_class=(cost.tax_class or self.tax_class),
-                    base_price=cost.base_price)
+                yield cost
 
     def get_lines(self, source):
         """
         Get lines for given source.
 
+        Lines are created based on costs.  Costs without description are
+        combined to single line.
+
         :type source: shoop.core.order_creator.OrderSource
         :rtype: Iterable[shoop.core.order_creator.SourceLine]
         """
-        line_prefix = type(self).__name__.lower()
-        costs = (
-            list(self.get_costs(source)) or
-            [Cost(source.create_price(0), None, self.tax_class)])
-        costs_without_description = defaultdict(list)
-        line_no = 0
-        for cost in costs:
+        for (num, line_data) in enumerate(self._get_line_data(source), 1):
+            (price_info, tax_class, text) = line_data
+            yield self._create_line(source, num, price_info, tax_class, text)
+
+    def _get_line_data(self, source):
+        # Split to costs with and without description
+        costs_with_description = []
+        costs_without_description = []
+        for cost in self.get_costs(source):
             if cost.description:
-                line_no += 1
-                description = _('%(service_name)s: %(sub_item)s') % {
-                    'service_name': self, 'sub_item': cost.description}
+                costs_with_description.append(cost)
             else:
-                costs_without_description[cost.tax_class].append(cost)
-                continue
-            yield self._get_line(source, line_prefix, line_no, cost.price_info, cost.tax_class, description)
+                assert cost.tax_class is None
+                costs_without_description.append(cost)
 
-        for tax_class, costs_for_tax_class in six.iteritems(costs_without_description):
-            line_no += 1
-            zero = source.create_price(0)
-            price_info = _sum_price_infos(
-                [cost.price_info for cost in costs_for_tax_class],
-                PriceInfo(zero, zero, quantity=1))
-            yield self._get_line(source, line_prefix, line_no, price_info, tax_class)
+        if not (costs_with_description or costs_without_description):
+            costs_without_description = [Cost(source.create_price(0))]
 
-    def _get_line(self, source, line_prefix, line_no, price_info, tax_class, description=None):
-        def rand_int():
-            return random.randint(0, 0x7FFFFFFF)
+        effective_name = self.get_effective_name(source)
 
+        # Yield the combined cost first
+        if costs_without_description:
+            combined_price_info = _sum_costs(costs_without_description, source)
+            yield (combined_price_info, self.tax_class, effective_name)
+
+        # Then the costs with description, one line for each tax class
+        for cost in costs_with_description:
+            tax_class = (cost.tax_class or self.tax_class)
+            text = _('%(service_name)s: %(sub_item)s') % {
+                'service_name': effective_name,
+                'sub_item': cost.description,
+            }
+            yield (cost.price_info, tax_class, text)
+
+    def _create_line(self, source, num, price_info, tax_class, text):
         return source.create_line(
-            line_id="%s_%02d_%x" % (line_prefix, line_no, rand_int()),
+            line_id=self._generate_line_id(num),
             type=self.line_type,
             quantity=price_info.quantity,
-            text=(description or self.get_effective_name(source)),
+            text=text,
             base_unit_price=price_info.base_unit_price,
             discount_amount=price_info.discount_amount,
             tax_class=tax_class,
         )
+
+    def _generate_line_id(self, num):
+        return "%s-%02d-%08x" % (
+            self.line_type.name.lower(), num, random.randint(0, 0x7FFFFFFF))
 
     def _make_sure_is_usable(self):
         if not self.provider:
@@ -323,7 +330,14 @@ class Service(TranslatableShoopModel):
                 '%s of %r is disabled' % (self.provider_attr, self))
 
 
-def _sum_price_infos(price_infos, zero):
+def _sum_costs(costs, source):
+    """
+    Sum price info of given costs and return the sum as PriceInfo.
+
+    :type costs: Iterable[Cost]
+    :type source: shoop.core.order_creator.OrderSource
+    :rtype: PriceInfo
+    """
     def plus(pi1, pi2):
         assert pi1.quantity == pi2.quantity
         return PriceInfo(
@@ -331,7 +345,9 @@ def _sum_price_infos(price_infos, zero):
             pi1.base_price + pi2.base_price,
             quantity=pi1.quantity,
         )
-    return functools.reduce(plus, price_infos, zero)
+    zero_price = source.create_price(0)
+    zero_pi = PriceInfo(zero_price, zero_price, quantity=1)
+    return functools.reduce(plus, (x.price_info for x in costs), zero_pi)
 
 
 class Cost(object):
@@ -339,11 +355,17 @@ class Cost(object):
             self, price, description=None,
             tax_class=None, base_price=None):
         """
+        Initialize cost from values.
+
+        Note: If tax_class is specified, also description must be given.
+
         :type price: shoop.core.pricing.Price
         :type description: str|None
         :type tax_class: shoop.core.models.TaxClass|None
         :type base_price: shoop.core.pricing.Price|None
         """
+        if tax_class and not description:
+            raise ValueError('Cost with tax class must have description')
         self.price = price
         self.description = description
         self.tax_class = tax_class
