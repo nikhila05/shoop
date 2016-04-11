@@ -16,6 +16,7 @@ from shoop.core.models import PaymentMethod, ShippingMethod
 
 
 class ServiceModule(AdminModule):
+    category = _("Methods")
     model = None
     name = None
     url_prefix = None
@@ -31,16 +32,12 @@ class ServiceModule(AdminModule):
             name_template=self.name_template
         )
 
-    def get_menu_category_icons(self):
-        return {self.name: "fa fa-cubes"}
-
     def get_menu_entries(self, request):
         return [
             MenuEntry(
                 text=self.name,
-                icon="fa fa-truck",
                 url=self.menu_entry_url,
-                category=_("Service Providers")
+                category=self.category
             )
         ]
 
@@ -57,6 +54,8 @@ class ShippingMethodModule(ServiceModule):
     menu_entry_url = "shoop_admin:shipping_methods.list"
     url_name_prefix = "shoop_admin:shipping_methods"
 
+    breadcrumbs_menu_entry = MenuEntry(text=name, url="shoop_admin:shipping_methods.list")
+
 
 class PaymentMethodModule(ServiceModule):
     model = PaymentMethod
@@ -66,3 +65,5 @@ class PaymentMethodModule(ServiceModule):
     name_template = "payment_methods.%s"
     menu_entry_url = "shoop_admin:payment_methods.list"
     url_name_prefix = "shoop_admin:payment_methods"
+
+    breadcrumbs_menu_entry = MenuEntry(text=name, url="shoop_admin:payment_methods.list")

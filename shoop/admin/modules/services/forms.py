@@ -20,13 +20,17 @@ from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
 class ShippingMethodForm(MultiLanguageModelForm):
     class Meta:
         model = ShippingMethod
-        exclude = ["identifier", "behavior_components"]
+        exclude = [
+            "identifier", "behavior_components", "choice_identifier",
+            "old_module_identifier", "old_module_data"]
 
 
 class PaymentMethodForm(MultiLanguageModelForm):
     class Meta:
         model = PaymentMethod
-        exclude = ["identifier", "behavior_components"]
+        exclude = [
+            "identifier", "behavior_components", "choice_identifier",
+            "old_module_identifier", "old_module_data"]
 
 
 class FixedCostBehaviorComponentForm(MultiLanguageModelForm):

@@ -1,5 +1,6 @@
 {% from "shoop/admin/macros/multilanguage.jinja" import language_dependent_content_tabs, render_monolingual_fields %}
 
+{# TODO: Component needs some logical name that can be shown to merchant #}
 {% if component_form.translated_field_names %}
     {{ language_dependent_content_tabs(component_form, tab_id_prefix=component_form_prefix) }}
     <div class="form-divider"></div>

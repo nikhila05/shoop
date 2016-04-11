@@ -23,23 +23,12 @@ from shoop.utils.form_group import FormDef
 from shoop.utils.multilanguage_model_form import TranslatableModelForm
 
 
-def _get_current_component(method_object, form_class):
-    if not method_object.pk or not hasattr(form_class._meta, "model"):
-        return None
-    model_class = form_class._meta.model
-    components = method_object.behavior_components
-    component = components.instance_of(model_class).first()
-    return component
-
-
 class ServiceBaseFormPart(FormPart):
     priority = -1000  # Show this first
     form = None  # Override in subclass
 
     def __init__(self, *args, **kwargs):
         super(ServiceBaseFormPart, self).__init__(*args, **kwargs)
-        # Make this more general
-        # self.method_form = kwargs["method_form_class"]
 
     def get_form_defs(self):
         yield TemplatedFormDef(
@@ -64,39 +53,42 @@ class PaymentMethodBaseFormPart(ServiceBaseFormPart):
 
 
 class BehaviorComponentFormPart(FormPart):
-    def __init__(self, form_name, form_class, request, object=None):
-        super(BehaviorComponentFormPart, self).__init__(request, object=object)
-        self.form_name = form_name
-        self.form_class = form_class
+    def __init__(self, request, form, name, owner):
+        self.name = name
+        self.form = form
+        self.owner = owner
+        model_class = form._meta.model
+        components = owner.behavior_components
+        self.object = components.instance_of(model_class).first()  # TODO (SHOOP-2336): self.object should be owner
+        super(BehaviorComponentFormPart, self).__init__(request, object=self.object)
 
     def get_form_defs(self):
         kwargs = {}
-        if issubclass(self.form_class, TranslatableModelForm):
+        if issubclass(self.form, TranslatableModelForm):
             kwargs["languages"] = settings.LANGUAGES
         if self.object:
             kwargs["instance"] = self.object
         yield FormDef(
-            self.form_name,
-            self.form_class,
+            self.name,
+            self.form,  # TODO (SHOOP-2336): Make this formset
             required=False,
             kwargs=kwargs,
         )
 
     def form_valid(self, form):
-        component_form = form[self.form_name]
-        method_object = form["base"].instance
+        component_form = form[self.name]
+        # TODO (SHOOP-2336): This should probably live under formset
         if component_form.is_valid() and component_form.cleaned_data:
             component = component_form.save()
-            if component not in method_object.behavior_components.all():
-                method_object.behavior_components.add(component)
+            if component not in self.owner.behavior_components.all():
+                self.owner.behavior_components.add(component)
 
 
 class ServiceEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView):
-    model = ShippingMethod
+    model = None
     template_name = "shoop/admin/services/edit.jinja"
     context_object_name = "shipping_method"
     base_form_part_classes = []  # Override in subclass
-    behavior_component_form_names = []
     provide_key = "service_behavior_component_form"
 
     @atomic
@@ -107,17 +99,14 @@ class ServiceEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView
         form_parts = super(ServiceEditView, self).get_form_parts(object)
         provides_forms = get_provide_specs_and_objects(self.provide_key)
         for spec, form in six.iteritems(provides_forms):
-            name = spec.replace(":", "").replace(".", "")  # Take out delimiters characters
-            if name not in self.behavior_component_form_names:
-                self.behavior_component_form_names.append(name)
-            current = _get_current_component(object, form)
-            form_parts.append(BehaviorComponentFormPart(name, form, self.request, object=current))
+            form_parts.append(self._get_behavior_form_part(spec, form, object))
         return form_parts
 
-    def get_context_data(self, **kwargs):
-        data = super(ServiceEditView, self).get_context_data(**kwargs)
-        data["behavior_component_form_names"] = self.behavior_component_form_names
-        return data
+    def _get_behavior_form_part(self, spec, form, object):
+        name = spec.replace(":", "").replace(".", "")  # Take out delimiters characters
+        if not object.pk or not hasattr(form._meta, "model"):
+            return None
+        return BehaviorComponentFormPart(self.request, form, name, object)
 
 
 class ShippingMethodEditView(ServiceEditView):
