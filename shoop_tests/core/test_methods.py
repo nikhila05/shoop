@@ -28,7 +28,8 @@ from shoop_tests.utils.basketish_order_source import BasketishOrderSource
 def get_expensive_sweden_shipping_method():
     carrier = CustomCarrier.objects.create(name="Sveede Sheep")
     sm = carrier.create_service(
-        None, shop=get_default_shop(), tax_class=get_default_tax_class(),
+        None, shop=get_default_shop(), enabled=True,
+        tax_class=get_default_tax_class(),
         name="Expenseefe-a Svedee Sheepping")
     sm.behavior_components.add(
         ExpensiveSwedenBehaviorComponent.objects.create(),
@@ -192,7 +193,8 @@ def test_translations_of_method_and_component():
 def test_weight_limits():
     carrier = CustomCarrier.objects.create()
     sm = carrier.create_service(
-        None, shop=get_default_shop(), tax_class=get_default_tax_class())
+        None, shop=get_default_shop(), enabled=True,
+        tax_class=get_default_tax_class())
     sm.behavior_components.add(
         WeightLimitsBehaviorComponent.objects.create(
             min_weight=100, max_weight=500))

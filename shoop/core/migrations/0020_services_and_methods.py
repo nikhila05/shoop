@@ -154,7 +154,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paymentmethod',
             name='enabled',
-            field=models.BooleanField(default=True, verbose_name='enabled'),
+            field=models.BooleanField(default=False, verbose_name='enabled'),
         ),
         migrations.AddField(
             model_name='paymentmethod',
@@ -169,7 +169,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='shippingmethod',
             name='enabled',
-            field=models.BooleanField(default=True, verbose_name='enabled'),
+            field=models.BooleanField(default=False, verbose_name='enabled'),
         ),
         migrations.AddField(
             model_name='shippingmethod',

@@ -167,7 +167,7 @@ class ServiceQuerySet(TranslatableQuerySet):
 
 class Service(TranslatableShoopModel):
     identifier = InternalIdentifierField(unique=True, verbose_name=_("identifier"))
-    enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
+    enabled = models.BooleanField(default=False, verbose_name=_("enabled"))
     shop = models.ForeignKey(Shop, blank=True, null=True, verbose_name=_("shop"))
 
     # Initialized from ServiceChoice.identifier

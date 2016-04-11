@@ -349,7 +349,7 @@ def _get_service(
     if not service:
         provider = _get_service_provider(provider_model)
         service = provider.create_service(
-            None, identifier=identifier, shop=shop,
+            None, identifier=identifier, shop=shop, enabled=True,
             name=(name or service_model.__name__),
             tax_class=get_default_tax_class(),
         )
