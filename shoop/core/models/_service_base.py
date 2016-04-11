@@ -47,7 +47,7 @@ class ServiceChoice(object):
 
 
 class ServiceProvider(PolymorphicTranslatableShoopModel):
-    identifier = InternalIdentifierField(unique=True, verbose_name=_("identifier"))
+    identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
     name = TranslatedField(any_language=True)
 
@@ -184,7 +184,8 @@ class Service(TranslatableShoopModel):
     tax_class = models.ForeignKey(
         'TaxClass', on_delete=models.PROTECT, verbose_name=_("tax class"))
 
-    behavior_components = models.ManyToManyField('ServiceBehaviorComponent', verbose_name=_("behavior components"))
+    behavior_components = models.ManyToManyField(
+        'ServiceBehaviorComponent', verbose_name=_("behavior components"))
 
     objects = ServiceQuerySet.as_manager()
 
