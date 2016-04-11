@@ -85,7 +85,6 @@ class BehaviorComponentFormPart(FormPart):
     def form_valid(self, form):
         component_form = form[self.form_name]
         method_object = form["base"].instance
-        current = _get_current_component(method_object, self.form_class)
         if component_form.is_valid() and component_form.cleaned_data:
             component = component_form.save()
             if component not in method_object.behavior_components.all():
@@ -112,7 +111,7 @@ class ServiceEditView(SaveFormPartsMixin, FormPartsViewMixin, CreateOrUpdateView
             if name not in self.behavior_component_form_names:
                 self.behavior_component_form_names.append(name)
             current = _get_current_component(object, form)
-            form_parts.append(BehaviorComponentFormPart(name, form, self.request, object=default))
+            form_parts.append(BehaviorComponentFormPart(name, form, self.request, object=current))
         return form_parts
 
     def get_context_data(self, **kwargs):
