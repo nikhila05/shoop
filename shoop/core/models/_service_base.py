@@ -184,9 +184,9 @@ class Service(TranslatableShoopModel):
     tax_class = models.ForeignKey(
         'TaxClass', on_delete=models.PROTECT, verbose_name=_("tax class"))
 
-    objects = ServiceQuerySet.as_manager()
-
     behavior_components = models.ManyToManyField('ServiceBehaviorComponent', verbose_name=_("behavior components"))
+
+    objects = ServiceQuerySet.as_manager()
 
     class Meta:
         abstract = True
