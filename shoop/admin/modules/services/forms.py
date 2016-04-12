@@ -24,6 +24,12 @@ class ShippingMethodForm(MultiLanguageModelForm):
             "identifier", "behavior_components", "choice_identifier",
             "old_module_identifier", "old_module_data"]
 
+    def __init__(self, **kwargs):
+        super(ShippingMethodForm, self).__init__(**kwargs)
+        if self.instance.pk and self.instance.carrier:
+            choices = [(sc.identifier, sc.name) for sc in self.instance.carrier.get_service_choices()]
+            self.fields["choice_identifier"] = forms.ChoiceField(choices=choices)
+
 
 class PaymentMethodForm(MultiLanguageModelForm):
     class Meta:
@@ -31,6 +37,12 @@ class PaymentMethodForm(MultiLanguageModelForm):
         exclude = [
             "identifier", "behavior_components", "choice_identifier",
             "old_module_identifier", "old_module_data"]
+
+    def __init__(self, **kwargs):
+        super(PaymentMethodForm, self).__init__(**kwargs)
+        if self.instance.pk and self.instance.payment_processor:
+            choices = [(sc.identifier, sc.name) for sc in self.instance.payment_processor.get_service_choices()]
+            self.fields["choice_identifier"] = forms.ChoiceField(choices=choices)
 
 
 class FixedCostBehaviorComponentForm(MultiLanguageModelForm):
