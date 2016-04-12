@@ -9,6 +9,7 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from shoop.core.models import (
     FixedCostBehaviorComponent, PaymentMethod, ShippingMethod,
@@ -49,12 +50,25 @@ class FixedCostBehaviorComponentForm(MultiLanguageModelForm):
     class Meta:
         model = FixedCostBehaviorComponent
         exclude = ["identifier"]
+        labels = {
+            "price_value": _("Price"),
+        }
+        widgets = {
+            "description": forms.Textarea
+        }
 
 
 class WaivingCostBehaviorComponentForm(MultiLanguageModelForm):
     class Meta:
         model = WaivingCostBehaviorComponent
         exclude = ["identifier"]
+        labels = {
+            "price_value": _("Price"),
+            "waive_limit_value": _("Waive limit")
+        }
+        widgets = {
+            "description": forms.Textarea
+        }
 
 
 class WeightLimitsBehaviorComponentForm(forms.ModelForm):
