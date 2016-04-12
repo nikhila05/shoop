@@ -9,7 +9,7 @@
             {% set form_defs = form.form_defs %}
             {% include form_defs["base"].template_name with context %}
             {% if form_defs|length > 1 %}
-            {% call content_block(_("Behaviors"), ("fa-cubes")) %}
+            {% call content_block(_("Behavior"), ("fa-cubes")) %}
                 {% for form_def in form_defs %}
                     {% if form_def != "base" %}
                         {% set component_form_prefix = form_def %}

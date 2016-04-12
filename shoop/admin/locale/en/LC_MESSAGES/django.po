@@ -557,7 +557,7 @@ msgstr ""
 msgid "Service Providers"
 msgstr ""
 
-msgid "Methods"
+msgid "Payment and Shipping"
 msgstr ""
 
 #, python-format
@@ -1082,7 +1082,7 @@ msgid ""
 "Variables tab and then link them to products here."
 msgstr ""
 
-msgid "Behaviors"
+msgid "Behavior"
 msgstr ""
 
 msgid "Shop Logo"

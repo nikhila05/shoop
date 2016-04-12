@@ -16,7 +16,7 @@ from shoop.core.models import PaymentMethod, ShippingMethod
 
 
 class ServiceModule(AdminModule):
-    category = _("Methods")
+    category = _("Payment and Shipping")
     model = None
     name = None
     url_prefix = None
