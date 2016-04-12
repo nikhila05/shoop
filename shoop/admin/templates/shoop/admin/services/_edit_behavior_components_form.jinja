@@ -8,6 +8,7 @@
     {{ render_monolingual_fields(form) }}
 {% endmacro %}
 
+<h3 class="text-center">{{ component_formset.get_name() }}</h3>
 {{ component_formset.management_form }}
 {%  for f in component_formset %}
     {{ render_form(f, form_prefix=component_form_prefix) }}

@@ -35,8 +35,14 @@ class BehaviorFormSet(BaseModelFormSet):
         kwargs.pop("empty_permitted")
         super(BehaviorFormSet, self).__init__(*args, **kwargs)
 
+    def _get_actual_model(self):
+        return self.form_class._meta.model
+
     def get_queryset(self):
-        return self.owner.behavior_components.instance_of(self.form_class._meta.model)
+        return self.owner.behavior_components.instance_of(self._get_actual_model())
+
+    def get_name(self):
+        return self._get_actual_model().name
 
     def form(self, **kwargs):
         if issubclass(self.form_class, TranslatableModelForm):
