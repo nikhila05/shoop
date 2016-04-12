@@ -31,11 +31,11 @@ class Initializer(object):
         schema(TaxClass, "default", name="Default Tax Class"),
         schema(
             CustomPaymentProcessor, CustomPaymentProcessor.__name__,
-            name="Default Payment Processor"),
+            name="Manual payment processing"),
         schema(
             PaymentMethod, identifier="default_payment_method", name="Default Payment Method",
             payment_processor=CustomPaymentProcessor, shop=Shop, tax_class=TaxClass),
-        schema(CustomCarrier, CustomCarrier.__name__, name="Custom Carrier"),
+        schema(CustomCarrier, CustomCarrier.__name__, name="Carrier"),
         schema(
             ShippingMethod, identifier="default_shipping_method", name="Default Shipping Method",
             carrier=CustomCarrier, shop=Shop, tax_class=TaxClass),
