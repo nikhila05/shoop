@@ -73,11 +73,13 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
 
     def create_service(self, choice_identifier, **kwargs):
         """
-        Create ``Service`` object based on choice_identifier parameter.
-        Actual _create_service-method should be implemented in subclass.
+        Create a service for given choice identifier.
 
         May attach some behavior components (`ServiceBehaviorComponent`)
         to the created service.
+
+        Subclasses should provide implementation for `_create_service`
+        or override this.
 
         :type choice_identifier: str|None
         :param choice_identifier:
@@ -90,6 +92,12 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
         return self._create_service(choice_identifier, **kwargs)
 
     def _create_service(self, choice_identifier, **kwargs):
+        """
+        Create a service for given choice identifier.
+
+        :type choice_identifier: str
+        :rtype: shoop.core.models.Service
+        """
         raise NotImplementedError
 
     def get_effective_name(self, service, source):
