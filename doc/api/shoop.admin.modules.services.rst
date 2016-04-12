@@ -11,6 +11,22 @@ Subpackages
 Submodules
 ----------
 
+shoop.admin.modules.services.base_form_part module
+--------------------------------------------------
+
+.. automodule:: shoop.admin.modules.services.base_form_part
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+shoop.admin.modules.services.behavior_form_part module
+------------------------------------------------------
+
+.. automodule:: shoop.admin.modules.services.behavior_form_part
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 shoop.admin.modules.services.forms module
 -----------------------------------------
 

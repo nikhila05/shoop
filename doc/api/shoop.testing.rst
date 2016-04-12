@@ -8,6 +8,7 @@ Subpackages
 
     shoop.testing.admin_module
     shoop.testing.management
+    shoop.testing.models
 
 Submodules
 ----------
@@ -32,14 +33,6 @@ shoop.testing.mock_population module
 ------------------------------------
 
 .. automodule:: shoop.testing.mock_population
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-shoop.testing.models module
----------------------------
-
-.. automodule:: shoop.testing.models
     :members:
     :undoc-members:
     :show-inheritance:
