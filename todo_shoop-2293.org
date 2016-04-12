@@ -124,15 +124,16 @@
 ** DONE Consider combining new testing migrations
    - SHOOP-2366
 
-** DONE: How to deal with Service lines with different taxes?
-   - Now ``FixedCostBehaviorComponent`` costs tax_class is always None
+** DONE How to deal with Service lines with different taxes?
+   - Now ``FixedCostBehaviorComponent`` costs tax_class is always None,
+     so this is not yet a big concern.
+   - Result: Refactored so that costs with a tax class must also have a
+     description and therefore there should be no need to combine lines
+     with different tax classes.
    - SHOOP-2363
-   - It seems that this already refactored correctly by Tuomas
 
-** POSTPONED: Test shipping times?
-   - SHOOP-2362
-
-** ACTIONS NOT NEEDED What should we do with the InternalIdentifier?
+** DONE What should we do with the InternalIdentifier?
+   - Result: No actions needed currently.
    - ServiceProvider
    - Service
    - Probably no need to update these from admin? Since these are internal?
