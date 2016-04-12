@@ -11,6 +11,8 @@ from __future__ import unicode_literals
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from shoop.admin.forms.widgets import MediaChoiceWidget
+from shoop.admin.forms.widgets import MediaChoiceWidget
 from shoop.core.models import (
     FixedCostBehaviorComponent, PaymentMethod, ShippingMethod,
     WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
@@ -27,6 +29,7 @@ class ShippingMethodForm(MultiLanguageModelForm):
 
     def __init__(self, **kwargs):
         super(ShippingMethodForm, self).__init__(**kwargs)
+        self.fields["logo"].widget = MediaChoiceWidget(clearable=True)
         if self.instance.pk and self.instance.carrier:
             choices = [(sc.identifier, sc.name) for sc in self.instance.carrier.get_service_choices()]
             self.fields["choice_identifier"] = forms.ChoiceField(choices=choices)
@@ -41,6 +44,7 @@ class PaymentMethodForm(MultiLanguageModelForm):
 
     def __init__(self, **kwargs):
         super(PaymentMethodForm, self).__init__(**kwargs)
+        self.fields["logo"].widget = MediaChoiceWidget(clearable=True)
         if self.instance.pk and self.instance.payment_processor:
             choices = [(sc.identifier, sc.name) for sc in self.instance.payment_processor.get_service_choices()]
             self.fields["choice_identifier"] = forms.ChoiceField(choices=choices)
