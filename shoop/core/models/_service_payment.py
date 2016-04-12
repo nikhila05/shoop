@@ -19,11 +19,13 @@ from ._service_base import Service, ServiceProvider
 
 class PaymentMethod(Service):
     payment_processor = models.ForeignKey(
-        "PaymentProcessor", null=True, blank=True,
-        on_delete=models.SET_NULL, verbose_name=_("payment processor"))
+        "PaymentProcessor", null=True, blank=True, on_delete=models.SET_NULL,
+        verbose_name=_("payment processor"))
 
     translations = TranslatedFields(
         name=models.CharField(max_length=100, verbose_name=_("name")),
+        description=models.CharField(
+            max_length=500, blank=True, verbose_name=_("description")),
     )
 
     line_type = OrderLineType.PAYMENT

@@ -14,6 +14,7 @@ import six
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from filer.fields.image import FilerImageField
 from jsonfield import JSONField
 from parler.managers import TranslatableQuerySet
 from parler.models import TranslatedField, TranslatedFields
@@ -50,6 +51,9 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
     identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
     name = TranslatedField(any_language=True)
+    logo = FilerImageField(
+        blank=True, null=True, on_delete=models.SET_NULL,
+        verbose_name=_("logo"))
 
     base_translations = TranslatedFields(
         name=models.CharField(max_length=100, verbose_name=_("name")),
@@ -182,13 +186,15 @@ class Service(TranslatableShoopModel):
     choice_identifier = models.CharField(
         blank=True, max_length=64, verbose_name=_("choice identifier"))
 
-    old_module_identifier = models.CharField(
-        max_length=64, blank=True, verbose_name=_('module'))
-    old_module_data = JSONField(
-        blank=True, null=True, verbose_name=_('module data'))
+    # These are for migrating old methods to new architecture
+    old_module_identifier = models.CharField(max_length=64, blank=True)
+    old_module_data = JSONField(blank=True, null=True)
 
     name = TranslatedField(any_language=True)
-
+    description = TranslatedField()
+    logo = FilerImageField(
+        blank=True, null=True, on_delete=models.SET_NULL,
+        verbose_name=_("logo"))
     tax_class = models.ForeignKey(
         'TaxClass', on_delete=models.PROTECT, verbose_name=_("tax class"))
 

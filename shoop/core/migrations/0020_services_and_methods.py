@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
+import filer.fields.image
+import jsonfield.fields
 import shoop.core.fields
 from shoop.core.models import ShopStatus
 
@@ -79,6 +81,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
+        ('filer', '0002_auto_20150606_2003'),
         ('shoop', '0019_contact_merchant_notes'),
     ]
 
@@ -113,6 +116,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('identifier', shoop.core.fields.InternalIdentifierField(null=True, editable=False, max_length=64, blank=True, unique=True)),
                 ('enabled', models.BooleanField(default=True, verbose_name='enabled')),
+                ('logo', filer.fields.image.FilerImageField(blank=True, to='filer.Image', verbose_name='logo', on_delete=django.db.models.deletion.SET_NULL, null=True)),
             ],
             options={
                 'abstract': False,
@@ -176,6 +180,26 @@ class Migration(migrations.Migration):
             model_name='shippingmethod',
             name='status',
         ),
+        migrations.AlterField(
+            model_name='paymentmethod',
+            name='old_module_data',
+            field=jsonfield.fields.JSONField(blank=True, null=True),
+        ),
+        migrations.AlterField(
+            model_name='paymentmethod',
+            name='old_module_identifier',
+            field=models.CharField(blank=True, max_length=64),
+        ),
+        migrations.AlterField(
+            model_name='shippingmethod',
+            name='old_module_data',
+            field=jsonfield.fields.JSONField(blank=True, null=True),
+        ),
+        migrations.AlterField(
+            model_name='shippingmethod',
+            name='old_module_identifier',
+            field=models.CharField(blank=True, max_length=64),
+        ),
         migrations.AddField(
             model_name='paymentmethod',
             name='choice_identifier',
@@ -192,6 +216,11 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(verbose_name='shop', blank=True, to='shoop.Shop', null=True),
         ),
         migrations.AddField(
+            model_name='paymentmethod',
+            name='logo',
+            field=filer.fields.image.FilerImageField(blank=True, to='filer.Image', verbose_name='logo', on_delete=django.db.models.deletion.SET_NULL, null=True),
+        ),
+        migrations.AddField(
             model_name='shippingmethod',
             name='choice_identifier',
             field=models.CharField(max_length=64, verbose_name='choice identifier', blank=True),
@@ -205,16 +234,31 @@ class Migration(migrations.Migration):
             model_name='shippingmethod',
             name='shop',
             field=models.ForeignKey(verbose_name='shop', blank=True, to='shoop.Shop', null=True),
+        ),
+        migrations.AddField(
+            model_name='shippingmethod',
+            name='logo',
+            field=filer.fields.image.FilerImageField(blank=True, to='filer.Image', verbose_name='logo', on_delete=django.db.models.deletion.SET_NULL, null=True),
         ),
         migrations.AlterField(
             model_name='paymentmethodtranslation',
             name='name',
             field=models.CharField(max_length=100, verbose_name='name'),
         ),
+        migrations.AddField(
+            model_name='paymentmethodtranslation',
+            name='description',
+            field=models.CharField(blank=True, max_length=500, verbose_name='description'),
+        ),
         migrations.AlterField(
             model_name='shippingmethodtranslation',
             name='name',
             field=models.CharField(max_length=100, verbose_name='name'),
+        ),
+        migrations.AddField(
+            model_name='shippingmethodtranslation',
+            name='description',
+            field=models.CharField(blank=True, max_length=500, verbose_name='description'),
         ),
         migrations.CreateModel(
             name='Carrier',

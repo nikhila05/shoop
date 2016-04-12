@@ -139,6 +139,8 @@
    - Probably no need to update these from admin? Since these are internal?
    - SHOOP-2365
 
+** DONE Add logo and description fields
+
 ** STARTED Document models etc.
    - Remember to regenerate API docs too.
    - [[file:shoop/core/models/_service_providers.py::31]]

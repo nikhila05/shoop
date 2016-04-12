@@ -24,6 +24,8 @@ class ShippingMethod(Service):
 
     translations = TranslatedFields(
         name=models.CharField(max_length=100, verbose_name=_("name")),
+        description=models.CharField(
+            max_length=500, blank=True, verbose_name=_("description")),
     )
 
     line_type = OrderLineType.SHIPPING
