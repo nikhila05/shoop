@@ -31,8 +31,6 @@ import filer.fields.image
 import shoop.core.utils.name_mixin
 import shoop.core.models._categories
 import shoop.core.models._addresses
-import shoop.core.models._service_shipping
-import shoop.core.models._service_payment
 import shoop.core.models._contacts
 import shoop.core.fields
 import shoop.core.models._counters
