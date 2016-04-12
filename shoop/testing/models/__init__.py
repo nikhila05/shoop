@@ -11,6 +11,6 @@ from ._pseudo_payment import PseudoPaymentProcessor
 
 __all__ = [
     "ExpensiveSwedenBehaviorComponent",
+    "PaymentWithCheckoutPhase",
     "PseudoPaymentProcessor",
-    "PaymentWithCheckoutPhase"
 ]
