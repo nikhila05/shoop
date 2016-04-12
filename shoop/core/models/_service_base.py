@@ -304,7 +304,7 @@ class Service(TranslatableShoopModel):
             combined_price_info = _sum_costs(costs_without_description, source)
             yield (combined_price_info, self.tax_class, effective_name)
 
-        # Then the costs with description, one line for each tax class
+        # Then the costs with description, one line for each cost
         for cost in costs_with_description:
             tax_class = (cost.tax_class or self.tax_class)
             text = _('%(service_name)s: %(sub_item)s') % {
