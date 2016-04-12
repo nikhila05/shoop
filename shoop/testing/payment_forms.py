@@ -13,10 +13,10 @@ from .models import PaymentWithCheckoutPhase, PseudoPaymentProcessor
 class PseudoPaymentProcessorForm(MultiLanguageModelForm):
     class Meta:
         model = PseudoPaymentProcessor
-        exclude = ("identifier", )
+        exclude = ["identifier"]
 
 
 class PaymentWithCheckoutPhaseForm(MultiLanguageModelForm):
     class Meta:
         model = PaymentWithCheckoutPhase
-        exclude = ("identifier", )
+        exclude = ["identifier"]
