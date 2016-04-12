@@ -23,7 +23,7 @@ class BehaviorFormSet(BaseModelFormSet):
     validate_min = False
     min_num = 0
     validate_max = False
-    max_num = 1
+    max_num = 20
     absolute_max = 20
     can_delete = False
     can_order = False
@@ -40,9 +40,6 @@ class BehaviorFormSet(BaseModelFormSet):
 
     def get_queryset(self):
         return self.owner.behavior_components.instance_of(self._get_actual_model())
-
-    def get_name(self):
-        return self._get_actual_model().name
 
     def form(self, **kwargs):
         if issubclass(self.form_class, TranslatableModelForm):

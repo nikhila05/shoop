@@ -15,13 +15,30 @@
                         {% set component_form_prefix = form_def %}
                         {% set component_formset = form[form_def] %}
                         {% include "shoop/admin/services/_edit_behavior_components_form.jinja" with context %}
-                        {% if not loop.last %}
-                            <div class="form-divider"></div>
-                        {% endif %}
                     {% endif %}
                 {% endfor %}
             {% endcall %}
             {% endif %}
         </form>
     {% endcall %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(function () {
+        $(".add-new-component").on("click", function (e) {
+            e.preventDefault();
+            var target = $(this).data("target-component");
+            var componentSelector = ".panel-" + target + " .component-form";
+            var componentCount = $(componentSelector).length;
+            var $source = $("#" + target + "-placeholder");
+            var html = $source.html().replace(/__prefix__/g, componentCount-1).replace(/__prefix_name__/g, componentCount);
+            var $lastComponent = $(componentSelector).last();
+            $(html).insertAfter($lastComponent);
+            var targetID = $(this).data("target-id");
+            var $totalFormsField = $("#" + targetID + "-TOTAL_FORMS");
+            $totalFormsField.val(parseInt($totalFormsField.val()) + 1);
+        });
+    });
+</script>
 {% endblock %}
