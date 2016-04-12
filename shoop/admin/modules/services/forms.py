@@ -12,7 +12,6 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from shoop.admin.forms.widgets import MediaChoiceWidget
-from shoop.admin.forms.widgets import MediaChoiceWidget
 from shoop.core.models import (
     FixedCostBehaviorComponent, PaymentMethod, ShippingMethod,
     WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
