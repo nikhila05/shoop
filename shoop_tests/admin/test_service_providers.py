@@ -14,8 +14,8 @@ from django.test import override_settings
 from shoop.admin.modules.service_providers.views import ServiceProviderEditView
 from shoop.apps.provides import override_provides
 from shoop.core.models import CustomCarrier, CustomPaymentProcessor
-from shoop.testing._pseudo_payment import PseudoPaymentProcessor
 from shoop.testing.factories import get_default_shop
+from shoop.testing.models import PseudoPaymentProcessor
 from shoop.testing.utils import apply_request_middleware
 
 
