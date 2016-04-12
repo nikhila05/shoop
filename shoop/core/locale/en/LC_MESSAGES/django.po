@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-11 12:45+0000\n"
+"POT-Creation-Date: 2016-04-12 14:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -931,10 +931,10 @@ msgstr ""
 msgid "product attributes"
 msgstr ""
 
-msgid "choice identifier"
+msgid "logo"
 msgstr ""
 
-msgid "module data"
+msgid "choice identifier"
 msgstr ""
 
 msgid "behavior components"
@@ -1055,9 +1055,6 @@ msgstr ""
 msgid "options"
 msgstr ""
 
-msgid "logo"
-msgstr ""
-
 msgid "maintenance mode"
 msgstr ""
 
@@ -1083,6 +1080,9 @@ msgid "supplier type"
 msgstr ""
 
 msgid "stock managed"
+msgstr ""
+
+msgid "module data"
 msgstr ""
 
 msgid "Cannot change business critical fields of Tax that is in use"
