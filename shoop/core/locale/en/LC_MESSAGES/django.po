@@ -1005,7 +1005,7 @@ msgstr ""
 msgid "custom carriers"
 msgstr ""
 
-msgid "Manually processed shiment"
+msgid "Manually processed shipment"
 msgstr ""
 
 msgid "not sent"

@@ -84,4 +84,4 @@ class CustomCarrier(Carrier):
         verbose_name_plural = _("custom carriers")
 
     def get_service_choices(self):
-        return [ServiceChoice('manual', _("Manually processed shiment"))]
+        return [ServiceChoice('manual', _("Manually processed shipment"))]
