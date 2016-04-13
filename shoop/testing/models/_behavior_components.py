@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from django.core.exceptions import ValidationError
 
-from shoop.core.models import ServiceBehaviorComponent
+from shoop.core.models import ServiceBehaviorComponent, ServiceCost
 
 
 class ExpensiveSwedenBehaviorComponent(ServiceBehaviorComponent):
@@ -18,9 +18,9 @@ class ExpensiveSwedenBehaviorComponent(ServiceBehaviorComponent):
         four = source.create_price('4.00')
         five = source.create_price('5.00')
         if source.shipping_address and source.shipping_address.country == "SE":
-            yield self.cost(five, base_price=four)
+            yield ServiceCost(five, base_price=four)
         else:
-            yield self.cost(four)
+            yield ServiceCost(four)
 
     def get_unavailability_reasons(self, service, source):
         if source.shipping_address and source.shipping_address.country == "FI":

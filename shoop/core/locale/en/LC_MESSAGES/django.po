@@ -993,7 +993,7 @@ msgstr ""
 msgid "custom payment processors"
 msgstr ""
 
-msgid "Custom payment"
+msgid "Manually processed payment"
 msgstr ""
 
 msgid "carrier"
@@ -1005,7 +1005,7 @@ msgstr ""
 msgid "custom carriers"
 msgstr ""
 
-msgid "Custom shipping"
+msgid "Manually processed shiment"
 msgstr ""
 
 msgid "not sent"

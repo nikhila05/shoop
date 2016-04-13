@@ -14,7 +14,7 @@ from django.db import models
 from django.http.response import HttpResponse
 from django.utils.timezone import now
 
-from shoop.core.models import PaymentProcessor
+from shoop.core.models import PaymentProcessor, ServiceChoice
 from shoop.utils.excs import Problem
 
 
@@ -45,8 +45,8 @@ class PseudoPaymentProcessor(PaymentProcessor):
 
     def get_service_choices(self):
         return [
-            self.service_choice('normal', "Pseudo payment"),
-            self.service_choice('caps', "Pseudo payment CAPS"),
+            ServiceChoice('normal', "Pseudo payment"),
+            ServiceChoice('caps', "Pseudo payment CAPS"),
         ]
 
     def compute_pseudo_mac(self, order):

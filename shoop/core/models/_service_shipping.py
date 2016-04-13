@@ -14,7 +14,7 @@ from parler.models import TranslatedFields
 from shoop.utils.dates import DurationRange
 
 from ._order_lines import OrderLineType
-from ._service_base import Service, ServiceProvider
+from ._service_base import Service, ServiceChoice, ServiceProvider
 
 
 class ShippingMethod(Service):
@@ -56,15 +56,32 @@ class ShippingMethod(Service):
 
 
 class Carrier(ServiceProvider):
+    """
+    Service provider interface for shipment processing.
+
+    Services provided by a carrier are `shipping methods
+    <ShippingMethod>`.  To create a new shipping method for a carrier,
+    use the `create_service` method.
+
+    Implementers of this interface will provide provide a list of
+    shipping service choices and each related shipping method should
+    have one of those service choices assigned to it.
+
+    Note: `Carrier` objects should never be created on their own but
+    rather through a concrete subclass.
+    """
     def _create_service(self, choice_identifier, **kwargs):
         return ShippingMethod.objects.create(
             carrier=self, choice_identifier=choice_identifier, **kwargs)
 
 
 class CustomCarrier(Carrier):
+    """
+    Carrier without any integration or special processing.
+    """
     class Meta:
         verbose_name = _("custom carrier")
         verbose_name_plural = _("custom carriers")
 
     def get_service_choices(self):
-        return [self.service_choice('custom', _("Custom shipping"))]
+        return [ServiceChoice('manual', _("Manually processed shiment"))]

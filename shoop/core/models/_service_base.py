@@ -30,24 +30,13 @@ from ._product_shops import ShopProduct
 from ._shops import Shop
 
 
-class ServiceChoice(object):
-    def __init__(self, identifier, name):
-        """
-        Initialize service choice.
-
-        :type identifier: str
-        :param identifier:
-          Internal identifier for the service.  Should be unique within
-          a single `ServiceProvider`.
-        :type name: str
-        :param name:
-          Descriptive name of the service in currently active language.
-        """
-        self.identifier = identifier
-        self.name = name
-
-
 class ServiceProvider(PolymorphicTranslatableShoopModel):
+    """
+    Entity that provides services.
+
+    Good examples of service providers are `Carrier` and
+    `PaymentProcessor`.
+    """
     identifier = InternalIdentifierField(unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
     name = TranslatedField(any_language=True)
@@ -61,15 +50,11 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
 
     checkout_phase_class = None
 
-    #: Helper for creating `ServiceChoice` objects.
-    service_choice = ServiceChoice
-
     def get_service_choices(self):
         """
-        Retrieve all ``ServiceChoice`` objects for this provider.
-        Subclass should implement this method.
+        Get all service choices of this provider.
 
-        You may use `service_choice` to create the service choices.
+        Subclasses should implement this method.
 
         :rtype: list[ServiceChoice]
         """
@@ -79,11 +64,12 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
         """
         Create a service for given choice identifier.
 
-        May attach some behavior components (`ServiceBehaviorComponent`)
-        to the created service.
+        Subclass implementation may attach some `behavior components
+        <ServiceBehaviorComponent>` to the created service.
 
         Subclasses should provide implementation for `_create_service`
-        or override this.
+        or override this.  Base class implementation calls the
+        `_create_service` method with resolved `choice_identifier`.
 
         :type choice_identifier: str|None
         :param choice_identifier:
@@ -119,6 +105,8 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
 
     def get_checkout_phase(self, service, **kwargs):
         """
+        Get checkout phase of given service.
+
         :type service: shoop.core.models.Service
         :rtype: shoop.front.checkout.CheckoutPhaseViewMixin|None
         """
@@ -128,6 +116,27 @@ class ServiceProvider(PolymorphicTranslatableShoopModel):
         from shoop.front.checkout import CheckoutPhaseViewMixin
         assert issubclass(phase_class, CheckoutPhaseViewMixin)
         return phase_class(service=service, **kwargs)
+
+
+class ServiceChoice(object):
+    """
+    Choice of service provided by a service provider.
+    """
+
+    def __init__(self, identifier, name):
+        """
+        Initialize service choice.
+
+        :type identifier: str
+        :param identifier:
+          Internal identifier for the service.  Should be unique within
+          a single `ServiceProvider`.
+        :type name: str
+        :param name:
+          Descriptive name of the service in currently active language.
+        """
+        self.identifier = identifier
+        self.name = name
 
 
 class ServiceQuerySet(TranslatableQuerySet):
@@ -178,11 +187,19 @@ class ServiceQuerySet(TranslatableQuerySet):
 
 
 class Service(TranslatableShoopModel):
+    """
+    Abstract base model for services.
+
+    Each enabled service should be linked to a service provider and
+    should have a choice identifier specified in its `choice_identifier`
+    field.  The choice identifier should be valid for the service
+    provider, i.e. it should be one of the `ServiceChoice.identifier`
+    values returned by the `ServiceProvider.get_service_choices` method.
+    """
     identifier = InternalIdentifierField(unique=True, verbose_name=_("identifier"))
     enabled = models.BooleanField(default=False, verbose_name=_("enabled"))
     shop = models.ForeignKey(Shop, verbose_name=_("shop"))
 
-    # Initialized from ServiceChoice.identifier
     choice_identifier = models.CharField(
         blank=True, max_length=64, verbose_name=_("choice identifier"))
 
@@ -277,7 +294,7 @@ class Service(TranslatableShoopModel):
 
         :type source: shoop.core.order_creator.OrderSource
         :return: description, price and tax class of the costs
-        :rtype: Iterable[Cost]
+        :rtype: Iterable[ServiceCost]
         """
         for component in self.behavior_components.all():
             for cost in component.get_costs(self, source):
@@ -309,7 +326,7 @@ class Service(TranslatableShoopModel):
                 costs_without_description.append(cost)
 
         if not (costs_with_description or costs_without_description):
-            costs_without_description = [Cost(source.create_price(0))]
+            costs_without_description = [ServiceCost(source.create_price(0))]
 
         effective_name = self.get_effective_name(source)
 
@@ -356,7 +373,7 @@ def _sum_costs(costs, source):
     """
     Sum price info of given costs and return the sum as PriceInfo.
 
-    :type costs: Iterable[Cost]
+    :type costs: Iterable[ServiceCost]
     :type source: shoop.core.order_creator.OrderSource
     :rtype: PriceInfo
     """
@@ -372,7 +389,12 @@ def _sum_costs(costs, source):
     return functools.reduce(plus, (x.price_info for x in costs), zero_pi)
 
 
-class Cost(object):
+class ServiceCost(object):
+    """
+    A cost of a service.
+
+    One service might have several costs.
+    """
     def __init__(
             self, price, description=None,
             tax_class=None, base_price=None):
@@ -405,9 +427,6 @@ class ServiceBehaviorComponent(PolymorphicShoopModel):
     #: Help text for the component (lazy translated)
     help_text = None
 
-    #: Helper for creating `Cost` objects.
-    cost = Cost
-
     def __init__(self, *args, **kwargs):
         if type(self) != ServiceBehaviorComponent and self.name is None:
             raise TypeError('%s.name is not defined' % type(self).__name__)
@@ -427,11 +446,9 @@ class ServiceBehaviorComponent(PolymorphicShoopModel):
         in subclass. This method is used to calculate price for
         ``ShippingMethod`` and ``PaymentMethod`` objects.
 
-        Costs may be created with the `cost` helper.
-
         :type service: Service
         :type source: shoop.core.order_creator.OrderSource
-        :rtype: Iterable[Cost]
+        :rtype: Iterable[ServiceCost]
         """
         return ()
 

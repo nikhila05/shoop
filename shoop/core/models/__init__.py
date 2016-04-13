@@ -42,7 +42,8 @@ from ._products import (
     ProductMode, ProductType, ShippingMode, StockBehavior
 )
 from ._service_base import (
-    Service, ServiceBehaviorComponent, ServiceChoice, ServiceProvider
+    Service, ServiceBehaviorComponent, ServiceChoice, ServiceCost,
+    ServiceProvider
 )
 from ._service_behavior import (
     FixedCostBehaviorComponent, WaivingCostBehaviorComponent,
@@ -121,6 +122,7 @@ __all__ = [
     "Service",
     "ServiceBehaviorComponent",
     "ServiceChoice",
+    "ServiceCost",
     "ServiceProvider",
     "Shipment",
     "ShipmentProduct",
