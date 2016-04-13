@@ -11,45 +11,64 @@ from __future__ import unicode_literals
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from shoop.admin.forms.widgets import MediaChoiceWidget
+from shoop.admin.forms import ShoopAdminForm
 from shoop.core.models import (
     FixedCostBehaviorComponent, PaymentMethod, ShippingMethod,
     WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
-from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
 
 
-class ShippingMethodForm(MultiLanguageModelForm):
+class BaseMethodForm(ShoopAdminForm):
     class Meta:
+        model = None
+        exclude = [
+            "identifier", "behavior_components", "old_module_identifier",
+            "old_module_data"
+        ]
+
+    def __init__(self, **kwargs):
+        super(BaseMethodForm, self).__init__(**kwargs)
+        self.fields["choice_identifier"] = forms.ChoiceField(
+            choices=_get_service_choices(self.service_provider),
+            required=bool(self.service_provider),
+            label=_("Service"),
+        )
+
+
+class ShippingMethodForm(BaseMethodForm):
+    class Meta(BaseMethodForm.Meta):
         model = ShippingMethod
-        exclude = [
-            "identifier", "behavior_components", "choice_identifier",
-            "old_module_identifier", "old_module_data"]
+        fields = [
+            "name", "description", "enabled", "shop", "logo", "carrier",
+            "choice_identifier", "tax_class",
+        ]
 
-    def __init__(self, **kwargs):
-        super(ShippingMethodForm, self).__init__(**kwargs)
-        self.fields["logo"].widget = MediaChoiceWidget(clearable=True)
-        if self.instance.pk and self.instance.carrier:
-            choices = [(sc.identifier, sc.name) for sc in self.instance.carrier.get_service_choices()]
-            self.fields["choice_identifier"] = forms.ChoiceField(choices=choices)
+    @property
+    def service_provider(self):
+        return self.instance.carrier if self.instance.pk else None
 
 
-class PaymentMethodForm(MultiLanguageModelForm):
-    class Meta:
+class PaymentMethodForm(BaseMethodForm):
+    class Meta(BaseMethodForm.Meta):
         model = PaymentMethod
-        exclude = [
-            "identifier", "behavior_components", "choice_identifier",
-            "old_module_identifier", "old_module_data"]
+        fields = [
+            "name", "description", "enabled", "shop", "logo", "payment_processor",
+            "choice_identifier", "tax_class",
+        ]
 
-    def __init__(self, **kwargs):
-        super(PaymentMethodForm, self).__init__(**kwargs)
-        self.fields["logo"].widget = MediaChoiceWidget(clearable=True)
-        if self.instance.pk and self.instance.payment_processor:
-            choices = [(sc.identifier, sc.name) for sc in self.instance.payment_processor.get_service_choices()]
-            self.fields["choice_identifier"] = forms.ChoiceField(choices=choices)
+    @property
+    def service_provider(self):
+        return self.instance.payment_processor if self.instance.pk else None
 
 
-class FixedCostBehaviorComponentForm(MultiLanguageModelForm):
+def _get_service_choices(service_provider):
+    if not service_provider:
+        return []
+    service_choices = service_provider.get_service_choices()
+    return [("", "---------")] + [(sc.identifier, sc.name) for sc in service_choices]
+
+
+class FixedCostBehaviorComponentForm(ShoopAdminForm):
     class Meta:
         model = FixedCostBehaviorComponent
         exclude = ["identifier"]
@@ -58,7 +77,7 @@ class FixedCostBehaviorComponentForm(MultiLanguageModelForm):
         }
 
 
-class WaivingCostBehaviorComponentForm(MultiLanguageModelForm):
+class WaivingCostBehaviorComponentForm(ShoopAdminForm):
     class Meta:
         model = WaivingCostBehaviorComponent
         exclude = ["identifier"]
