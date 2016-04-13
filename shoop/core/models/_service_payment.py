@@ -45,16 +45,6 @@ class PaymentMethod(Service):
         self.provider.process_payment_return_request(self, order, request)
 
 
-class PaymentUrls(object):
-    """
-    TODO(SHOOP-2293): Document!
-    """
-    def __init__(self, payment_url, return_url, cancel_url):
-        self.payment_url = payment_url
-        self.return_url = return_url
-        self.cancel_url = cancel_url
-
-
 class PaymentProcessor(ServiceProvider):
     def get_payment_process_response(self, service, order, urls):
         """
@@ -88,6 +78,16 @@ class PaymentProcessor(ServiceProvider):
     def _create_service(self, choice_identifier, **kwargs):
         return PaymentMethod.objects.create(
             payment_processor=self, choice_identifier=choice_identifier, **kwargs)
+
+
+class PaymentUrls(object):
+    """
+    TODO(SHOOP-2293): Document!
+    """
+    def __init__(self, payment_url, return_url, cancel_url):
+        self.payment_url = payment_url
+        self.return_url = return_url
+        self.cancel_url = cancel_url
 
 
 class CustomPaymentProcessor(PaymentProcessor):
