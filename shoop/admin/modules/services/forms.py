@@ -56,9 +56,6 @@ class FixedCostBehaviorComponentForm(MultiLanguageModelForm):
         labels = {
             "price_value": _("Price"),
         }
-        widgets = {
-            "description": forms.Textarea
-        }
 
 
 class WaivingCostBehaviorComponentForm(MultiLanguageModelForm):
@@ -68,9 +65,6 @@ class WaivingCostBehaviorComponentForm(MultiLanguageModelForm):
         labels = {
             "price_value": _("Price"),
             "waive_limit_value": _("Waive limit")
-        }
-        widgets = {
-            "description": forms.Textarea
         }
 
 
