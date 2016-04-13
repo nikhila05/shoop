@@ -8,26 +8,17 @@
 
 from __future__ import unicode_literals
 
-from shoop.admin.forms.widgets import MediaChoiceWidget
+from shoop.admin.forms import ShoopAdminForm
 from shoop.core.models import CustomCarrier, CustomPaymentProcessor
-from shoop.utils.multilanguage_model_form import MultiLanguageModelForm
 
 
-class CustomCarrierForm(MultiLanguageModelForm):
+class CustomCarrierForm(ShoopAdminForm):
     class Meta:
         model = CustomCarrier
         exclude = ("identifier", )
 
-    def __init__(self, **kwargs):
-        super(CustomCarrierForm, self).__init__(**kwargs)
-        self.fields["logo"].widget = MediaChoiceWidget(clearable=True)
 
-
-class CustomPaymentProcessorForm(MultiLanguageModelForm):
+class CustomPaymentProcessorForm(ShoopAdminForm):
     class Meta:
         model = CustomPaymentProcessor
         exclude = ("identifier", )
-
-    def __init__(self, **kwargs):
-        super(CustomPaymentProcessorForm, self).__init__(**kwargs)
-        self.fields["logo"].widget = MediaChoiceWidget(clearable=True)
