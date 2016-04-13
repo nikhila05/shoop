@@ -25,7 +25,7 @@ class BehaviorFormSet(BaseModelFormSet):
     validate_max = False
     max_num = 20
     absolute_max = 20
-    can_delete = False
+    can_delete = True
     can_order = False
     extra = 1
 
@@ -67,4 +67,4 @@ class BehaviorComponentFormPart(FormPart):
     def form_valid(self, form):
         components = form.forms[self.name].save()
         for component in components:
-            self.object.behavior_components.add(component)
+            self.object.behavior_components = components
