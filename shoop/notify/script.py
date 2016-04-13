@@ -14,7 +14,7 @@ from django.db.models.query import QuerySet
 
 from shoop.notify.base import Action, Condition
 from shoop.notify.enums import StepConditionOperator, StepNext
-from shoop.utils.analog import get_log_model
+from shoop.utils.analog import BaseLogEntry
 
 
 def none(conditions):
@@ -180,6 +180,5 @@ class Context(object):
     def log_entry_queryset(self):
         log_entries = getattr(self._log_target, "log_entries", None)
         if log_entries is None:
-            # `BaseLogEntry` doesn't have ``objects`` as it's abstract
-            return QuerySet(get_log_model(None)).none()
+            return QuerySet(BaseLogEntry).none()  # `BaseLogEntry` doesn't have `objects` as it's abstract
         return log_entries.all()

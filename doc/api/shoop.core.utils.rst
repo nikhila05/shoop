@@ -20,14 +20,6 @@ shoop.core.utils.maintenance module
     :undoc-members:
     :show-inheritance:
 
-shoop.core.utils.model module
------------------------------
-
-.. automodule:: shoop.core.utils.model
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 shoop.core.utils.model_caching_descriptor module
 ------------------------------------------------
 
