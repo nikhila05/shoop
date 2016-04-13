@@ -35,6 +35,13 @@ class BaseMethodForm(ShoopAdminForm):
         )
 
 
+def _get_service_choices(service_provider):
+    if not service_provider:
+        return []
+    service_choices = service_provider.get_service_choices()
+    return [("", "---------")] + [(sc.identifier, sc.name) for sc in service_choices]
+
+
 class ShippingMethodForm(BaseMethodForm):
     class Meta(BaseMethodForm.Meta):
         model = ShippingMethod
@@ -59,13 +66,6 @@ class PaymentMethodForm(BaseMethodForm):
     @property
     def service_provider(self):
         return self.instance.payment_processor if self.instance.pk else None
-
-
-def _get_service_choices(service_provider):
-    if not service_provider:
-        return []
-    service_choices = service_provider.get_service_choices()
-    return [("", "---------")] + [(sc.identifier, sc.name) for sc in service_choices]
 
 
 class FixedCostBehaviorComponentForm(ShoopAdminForm):
