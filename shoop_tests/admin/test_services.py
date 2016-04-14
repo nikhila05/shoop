@@ -145,10 +145,12 @@ def test_method_edit_save(rf, admin_user, view, model, get_object, service_provi
             "base-choice_identifier": "manual"
         }
         methods_before = model.objects.count()
-        request = apply_request_middleware(rf.post("/", data=data), user=admin_user)
-        response = view(request, pk=object.pk)
-        if hasattr(response, "render"):
-            response.render()
-        assert response.status_code in [200, 302]
+        # Behavior components is tested at shoop.tests.admin.test_service_behavior_components
+        with override_provides("service_behavior_component_form", []):
+            request = apply_request_middleware(rf.post("/", data=data), user=admin_user)
+            response = view(request, pk=object.pk)
+            if hasattr(response, "render"):
+                response.render()
+            assert response.status_code in [200, 302]
         assert model.objects.count() == methods_before
         assert model.objects.get(pk=object.pk).choice_identifier == "manual"

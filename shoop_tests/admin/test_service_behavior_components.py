@@ -7,7 +7,6 @@
 # LICENSE file in the root directory of this source tree.
 
 import pytest
-from django.conf import settings
 from django.test import override_settings
 
 from shoop.admin.modules.services.views import (
@@ -18,9 +17,10 @@ from shoop.core.models import (
     WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
 from shoop.testing.factories import (
-    get_default_payment_method, get_default_shipping_method, get_default_shop,
+    get_default_payment_method, get_default_shipping_method, get_default_shop
 )
 from shoop.testing.utils import apply_request_middleware
+
 
 DEFAULT_BEHAVIOR_SETTINGS = {
     FixedCostBehaviorComponent: {
