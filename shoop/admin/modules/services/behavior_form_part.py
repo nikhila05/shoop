@@ -65,6 +65,7 @@ class BehaviorComponentFormPart(FormPart):
         )
 
     def form_valid(self, form):
-        components = form.forms[self.name].save()
-        for component in components:
-            self.object.behavior_components = components
+        component_form = form.forms[self.name]
+        component_form.save()
+        for component in component_form.new_objects:
+            self.object.behavior_components.add(component)
