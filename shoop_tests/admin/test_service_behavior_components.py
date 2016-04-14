@@ -7,25 +7,18 @@
 # LICENSE file in the root directory of this source tree.
 
 import pytest
-from django import forms
 from django.conf import settings
 from django.test import override_settings
 
-from shoop.admin.modules.services.base_form_part import ServiceBaseFormPart
-from shoop.admin.modules.services.forms import (
-    PaymentMethodForm, ShippingMethodForm
-)
 from shoop.admin.modules.services.views import (
     PaymentMethodEditView, ShippingMethodEditView
 )
-from shoop.apps.provides import override_provides
 from shoop.core.models import (
     FixedCostBehaviorComponent, PaymentMethod, ShippingMethod,
     WaivingCostBehaviorComponent, WeightLimitsBehaviorComponent
 )
 from shoop.testing.factories import (
     get_default_payment_method, get_default_shipping_method, get_default_shop,
-    get_default_tax_class
 )
 from shoop.testing.utils import apply_request_middleware
 
