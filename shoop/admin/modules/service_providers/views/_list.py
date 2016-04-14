@@ -18,10 +18,11 @@ class ServiceProviderListView(PicotableListView):
     model = ServiceProvider
     columns = [
         Column(
-            "name", _("Name"), sort_field="translations__name",
-            filter_config=TextFilter(filter_field="name", placeholder=_("Filter by name..."))
-        ),
-        Column("type", _(u"Type"), display="get_type_display", sortable=False)
+            "name", _("Name"), sort_field="base_translations__name",
+            filter_config=TextFilter(
+                filter_field="base_translations__name",
+                placeholder=_("Filter by name..."))),
+        Column("type", _(u"Type"), display="get_type_display", sortable=False),
     ]
 
     def get_type_display(self, instance):
