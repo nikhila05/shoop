@@ -31,4 +31,5 @@ class ServiceProviderListView(PicotableListView):
     def get_object_abstract(self, instance, item):
         return [
             {"text": "%s" % instance, "class": "header"},
+            {"text": self.get_type_display(instance)},
         ]
