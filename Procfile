@@ -1,2 +1,2 @@
-web:python -m shoop_workbench migrate
-web: python -m shoop_workbench runserver
+web:python -m manage.py migrate
+web: python -m manage.py runserver
