@@ -9,6 +9,10 @@
 import {handleActions} from "redux-actions";
 import _ from "lodash";
 
+function getMethodPrice(method) {
+    return  method && method.price ? method.price : 0;
+}
+
 function updateTotals(state, {payload}) {
     const updates = {};
     const {lines, methods} = payload();
@@ -16,6 +20,8 @@ function updateTotals(state, {payload}) {
     _.map(lines, (line) => {
         total += line.total;
     });
+    total += getMethodPrice(methods.shippingMethod);
+    total += getMethodPrice(methods.paymentMethod);
     updates.total = +total.toFixed(2);
     return _.assign({}, state, updates);
 }

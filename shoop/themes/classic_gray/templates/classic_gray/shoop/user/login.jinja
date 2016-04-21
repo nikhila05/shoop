@@ -11,7 +11,7 @@
             {% trans %}Log in{% endtrans %}
         </h1>
         <p class="lead">
-            {% trans username = user.get_full_name() if (user.first_name or user.last_name) else user %}You have already logged in as <strong>{{ username }}</strong>{% endtrans %}
+            {% trans %}You have already been logged in as{% endtrans %} <strong>{% if user.first_name or user.last_name %}{{ user.get_full_name() }}{% else %}{{ user }}{% endif %}</strong>
         </p>
         <a href="/" class="btn btn-primary"><i class="fa fa-angle-double-left"></i> {% trans %}Go to Homepage{% endtrans %}</a>
     {% else %}
@@ -41,7 +41,7 @@
                     </form>
                 </div>
                 {% if shoop.urls.has_url("shoop:registration_register") %}
-                    <a class="col-sm-12 text-center text-muted" href="{{ url("shoop:registration_register") }}{% if next %}?next={{next}}{% endif %}">
+                    <a class="col-sm-12 text-center text-muted" href="{{ url("shoop:registration_register") }}">
                         {% trans %}New user? Register here!{% endtrans %}
                     </a>
                 {% endif %}

@@ -15,6 +15,7 @@ from shoop.testing.factories import (
     get_default_shipping_method, get_default_shop, get_default_supplier,
     get_initial_order_status
 )
+from shoop.testing.utils import apply_request_middleware
 from shoop.utils.models import get_data_dict
 from shoop_tests.utils.basketish_order_source import BasketishOrderSource
 
@@ -30,36 +31,6 @@ def test_invalid_source_line_updating():
         SourceLine(source).update({"update": True})
 
 
-def test_codes_type_conversion():
-    source = OrderSource(Shop())
-
-    assert source.codes == []
-
-    with pytest.raises(AttributeError):
-        source.codes = "test"
-    assert source.codes == []
-
-    source.add_code("t")
-    source.add_code("e")
-    source.add_code("s")
-    assert source.codes == ["t", "e", "s"]
-
-    was_added = source.add_code("t")
-    assert was_added is False
-    assert source.codes == ["t", "e", "s"]
-
-    was_cleared = source.clear_codes()
-    assert was_cleared
-    assert source.codes == []
-    was_cleared = source.clear_codes()
-    assert not was_cleared
-
-    source.add_code("test")
-    source.add_code(1)
-    source.add_code("1")
-    assert source.codes == ["test", "1"]
-
-
 def seed_source(user):
     source = BasketishOrderSource(get_default_shop())
     billing_address = get_address()
@@ -73,7 +44,6 @@ def seed_source(user):
     assert source.payment_method_id == get_default_payment_method().id
     assert source.shipping_method_id == get_default_shipping_method().id
     return source
-
 
 @pytest.mark.django_db
 def test_order_creator(rf, admin_user):
@@ -92,7 +62,9 @@ def test_order_creator(rf, admin_user):
         require_verification=True,
     )
 
-    creator = OrderCreator()
+    request = apply_request_middleware(rf.get("/"))
+
+    creator = OrderCreator(request)
     order = creator.create_order(source)
     assert get_data_dict(source.billing_address) == get_data_dict(order.billing_address)
     assert get_data_dict(source.shipping_address) == get_data_dict(order.shipping_address)
@@ -112,7 +84,9 @@ def test_order_creator_supplierless_product_line_conversion_should_fail(rf, admi
         base_unit_price=source.create_price(10),
     )
 
-    creator = OrderCreator()
+    request = apply_request_middleware(rf.get("/"))
+
+    creator = OrderCreator(request)
     with pytest.raises(ValueError):
         order = creator.create_order(source)
 
@@ -137,8 +111,9 @@ def test_order_source_parentage(rf, admin_user):
         base_unit_price=source.create_price(5),
         parent_line_id="parent"
     )
+    request = apply_request_middleware(rf.get("/"))
 
-    creator = OrderCreator()
+    creator = OrderCreator(request)
     order = Order.objects.get(pk=creator.create_order(source).pk)
     kid_line = order.lines.filter(sku="KIDKIDKID").first()
     assert kid_line

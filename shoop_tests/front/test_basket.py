@@ -9,14 +9,11 @@ import pytest
 from django.db.models import Sum
 from django.test.utils import override_settings
 
-from shoop.core.models import ShippingMode
 from shoop.front.basket import get_basket
 from shoop.front.models import StoredBasket
 from shoop.testing.factories import (
-    create_product, get_default_shop, get_default_payment_method,
-    get_default_supplier
+    create_product, get_default_shop, get_default_supplier
 )
-from shoop.testing.utils import apply_request_middleware
 from shoop_tests.utils import printable_gibberish
 
 
@@ -29,7 +26,6 @@ def test_basket(rf, storage):
     StoredBasket.objects.all().delete()
     quantities = [3, 12, 44, 23, 65]
     shop = get_default_shop()
-    get_default_payment_method()  # Can't create baskets without payment methods
     supplier = get_default_supplier()
     products_and_quantities = []
     for quantity in quantities:
@@ -42,15 +38,12 @@ def test_basket(rf, storage):
             request = rf.get("/")
             request.session = {}
             request.shop = shop
-            apply_request_middleware(request)
             basket = get_basket(request)
             assert basket == request.basket
-            assert basket.product_count == 0
             line = basket.add_product(supplier=supplier, shop=shop, product=product, quantity=q)
             assert line.quantity == q
             assert basket.get_lines()
             assert basket.get_product_ids_and_quantities().get(product.pk) == q
-            assert basket.product_count == q
             basket.save()
             delattr(request, "basket")
             basket = get_basket(request)
@@ -70,56 +63,3 @@ def test_basket(rf, storage):
                 assert stats["tfs"] == sum(quantities) * 50
             else:
                 assert stats["tls"] == sum(quantities) * 50
-
-        basket.finalize()
-
-
-@pytest.mark.django_db
-def test_basket_dirtying_with_fnl(rf):
-    shop = get_default_shop()
-    supplier = get_default_supplier()
-    product = create_product(printable_gibberish(), shop=shop, supplier=supplier, default_price=50)
-    request = rf.get("/")
-    request.session = {}
-    request.shop = shop
-    apply_request_middleware(request)
-    basket = get_basket(request)
-    line = basket.add_product(
-        supplier=supplier,
-        shop=shop,
-        product=product,
-        quantity=1,
-        force_new_line=True,
-        extra={"foo": "foo"}
-    )
-    assert basket.dirty  # The change should have dirtied the basket
-
-
-@pytest.mark.django_db
-def test_basket_shipping_error(rf):
-    StoredBasket.objects.all().delete()
-    shop = get_default_shop()
-    supplier = get_default_supplier()
-    shipped_product = create_product(
-        printable_gibberish(), shop=shop, supplier=supplier, default_price=50,
-        shipping_mode=ShippingMode.SHIPPED
-    )
-    unshipped_product = create_product(
-        printable_gibberish(), shop=shop, supplier=supplier, default_price=50,
-        shipping_mode=ShippingMode.NOT_SHIPPED
-    )
-
-    request = rf.get("/")
-    request.session = {}
-    request.shop = shop
-    apply_request_middleware(request)
-    basket = get_basket(request)
-
-    # With a shipped product but no shipping methods, we oughta get an error
-    basket.add_product(supplier=supplier, shop=shop, product=shipped_product, quantity=1)
-    assert any(ve.code == "no_common_shipping" for ve in basket.get_validation_errors())
-    basket.clear_all()
-
-    # But with an unshipped product, we should not
-    basket.add_product(supplier=supplier, shop=shop, product=unshipped_product, quantity=1)
-    assert not any(ve.code == "no_common_shipping" for ve in basket.get_validation_errors())

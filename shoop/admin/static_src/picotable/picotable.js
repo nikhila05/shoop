@@ -276,7 +276,7 @@ const Picotable = (function(m, storage) {
         var input = m("input.form-control", {
             type: col.filter.text.type || "text",
             value: Util.stringValue(value),
-            placeholder: col.filter.placeholder || interpolate(gettext("Filter by %s"), [col.title]),
+            placeholder: col.filter.placeholder || "Filter by " + col.title,
             onchange: setFilterValueFromInput,
             config: debounceChangeConfig(500)
         });
@@ -486,8 +486,7 @@ const Picotable = (function(m, storage) {
                 linkAttrs.onclick = Util.boundPartial(ctrl, ctrl.pickObject, item);
                 linkAttrs.href = "#";
             }
-            var element = (item._linked_in_mobile ? m("a.inner", linkAttrs, content) : m("span.inner", content));
-            return m("div.list-element", element);
+            return m("div.list-element", m("a.inner", linkAttrs, content));
         });
         return m("div.mobile", [
             m("div.row.mobile-header", [

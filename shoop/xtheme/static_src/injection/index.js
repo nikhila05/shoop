@@ -48,7 +48,6 @@ function setSidebarVisibility(visible) {
 
 function openPlaceholderEditor(domElement) {
     const placeholderName = domElement.dataset.xtPlaceholderName;
-    const globalType = domElement.dataset.xtGlobalType;
     if (!placeholderName) {
         return;
     }
@@ -59,7 +58,6 @@ function openPlaceholderEditor(domElement) {
         view: viewName,
         theme: window.XthemeEditorConfig.themeIdentifier,
         ph: placeholderName,
-        "global_type": globalType,
 
         // TODO: Hopefully we won't get any problems with too-long query strings (2048 is the maximum for IE):
         "default_config": defaultConfigJSON

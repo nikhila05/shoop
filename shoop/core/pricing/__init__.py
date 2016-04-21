@@ -11,7 +11,7 @@ Shoop modular product pricing functionality.
 The pricing module in use is declared by the
 :obj:`~shoop.core.settings.SHOOP_PRICING_MODULE` setting.  The
 default is a pricing module that always prices everything to be free.
-The base distribution contains :obj:`shoop.customer_group_pricing`, which is an
+The base distribution contains :obj:`shoop.simple_pricing`, which is an
 useful pricing module for many cases.
 
 To acquire an instance of the current pricing module, use
@@ -47,27 +47,13 @@ from __future__ import unicode_literals
 from shoop.utils import update_module_attributes
 
 from ._context import PricingContext, PricingContextable
-from ._discounts import DiscountModule, get_discount_modules
 from ._module import get_pricing_module, PricingModule
 from ._price import Price, TaxfulPrice, TaxlessPrice
-from ._price_display_options import PriceDisplayOptions
 from ._price_info import PriceInfo
 from ._priceful import Priceful
-from ._utils import (
-    get_price_info, get_price_infos, get_pricing_steps,
-    get_pricing_steps_for_products
-)
 
 __all__ = [
-    "DiscountModule",
-    "get_discount_modules",
-    "get_price_info",
-    "get_price_infos",
-    "get_pricing_module",
-    "get_pricing_steps",
-    "get_pricing_steps_for_products",
     "Price",
-    "PriceDisplayOptions",
     "Priceful",
     "PriceInfo",
     "PricingContext",
@@ -75,6 +61,7 @@ __all__ = [
     "PricingModule",
     "TaxfulPrice",
     "TaxlessPrice",
+    "get_pricing_module",
 ]
 
 update_module_attributes(__all__, __name__)

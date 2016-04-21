@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-18 12:12+0000\n"
+"POT-Creation-Date: 2016-01-20 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -26,9 +26,6 @@ msgid "Browse"
 msgstr ""
 
 msgid "Clear"
-msgstr ""
-
-msgid "Select"
 msgstr ""
 
 msgid "Attributes"
@@ -79,39 +76,6 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
-msgid "Price display mode"
-msgstr ""
-
-msgid "unspecified"
-msgstr ""
-
-msgid "show prices with taxes included"
-msgstr ""
-
-msgid "show pre-tax prices"
-msgstr ""
-
-msgid "hide prices"
-msgstr ""
-
-msgid "member"
-msgstr ""
-
-msgid "Remove"
-msgstr ""
-
-#, python-format
-msgid "%(count)s member added"
-msgid_plural "%(count)s members added"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-format
-msgid "%(count)s member removed"
-msgid_plural "%(count)s members removed"
-msgstr[0] ""
-msgstr[1] ""
-
 msgid "Number of Members"
 msgstr ""
 
@@ -153,10 +117,6 @@ msgid "Person"
 msgstr ""
 
 msgid "Company"
-msgstr ""
-
-#, python-format
-msgid "User %(bind_user)s already has a contact"
 msgstr ""
 
 msgid "Email"
@@ -234,6 +194,32 @@ msgstr ""
 
 #, python-format
 msgid "%(file)s moved from %(old)s to %(new)s."
+msgstr ""
+
+msgid "Methods"
+msgstr ""
+
+msgid "Shipping Methods"
+msgstr ""
+
+msgid "Payment Methods"
+msgstr ""
+
+msgid "The selected module has no details to configure"
+msgstr ""
+
+msgid "The selected module is not currently available"
+msgstr ""
+
+msgid "Edit Details"
+msgstr ""
+
+#, python-format
+msgid "Edit %(model)s"
+msgstr ""
+
+#, python-format
+msgid "Default %s module"
 msgstr ""
 
 msgid "Orders"
@@ -402,51 +388,6 @@ msgstr ""
 msgid "Create Product with SKU \"%s\""
 msgstr ""
 
-msgid "Minimum Purchase Quantity must be greater than 0."
-msgstr ""
-
-#, python-format
-msgid "Thumbnail generation of %(media)s failed: %(error)s"
-msgstr ""
-
-msgid "Use only URL or file, not both"
-msgstr ""
-
-msgid "Is primary"
-msgstr ""
-
-msgid "Only images allowed in this field"
-msgstr ""
-
-#, python-format
-msgid "Unable to make package %(product)s: %(error)s"
-msgstr ""
-
-#, python-format
-msgid "New: %d"
-msgstr ""
-
-#, python-format
-msgid "Removed: %d"
-msgstr ""
-
-#, python-format
-msgid "Couldn't add product %s to own package"
-msgstr ""
-
-msgid "child"
-msgstr ""
-
-msgid "Unlink"
-msgstr ""
-
-#, python-format
-msgid "Unable to link %(product)s: %(error)s"
-msgstr ""
-
-msgid "variable combination"
-msgstr ""
-
 #, python-format
 msgid "%s has been marked deleted."
 msgstr ""
@@ -478,17 +419,69 @@ msgstr ""
 msgid "Edit Media: %s"
 msgstr ""
 
-msgid "Are you sure? This will remove all products from package."
-msgstr ""
-
-msgid "Clear package"
+msgid "Minimum Purchase Quantity must be greater than 0."
 msgstr ""
 
 #, python-format
-msgid "Edit Package: %s"
+msgid "Thumbnail generation of %s failed: %s"
 msgstr ""
 
-msgid "Package cleared."
+msgid "Use only URL or file, not both"
+msgstr ""
+
+msgid "Is primary"
+msgstr ""
+
+msgid "Only images allowed in this field"
+msgstr ""
+
+msgid "SKU"
+msgstr ""
+
+msgid "Filter by SKU..."
+msgstr ""
+
+msgid "Mode"
+msgstr ""
+
+msgid "Primary Category"
+msgstr ""
+
+msgid "Manage Cross-Selling"
+msgstr ""
+
+msgid "Cross-Selling"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Variations"
+msgstr ""
+
+msgid "Manage Variations"
+msgstr ""
+
+#, python-format
+msgid "Child: %s"
+msgstr ""
+
+#, python-format
+msgid "Parent: %s"
+msgstr ""
+
+#, python-format
+msgid "Sibling: %s"
+msgstr ""
+
+msgid "Manage Package"
+msgstr ""
+
+#, python-format
+msgid "Package Parent: %s"
+msgstr ""
+
+msgid "Convert to Variation Parent"
 msgstr ""
 
 msgid ""
@@ -517,55 +510,25 @@ msgstr ""
 msgid "Variation simplified."
 msgstr ""
 
-msgid "SKU"
+msgid "child"
 msgstr ""
 
-msgid "Filter by SKU..."
-msgstr ""
-
-msgid "Mode"
-msgstr ""
-
-msgid "Primary Category"
-msgstr ""
-
-msgid "Manage Cross-Selling"
-msgstr ""
-
-msgid "Cross-Selling"
-msgstr ""
-
-msgid "Actions"
+msgid "Unlink"
 msgstr ""
 
 #, python-format
-msgid "Child: %s"
+msgid "Unable to link %s: %s"
 msgstr ""
 
 #, python-format
-msgid "Parent: %s"
+msgid "New: %d"
 msgstr ""
 
 #, python-format
-msgid "Sibling: %s"
+msgid "Removed: %d"
 msgstr ""
 
-msgid "Variations"
-msgstr ""
-
-msgid "Manage Variations"
-msgstr ""
-
-msgid "Packages"
-msgstr ""
-
-msgid "Manage Package"
-msgstr ""
-
-msgid "Convert to Package Parent"
-msgstr ""
-
-msgid "Convert to Variation Parent"
+msgid "variable combination"
 msgstr ""
 
 msgid "Sales Units"
@@ -577,53 +540,6 @@ msgstr ""
 msgid "Allowed decimals"
 msgstr ""
 
-msgid "Service Providers"
-msgstr ""
-
-msgid "Payment and Shipping"
-msgstr ""
-
-#, python-format
-msgid "Edit %(model)s"
-msgstr ""
-
-#, python-brace-format
-msgid "Create {service_name}"
-msgstr ""
-
-msgid "Shipping Methods"
-msgstr ""
-
-msgid "Payment Methods"
-msgstr ""
-
-msgid "Service"
-msgstr ""
-
-msgid "Select carrier before filling other fields."
-msgstr ""
-
-msgid "Select payment processor before filling other fields."
-msgstr ""
-
-msgid "Price"
-msgstr ""
-
-msgid "Waive limit"
-msgstr ""
-
-msgid "Enabled"
-msgstr ""
-
-msgid "Shop"
-msgstr ""
-
-msgid "Carrier"
-msgstr ""
-
-msgid "Payment Processor"
-msgstr ""
-
 msgid "Shops"
 msgstr ""
 
@@ -632,6 +548,9 @@ msgstr ""
 
 msgid ""
 "This field cannot be changed since there are existing orders for this shop."
+msgstr ""
+
+msgid "Only one shop permitted."
 msgstr ""
 
 msgid "Domain"
@@ -668,6 +587,9 @@ msgid "Code"
 msgstr ""
 
 msgid "Rate"
+msgstr ""
+
+msgid "Enabled"
 msgstr ""
 
 msgid "Users"
@@ -846,9 +768,6 @@ msgstr ""
 msgid "Search for"
 msgstr ""
 
-msgid "Settings"
-msgstr ""
-
 msgid "Hello"
 msgstr ""
 
@@ -867,7 +786,7 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-msgid "Add more"
+msgid "No members."
 msgstr ""
 
 msgid "Addresses"
@@ -895,9 +814,6 @@ msgid "No groups"
 msgstr ""
 
 msgid "Bound User"
-msgstr ""
-
-msgid "Merchant Notes"
 msgstr ""
 
 msgid "Shipping address"
@@ -1030,10 +946,13 @@ msgstr ""
 msgid "Payments"
 msgstr ""
 
-msgid "Error!"
+msgid "Additional Details"
 msgstr ""
 
-msgid "Additional Details"
+msgid "Stock"
+msgstr ""
+
+msgid "Unstocked"
 msgstr ""
 
 msgid "Accounting"
@@ -1098,15 +1017,6 @@ msgstr ""
 msgid "File "
 msgstr ""
 
-msgid "Package Products"
-msgstr ""
-
-msgid "This product is not yet a package."
-msgstr ""
-
-msgid "To create a package, choose products below."
-msgstr ""
-
 msgid "Simple Variation Children"
 msgstr ""
 
@@ -1130,22 +1040,10 @@ msgid ""
 "Variables tab and then link them to products here."
 msgstr ""
 
-msgid "Behavior"
-msgstr ""
-
-msgid "Behavior component type"
-msgstr ""
-
-msgid "Add component"
-msgstr ""
-
 msgid "Shop Logo"
 msgstr ""
 
 msgid "Maintenance Mode"
-msgstr ""
-
-msgid "Contact Address"
 msgstr ""
 
 msgid "About Shoop Telemetry"
@@ -1154,11 +1052,9 @@ msgstr ""
 msgid "Shoop will occasionally send telemetry data to a Shoop.io server."
 msgstr ""
 
-#, python-format
 msgid ""
 "The data contains an unique installation key, as well as the hostname of the "
-"installation (as sent by the visiting browser; currently <code>%(host)s</"
-"code>)."
+"installation (as sent by the visiting browser; currently"
 msgstr ""
 
 msgid ""
@@ -1170,9 +1066,13 @@ msgstr ""
 msgid "Opt-in / opt-out"
 msgstr ""
 
-msgid ""
-"You are currently <span class=\"lead label label-success\">opted in</span> "
-"to send telemetry data to Shoop.io."
+msgid "You are currently"
+msgstr ""
+
+msgid "opted in"
+msgstr ""
+
+msgid "to send telemetry data to Shoop.io."
 msgstr ""
 
 msgid "Thank you for your valuable contribution."
@@ -1181,9 +1081,10 @@ msgstr ""
 msgid "Opt out"
 msgstr ""
 
-msgid ""
-"You are currently <span class=\"label label-warning\">opted out</span> of "
-"Shoop telemetry."
+msgid "opted out"
+msgstr ""
+
+msgid "of Shoop telemetry."
 msgstr ""
 
 msgid "Opt in"
@@ -1197,10 +1098,10 @@ msgid ""
 "after installation if still opted in at that point."
 msgstr ""
 
-#, python-format
-msgid ""
-"Telemetry data was last submitted at %(submission_datetime)s - "
-"(%(submission_timesince)s) ago"
+msgid "Telemetry data was last submitted at"
+msgstr ""
+
+msgid "ago"
 msgstr ""
 
 msgid "See the data that was submitted."
@@ -1289,8 +1190,4 @@ msgstr ""
 
 #, python-format
 msgid "Unnamed %s"
-msgstr ""
-
-#, python-format
-msgid "Only one %(model)s permitted."
 msgstr ""

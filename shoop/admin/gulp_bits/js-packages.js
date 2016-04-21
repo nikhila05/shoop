@@ -28,15 +28,7 @@ module.exports = {
             "js/remarkable-field.js",
             "js/form-utils.js",
             "js/jquery.form-submission-attributes.polyfill.js",
-            "js/datetimepicker.js",
-            "js/language-changer.js"
-        ]
-    },
-    "contact-group": {
-        "es6": true,
-        "base": "./static_src/contact_group",
-        "files": [
-            "edit-members.js"
+            "js/datetimepicker.js"
         ]
     },
     "dashboard": {

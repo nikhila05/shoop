@@ -10,14 +10,13 @@ Subpackages
     shoop.admin
     shoop.api
     shoop.apps
-    shoop.campaigns
     shoop.core
-    shoop.customer_group_pricing
     shoop.default_tax
+    shoop.discount_pricing
     shoop.front
     shoop.notify
-    shoop.order_printouts
     shoop.simple_cms
+    shoop.simple_pricing
     shoop.simple_supplier
     shoop.testing
     shoop.themes

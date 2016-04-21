@@ -26,8 +26,7 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGES[0][0])
         superuser_name = options.get("with_superuser")
         if superuser_name:
-            filter_params = {get_user_model().USERNAME_FIELD: superuser_name}
-            user = get_user_model().objects.filter(**filter_params).first()
+            user = get_user_model().objects.filter(username=superuser_name).first()
             if not user:
                 user = get_user_model().objects.create_superuser(
                     username=superuser_name,

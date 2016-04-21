@@ -16,9 +16,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from shoop.core.models import (
-    OrderLineType, PaymentMethod, ShippingMethod, ShippingMode
-)
+from shoop.core.models import OrderLineType, PaymentMethod, ShippingMethod
 from shoop.core.order_creator import OrderSource, SourceLine
 from shoop.front.basket.storage import BasketCompatibilityError, get_storage
 from shoop.utils.numbers import parse_decimal_string
@@ -90,8 +88,6 @@ class BaseBasket(OrderSource):
         super(BaseBasket, self).__init__(request.shop)
         self.basket_name = basket_name
         self.request = request
-        if request:
-            self.ip_address = request.META.get("REMOTE_ADDR")
         self.storage = get_storage()
         self._data = None
         self.dirty = False
@@ -162,65 +158,18 @@ class BaseBasket(OrderSource):
 
     @property
     def _data_lines(self):
-        """
-        Get the line data (list of dicts).
-
-        If the list is edited, it must be re-assigned
-        to ``self._data_lines`` to ensure the `dirty`
-        flag gets set.
-
-        :return: List of data dicts
-        :rtype: list[dict]
-        """
         return self._load().setdefault("lines", [])
 
     @_data_lines.setter
     def _data_lines(self, new_lines):
-        """
-        Set the line data (list of dicts).
-
-        Note that this assignment must be made instead
-        of editing `_data_lines` in-place to ensure
-        the `dirty` bit gets set.
-
-        :param new_lines: New list of lines.
-        :type new_lines: list[dict]
-        """
         self._load()["lines"] = new_lines
         self.dirty = True
         self.uncache()
 
     def add_line(self, **kwargs):
-        line = self.create_line(**kwargs)
+        line = BasketLine(source=self, **kwargs)
         self._data_lines = self._data_lines + [line.to_dict()]
         return line
-
-    def create_line(self, **kwargs):
-        return BasketLine(source=self, **kwargs)
-
-    @property
-    def _codes(self):
-        return self._load().setdefault("codes", [])
-
-    @_codes.setter
-    def _codes(self, value):
-        if hasattr(self, "_data"):  # Check that we're initialized
-            self._load()["codes"] = value
-
-    def add_code(self, code):
-        modified = super(BaseBasket, self).add_code(code)
-        self.dirty = bool(self.dirty or modified)
-        return modified
-
-    def clear_codes(self):
-        modified = super(BaseBasket, self).clear_codes()
-        self.dirty = bool(self.dirty or modified)
-        return modified
-
-    def remove_code(self, code):
-        modified = super(BaseBasket, self).remove_code(code)
-        self.dirty = bool(self.dirty or modified)
-        return modified
 
     def get_lines(self):
         return [BasketLine.from_dict(self, line) for line in self._data_lines]
@@ -294,7 +243,7 @@ class BaseBasket(OrderSource):
             index = len(line_ids)
         self.delete_line(data_line["line_id"])
         self._data_lines.insert(index, data_line)
-        self._data_lines = list(self._data_lines)  # This will set the dirty bit and call uncache.
+        self.uncache()
 
     def add_product(self, supplier, shop, product, quantity, force_new_line=False, extra=None, parent_line=None):
         if not extra:
@@ -383,13 +332,31 @@ class BaseBasket(OrderSource):
             "Try to remove some products from the basket "
             "and order them separately.")
 
-        if self.has_shippable_lines() and not shipping_methods:
+        if not shipping_methods:
             msg = _("Products in basket cannot be shipped together. %s")
             yield ValidationError(msg % advice, code="no_common_shipping")
 
         if not payment_methods:
             msg = _("Products in basket have no common payment method. %s")
             yield ValidationError(msg % advice, code="no_common_payment")
+
+        for line in self.get_final_lines():
+            product = line.product
+            if not product:
+                continue
+            shop_product = product.get_shop_instance(shop=self.shop)
+            if not shop_product:
+                yield ValidationError(
+                    _("%s not available in this shop") % product.name,
+                    code="product_not_available_in_shop")
+            else:
+                orderability_errors = shop_product.get_orderability_errors(
+                    supplier=line.supplier,
+                    quantity=line.quantity,
+                    customer=self.customer)
+                for error in orderability_errors:
+                    error.message = "%s: %s" % (product.name, error.message)
+                    yield error
 
     def get_product_ids_and_quantities(self):
         q_counter = Counter()
@@ -409,7 +376,7 @@ class BaseBasket(OrderSource):
         return [
             m for m
             in ShippingMethod.objects.available(shop=self.shop, products=self.product_ids)
-            if m.is_available_for(self)
+            if m.is_valid_for_source(source=self)
         ]
 
     def get_available_payment_methods(self):
@@ -421,14 +388,8 @@ class BaseBasket(OrderSource):
         return [
             m for m
             in PaymentMethod.objects.available(shop=self.shop, products=self.product_ids)
-            if m.is_available_for(self)
+            if m.is_valid_for_source(source=self)
         ]
-
-    def has_shippable_lines(self):
-        for line in self.get_lines():
-            if line.product:
-                if line.product.shipping_mode == ShippingMode.SHIPPED:
-                    return True
 
     @property
     def product_ids(self):
@@ -437,6 +398,10 @@ class BaseBasket(OrderSource):
     @property
     def total_weight(self):
         return (sum(l.unit_weight * l.quantity for l in self.get_lines()) if self.get_lines() else 0)
+
+    @property
+    def product_count(self):
+        return sum(l.quantity for l in self.get_lines() if l.product)
 
     @property
     def is_empty(self):

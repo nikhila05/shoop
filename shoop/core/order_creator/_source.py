@@ -7,26 +7,18 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import unicode_literals
 
-from collections import Counter
-
-from django.contrib.auth.models import AnonymousUser
-from django.core.exceptions import ValidationError
-from django.utils.encoding import force_text
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
-from six import iteritems
 
 from shoop.core import taxing
 from shoop.core.models import (
-    AnonymousContact, OrderStatus, PaymentMethod, Product, ShippingMethod,
-    Shop, Supplier, TaxClass
+    OrderStatus, PaymentMethod, Product, ShippingMethod, Shop, Supplier,
+    TaxClass
 )
 from shoop.core.pricing import Price, Priceful, TaxfulPrice, TaxlessPrice
-from shoop.core.taxing import should_calculate_taxes_automatically, TaxableItem
+from shoop.core.taxing import TaxableItem
 from shoop.utils.decorators import non_reentrant
 from shoop.utils.money import Money
 
-from ._source_modifier import get_order_source_modifier_modules
 from .signals import post_compute_source_lines
 
 
@@ -110,26 +102,33 @@ class OrderSource(object):
         self.display_currency_rate = 1
         self.shipping_address = None
         self.billing_address = None
-        self._customer = None
-        self._orderer = None
-        self._creator = None
+        self.customer = None
+        self.orderer = None
+        self.creator = None
         self.shipping_method_id = None
         self.payment_method_id = None
         self.customer_comment = u""
         self.marketing_permission = False
         self.language = None
-        self.ip_address = None  # type: str
         self.order_date = now()
         self.status_id = None
         self.payment_data = {}
         self.shipping_data = {}
         self.extra_data = {}
 
-        self._codes = []
         self._lines = []
 
         self.zero_price = shop.create_price(0)
         self.create_price = self.zero_price.new
+
+        self.calculate_taxes_automatically = False
+        """
+        Calculate taxes automatically when lines are added or processed.
+
+        Set to False to minimize costs and latency, since it is possible
+        that the current TaxModule implemements tax calculations with an
+        integration to a remote system which charges per transaction.
+        """
 
         self._taxes_calculated = False
         self._processed_lines_cache = None
@@ -160,7 +159,6 @@ class OrderSource(object):
             language=order.language,
             display_currency=order.display_currency,
             display_currency_rate=order.display_currency_rate,
-            ip_address=order.ip_address,
             order_date=order.order_date,
             status_id=order.status_id,
             payment_data=order.payment_data,
@@ -180,31 +178,7 @@ class OrderSource(object):
     taxful_total_discount_or_none = taxful_total_discount.or_none
     taxless_total_discount_or_none = taxless_total_discount.or_none
 
-    total_price_of_products = _PriceSum("price", "get_product_lines")
-
-    @property
-    def customer(self):
-        return (self._customer or AnonymousContact())
-
-    @customer.setter
-    def customer(self, value):
-        self._customer = value
-
-    @property
-    def orderer(self):
-        return (self._orderer or AnonymousContact())
-
-    @orderer.setter
-    def orderer(self, value):
-        self._orderer = value
-
-    @property
-    def creator(self):
-        return (self._creator or AnonymousUser())
-
-    @creator.setter
-    def creator(self, value):
-        self._creator = value
+    total_price_of_products = _PriceSum("price", "_get_product_lines")
 
     @property
     def shipping_method(self):
@@ -233,69 +207,11 @@ class OrderSource(object):
     def status(self, status):
         self.status_id = (status.id if status else None)
 
-    @property
-    def codes(self):
-        return list(self._codes)
-
-    def add_code(self, code):
-        """
-        Add code to this OrderSource.
-
-        At this point it is expected that the customers
-        permission to use the code has already been
-        checked by the caller.
-
-        The code will be converted to text.
-
-        :param code: The code to add
-        :type code: str
-        :return: True if code was added, False if it was already there
-        :rtype: bool
-        """
-        code_text = force_text(code)
-        if code_text not in self._codes:
-            self._codes.append(code_text)
-            self.uncache()
-            return True
-        return False
-
-    def clear_codes(self):
-        """
-        Remove all codes from this OrderSource.
-
-        :return: True iff there was codes before clearing
-        :rtype: bool
-        """
-        if self._codes:
-            self._codes = []
-            self.uncache()
-            return True
-        return False
-
-    def remove_code(self, code):
-        """
-        Remove given code from this OrderSource.
-
-        :param code: The code to remove
-        :type code: str
-        :return: True if code was removed, False if code was not there
-        :rtype: bool
-        """
-        code_text = force_text(code)
-        if code_text in self._codes:
-            self._codes.remove(code_text)
-            self.uncache()
-            return True
-        return False
-
     def add_line(self, **kwargs):
-        line = self.create_line(**kwargs)
+        line = SourceLine(source=self, **kwargs)
         self._lines.append(line)
         self.uncache()
         return line
-
-    def create_line(self, **kwargs):
-        return SourceLine(source=self, **kwargs)
 
     def get_lines(self):
         """
@@ -304,15 +220,6 @@ class OrderSource(object):
         See also `get_final_lines`.
         """
         return self._lines
-
-    @property
-    def product_count(self):
-        """
-        Get the total number of products in this OrderSource.
-
-        :rtype: decimal.Decimal|int
-        """
-        return sum([line.quantity for line in self.get_product_lines()])
 
     def get_final_lines(self, with_taxes=False):
         """
@@ -337,10 +244,8 @@ class OrderSource(object):
             lines = self.__compute_lines()
             self._processed_lines_cache = lines
         if not self._taxes_calculated:
-            if with_taxes or should_calculate_taxes_automatically():
+            if with_taxes or self.calculate_taxes_automatically:
                 self._calculate_taxes(lines)
-        for error_message in self.get_validation_errors():
-            raise ValidationError(error_message.args[0], code="invalid_order_source")
         return lines
 
     def calculate_taxes(self, force_recalculate=False):
@@ -355,7 +260,7 @@ class OrderSource(object):
 
     def calculate_taxes_or_raise(self):
         if not self._taxes_calculated:
-            if not should_calculate_taxes_automatically():
+            if not self.calculate_taxes_automatically:
                 raise TaxesNotCalculated('Taxes are not calculated')
             self.calculate_taxes()
 
@@ -375,11 +280,10 @@ class OrderSource(object):
 
     def _compute_processed_lines(self):
         # This function would be a good candidate for subclass extension.
-        lines = list(self.get_lines())
+        lines = self.get_lines()
 
         lines.extend(self._compute_payment_method_lines())
         lines.extend(self._compute_shipping_method_lines())
-        self._add_lines_from_modifiers(lines)
 
         lines.extend(_collect_lines_from_signal(
             post_compute_source_lines.send(
@@ -389,24 +293,15 @@ class OrderSource(object):
 
     def _compute_payment_method_lines(self):
         if self.payment_method:
-            for line in self.payment_method.get_lines(self):
+            for line in self.payment_method.get_source_lines(self):
                 yield line
 
     def _compute_shipping_method_lines(self):
         if self.shipping_method:
-            for line in self.shipping_method.get_lines(self):
+            for line in self.shipping_method.get_source_lines(self):
                 yield line
 
-    def _add_lines_from_modifiers(self, lines):
-        """
-        Add lines from OrderSourceModifiers to given list of lines.
-        """
-        for module in get_order_source_modifier_modules():
-            new_lines = list(module.get_new_lines(self, list(lines)))
-            # Extend lines now to allow next module to see them
-            lines.extend(new_lines)
-
-    def get_product_lines(self):
+    def _get_product_lines(self):
         """
         Get lines with a product.
 
@@ -422,41 +317,12 @@ class OrderSource(object):
         payment_method = self.payment_method
 
         if shipping_method:
-            for error in shipping_method.get_unavailability_reasons(source=self):
+            for error in shipping_method.get_validation_errors(source=self):
                 yield error
 
         if payment_method:
-            for error in payment_method.get_unavailability_reasons(source=self):
+            for error in payment_method.get_validation_errors(source=self):
                 yield error
-
-        for supplier in self._get_suppliers():
-            for product, quantity in iteritems(self._get_products_and_quantities(supplier)):
-                shop_product = product.get_shop_instance(shop=self.shop)
-                if not shop_product:
-                    yield ValidationError(
-                        _("%s not available in this shop") % product.name,
-                        code="product_not_available_in_shop"
-                    )
-                for error in shop_product.get_orderability_errors(
-                        supplier=supplier, quantity=quantity, customer=self.customer):
-                    error.message = "%s: %s" % (product.name, error.message)
-                    yield error
-
-    def _get_suppliers(self):
-            return set([l.supplier for l in self.get_lines() if l.supplier])
-
-    def _get_products_and_quantities(self, supplier=None):
-        q_counter = Counter()
-        for line in self.get_lines():
-            if not line.product:
-                continue
-
-            if supplier and line.supplier != supplier:
-                continue
-            product = line.product
-            q_counter[product] += line.quantity
-
-        return dict(q_counter)
 
 
 def _collect_lines_from_signal(signal_results):
@@ -527,7 +393,14 @@ class SourceLine(TaxableItem, Priceful):
         self.require_verification = kwargs.pop("require_verification", False)
         self.accounting_identifier = kwargs.pop("accounting_identifier", "")
 
-        self._taxes = None
+        self.taxes = []
+        """
+        Taxes of this line.
+
+        Determined by a TaxModule in :func:`OrderSource.calculate_taxes`.
+
+        :type: list[shoop.core.taxing.LineTax]
+        """
 
         self._data = kwargs.copy()
 
@@ -599,37 +472,13 @@ class SourceLine(TaxableItem, Priceful):
         self._tax_class = value
 
     @property
-    def taxes(self):
-        """
-        Taxes of this line.
-
-        Determined by a TaxModule in :func:`OrderSource.calculate_taxes`.
-
-        :rtype: list[shoop.core.taxing.LineTax]
-        """
-        return self._taxes or []
-
-    @taxes.setter
-    def taxes(self, value):
-        assert isinstance(value, list)
-        assert all(isinstance(x, taxing.LineTax) for x in value)
-        self._taxes = value
-
-    @property
     def tax_amount(self):
         """
         :rtype: shoop.utils.money.Money
         """
         self.source.calculate_taxes_or_raise()
         zero = self.source.zero_price.amount
-        taxes = self._taxes
-        if taxes is None:
-            # Taxes were calculated to a different line instance.  Get
-            # taxes from there.
-            for line in self.source.get_final_lines():
-                if line.line_id == self.line_id and line.price == self.price:
-                    taxes = line.taxes
-        return sum((x.amount for x in taxes), zero)
+        return sum((x.amount for x in self.taxes), zero)
 
     def _serialize_field(self, key):
         value = getattr(self, key)

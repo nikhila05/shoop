@@ -83,6 +83,6 @@ urlpatterns = list(chain(*(
     _get_extension_urlpatterns("front_urls_pre"),
     urlpatterns,
     _get_extension_urlpatterns("front_urls"),
-    [url(r'^$', IndexView.as_view(), name='index')],
+    [url(r'^$', BasketView.as_view(), name='index')],
     _get_extension_urlpatterns("front_urls_post"),
 )))

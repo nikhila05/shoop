@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-11 12:32+0000\n"
+"POT-Creation-Date: 2016-01-20 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -22,6 +22,33 @@ msgstr ""
 msgid "Show Frontpage Welcome Text"
 msgstr ""
 
+msgid "Footer custom HTML"
+msgstr ""
+
+msgid "Footer links"
+msgstr ""
+
+msgid "One line per link in format 'http://example.com Example Link'"
+msgstr ""
+
+msgid "Footer column order"
+msgstr ""
+
+msgid "CMS Page Links"
+msgstr ""
+
+msgid "Custom HTML"
+msgstr ""
+
+msgid "Footer Links"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Footer CMS pages"
+msgstr ""
+
 msgid "Product Highlights"
 msgstr ""
 
@@ -32,12 +59,6 @@ msgid "Type"
 msgstr ""
 
 msgid "Count"
-msgstr ""
-
-msgid "Only show in-stock and orderable items"
-msgstr ""
-
-msgid "Product Cross Sells"
 msgstr ""
 
 msgid "Product added to cart"
@@ -123,25 +144,10 @@ msgstr ""
 msgid "Proceed to checkout"
 msgstr ""
 
-msgid "Coupon is not available."
-msgstr ""
-
-msgid "Error when adding coupon."
-msgstr ""
-
 msgid "Qty"
 msgstr ""
 
 msgid "Remove product from basket"
-msgstr ""
-
-msgid "Have a coupon code? Enter it here"
-msgstr ""
-
-msgid "Coupon Code"
-msgstr ""
-
-msgid "Submit Code"
 msgstr ""
 
 msgid "Checkout"
@@ -278,8 +284,7 @@ msgstr ""
 msgid "Products"
 msgstr ""
 
-#, python-format
-msgid "Welcome to %(shop_name)s!"
+msgid "Welcome to "
 msgstr ""
 
 msgid "Preview"
@@ -414,6 +419,15 @@ msgstr ""
 msgid "Also available in"
 msgstr ""
 
+msgid "Related products"
+msgstr ""
+
+msgid "We recommend these products"
+msgstr ""
+
+msgid "Users who bought this product also bought"
+msgstr ""
+
 #, python-format
 msgid "Order %(identifier)s"
 msgstr ""
@@ -541,8 +555,7 @@ msgstr ""
 msgid "%(n)s results found for \"<strong>%(query)s</strong>\"."
 msgstr ""
 
-#, python-format
-msgid "You have already logged in as <strong>%(username)s</strong>"
+msgid "You have already been logged in as"
 msgstr ""
 
 msgid "Go to Homepage"

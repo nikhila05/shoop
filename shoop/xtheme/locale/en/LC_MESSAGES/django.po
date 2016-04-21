@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-10 16:38+0000\n"
+"POT-Creation-Date: 2016-01-20 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -37,15 +37,6 @@ msgstr ""
 msgid "Theme activated."
 msgstr ""
 
-msgid "current draft"
-msgstr ""
-
-msgid "old version"
-msgstr ""
-
-msgid "public"
-msgstr ""
-
 msgid "theme identifier"
 msgstr ""
 
@@ -72,66 +63,6 @@ msgid "Theme configuration for %s"
 msgstr ""
 
 msgid "Plugin"
-msgstr ""
-
-msgid "Category Links"
-msgstr ""
-
-msgid "Title"
-msgstr ""
-
-msgid "Show all categories"
-msgstr ""
-
-msgid "All categories are shown, even if not selected"
-msgstr ""
-
-msgid "Image"
-msgstr ""
-
-msgid "Image Link URL"
-msgstr ""
-
-msgid "Full width"
-msgstr ""
-
-msgid "Set image to full width of cell"
-msgstr ""
-
-msgid "Width (px)"
-msgstr ""
-
-msgid "Leave blank for default width"
-msgstr ""
-
-msgid "Height (px)"
-msgstr ""
-
-msgid "Snippets"
-msgstr ""
-
-msgid "In-Place Snippet"
-msgstr ""
-
-msgid "Resource snippet for end of head"
-msgstr ""
-
-msgid "Resource snippet for beginning of body"
-msgstr ""
-
-msgid "Resource for end of body"
-msgstr ""
-
-msgid "Social Media Links"
-msgstr ""
-
-msgid "Topic"
-msgstr ""
-
-msgid "Icon Size"
-msgstr ""
-
-msgid "Alignment"
 msgstr ""
 
 msgid "text"
@@ -200,16 +131,6 @@ msgid "Revert Changes"
 msgstr ""
 
 msgid "Publish Changes"
-msgstr ""
-
-msgid "No access to editing"
-msgstr ""
-
-#, python-format
-msgid "Unknown command %s"
-msgstr ""
-
-msgid "Unable to determine current theme."
 msgstr ""
 
 #, python-format

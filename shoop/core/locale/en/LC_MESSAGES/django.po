@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-12 14:10+0000\n"
+"POT-Creation-Date: 2016-01-20 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -23,6 +23,38 @@ msgid "internal identifier"
 msgstr ""
 
 msgid "Do not change this value if you are not sure what you're doing."
+msgstr ""
+
+msgid "Price"
+msgstr ""
+
+msgid "Waiver minimum"
+msgstr ""
+
+msgid ""
+"Waive the price when the total price of products in the order reaches this "
+"amount"
+msgstr ""
+
+msgid "0 or below: no lower limit"
+msgstr ""
+
+msgid "minimum weight"
+msgstr ""
+
+msgid "maximum weight"
+msgstr ""
+
+msgid "Minimum weight not met."
+msgstr ""
+
+msgid "Maximum weight exceeded."
+msgstr ""
+
+msgid "Default Shipping"
+msgstr ""
+
+msgid "Default Payment"
 msgstr ""
 
 msgid "Error"
@@ -252,19 +284,10 @@ msgstr ""
 msgid "show as pricing option"
 msgstr ""
 
-msgid "show prices including taxes"
-msgstr ""
-
-msgid "hide prices"
-msgstr ""
-
 msgid "contact group"
 msgstr ""
 
 msgid "contact groups"
-msgstr ""
-
-msgid "Can't delete. This object is protected."
 msgstr ""
 
 msgid "created on"
@@ -294,16 +317,10 @@ msgstr ""
 msgid "tax group"
 msgstr ""
 
-msgid "merchant notes"
-msgstr ""
-
 msgid "contact"
 msgstr ""
 
 msgid "contacts"
-msgstr ""
-
-msgid "Company Contacts"
 msgstr ""
 
 msgid "e.g. EIN in US or VAT code in Europe"
@@ -315,21 +332,6 @@ msgstr ""
 msgid "companies"
 msgstr ""
 
-msgid "undisclosed"
-msgstr ""
-
-msgid "male"
-msgstr ""
-
-msgid "female"
-msgstr ""
-
-msgid "other"
-msgstr ""
-
-msgid "Person Contacts"
-msgstr ""
-
 msgid "user"
 msgstr ""
 
@@ -339,19 +341,10 @@ msgstr ""
 msgid "birth date"
 msgstr ""
 
-msgid "first name"
-msgstr ""
-
-msgid "last name"
-msgstr ""
-
 msgid "person"
 msgstr ""
 
 msgid "persons"
-msgstr ""
-
-msgid "Anonymous Contacts"
 msgstr ""
 
 msgid "order reference"
@@ -378,16 +371,40 @@ msgstr ""
 msgid "manufacturers"
 msgstr ""
 
-msgid "product"
-msgstr ""
-
 msgid "shipping"
 msgstr ""
 
 msgid "payment"
 msgstr ""
 
-msgid "discount"
+msgid "tax class"
+msgstr ""
+
+msgid "module"
+msgstr ""
+
+msgid "module data"
+msgstr ""
+
+msgid "shipping method"
+msgstr ""
+
+msgid "shipping methods"
+msgstr ""
+
+msgid "payment method"
+msgstr ""
+
+msgid "payment methods"
+msgstr ""
+
+msgid "product"
+msgstr ""
+
+msgid "campaign"
+msgstr ""
+
+msgid "other"
 msgstr ""
 
 msgid "order"
@@ -513,16 +530,10 @@ msgstr ""
 msgid "shipping status"
 msgstr ""
 
-msgid "payment method"
-msgstr ""
-
 msgid "payment method name"
 msgstr ""
 
 msgid "payment data"
-msgstr ""
-
-msgid "shipping method"
 msgstr ""
 
 msgid "shipping method name"
@@ -601,9 +612,6 @@ msgstr ""
 msgid "payments"
 msgstr ""
 
-msgid "module"
-msgstr ""
-
 msgid "time"
 msgstr ""
 
@@ -675,12 +683,6 @@ msgstr ""
 msgid "limited for payment methods"
 msgstr ""
 
-msgid "shipping methods"
-msgstr ""
-
-msgid "payment methods"
-msgstr ""
-
 msgid "primary category"
 msgstr ""
 
@@ -688,9 +690,6 @@ msgid "primary image"
 msgstr ""
 
 msgid "default price"
-msgstr ""
-
-msgid "minimum price"
 msgstr ""
 
 msgid "This product has been deleted."
@@ -788,9 +787,6 @@ msgstr ""
 msgid "computed"
 msgstr ""
 
-msgid "bought with"
-msgstr ""
-
 msgid "shipped"
 msgstr ""
 
@@ -825,9 +821,6 @@ msgid "shipping mode"
 msgstr ""
 
 msgid "unit"
-msgstr ""
-
-msgid "tax class"
 msgstr ""
 
 msgid "SKU"
@@ -940,83 +933,6 @@ msgstr ""
 msgid "product attributes"
 msgstr ""
 
-msgid "logo"
-msgstr ""
-
-msgid "choice identifier"
-msgstr ""
-
-msgid "behavior components"
-msgstr ""
-
-#, python-format
-msgid "%s is disabled"
-msgstr ""
-
-#, python-format
-msgid "%s is for different shop"
-msgstr ""
-
-#, python-format
-msgid "%(service_name)s: %(sub_item)s"
-msgstr ""
-
-msgid "Fixed cost"
-msgstr ""
-
-msgid "Add fixed cost to price of the service."
-msgstr ""
-
-msgid "Waiving cost"
-msgstr ""
-
-msgid ""
-"Add cost to price of the service if total price of products is less than a "
-"waive limit."
-msgstr ""
-
-msgid "Weight limits"
-msgstr ""
-
-msgid "Limit availability of the service based on total weight of products."
-msgstr ""
-
-msgid "minimum weight"
-msgstr ""
-
-msgid "maximum weight"
-msgstr ""
-
-msgid "Minimum weight not met."
-msgstr ""
-
-msgid "Maximum weight exceeded."
-msgstr ""
-
-msgid "payment processor"
-msgstr ""
-
-msgid "custom payment processor"
-msgstr ""
-
-msgid "custom payment processors"
-msgstr ""
-
-msgid "Manually processed payment"
-msgstr ""
-
-msgid "carrier"
-msgstr ""
-
-msgid "custom carrier"
-msgstr ""
-
-msgid "custom carriers"
-msgstr ""
-
-msgid "Manually processed shipment"
-msgstr ""
-
 msgid "not sent"
 msgstr ""
 
@@ -1064,10 +980,10 @@ msgstr ""
 msgid "options"
 msgstr ""
 
-msgid "maintenance mode"
+msgid "logo"
 msgstr ""
 
-msgid "contact address"
+msgid "maintenance mode"
 msgstr ""
 
 msgid "public name"
@@ -1085,19 +1001,10 @@ msgstr ""
 msgid "logical stock count"
 msgstr ""
 
-msgid "internal"
-msgstr ""
-
-msgid "external"
-msgstr ""
-
 msgid "supplier type"
 msgstr ""
 
 msgid "stock managed"
-msgstr ""
-
-msgid "module data"
 msgstr ""
 
 msgid "Cannot change business critical fields of Tax that is in use"
@@ -1161,10 +1068,6 @@ msgid "sales units"
 msgstr ""
 
 msgid "No Choice"
-msgstr ""
-
-#, python-format
-msgid "%s not available in this shop"
 msgstr ""
 
 msgid "Default Pricing"

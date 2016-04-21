@@ -70,13 +70,11 @@ class ProductCrossSellType(Enum):
     RECOMMENDED = 1
     RELATED = 2
     COMPUTED = 3
-    BOUGHT_WITH = 4
 
     class Labels:
         RECOMMENDED = _('recommended')
         RELATED = _('related')
         COMPUTED = _('computed')
-        BOUGHT_WITH = _('bought with')
 
 
 class ShippingMode(Enum):
@@ -257,20 +255,6 @@ class Product(TaxableItem, AttributableMixin, TranslatableModel):
 
         return shop_inst
 
-    def get_priced_children(self, context, quantity=1):
-        """
-        Get child products with price infos sorted by price.
-
-        :rtype: list[(Product,PriceInfo)]
-        :return:
-          List of products and their price infos sorted from cheapest to
-          most expensive.
-        """
-        priced_children = (
-            (child, child.get_price_info(context, quantity=quantity))
-            for child in self.variation_children.all())
-        return sorted(priced_children, key=(lambda x: x[1].price))
-
     def get_cheapest_child_price(self, context, quantity=1):
         price_info = self.get_cheapest_child_price_info(context, quantity)
         if price_info:
@@ -326,8 +310,10 @@ class Product(TaxableItem, AttributableMixin, TranslatableModel):
         :type context: shoop.core.pricing.PricingContextable
         :rtype: shoop.core.pricing.PriceInfo
         """
-        from shoop.core.pricing import get_price_info
-        return get_price_info(product=self, context=context, quantity=quantity)
+        from shoop.core.pricing import get_pricing_module
+        module = get_pricing_module()
+        pricing_context = module.get_context(context)
+        return module.get_price_info(pricing_context, product=self, quantity=quantity)
 
     def get_price(self, context, quantity=1):
         """
@@ -605,9 +591,6 @@ class Product(TaxableItem, AttributableMixin, TranslatableModel):
 
     def get_public_media(self):
         return self.media.filter(enabled=True, public=True)
-
-    def is_stocked(self):
-        return (self.stock_behavior == StockBehavior.STOCKED)
 
 
 ProductLogEntry = define_log_model(Product)

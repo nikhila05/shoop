@@ -40,7 +40,7 @@ VERSION_FILE = os.path.join(TOPDIR, 'shoop', '_version.py')
 #      - Add ".post0.dev" suffix to VERSION variable here
 
 NAME = 'shoop'
-VERSION = '3.0.0.post0.dev'
+VERSION = '3.0.0'
 DESCRIPTION = 'E-Commerce Platform'
 AUTHOR = 'Shoop Ltd.'
 AUTHOR_EMAIL = 'shoop@shoop.io'
@@ -88,9 +88,7 @@ REQUIRES = [
     'django-parler~=1.5',
     'django-parler-rest~=1.3a1',
     'django-polymorphic~=0.8.0',
-    # django-registration-redux>=1.4 does not work with
-    # our custom get_success_url
-    'django-registration-redux~=1.2,<1.4',
+    'django-registration-redux~=1.2',
     'django-timezone-field~=1.2',
 
     # djangorestframework>=3.3.0 does not work with
@@ -98,7 +96,7 @@ REQUIRES = [
     'djangorestframework~=3.1,<3.3.0',
 
     'factory-boy~=2.5',
-    'fake-factory~=0.5.0,<0.5.4',
+    'fake-factory~=0.5.0',
     'Jinja2~=2.8',
     'jsonfield~=1.0',
     'Markdown~=2.6',
@@ -125,10 +123,7 @@ EXTRAS_REQUIRE = {
         'pep8-naming~=0.2',
     ],
 }
-EXTRAS_REQUIRE['everything'] = list(
-    set(sum(EXTRAS_REQUIRE.values(), [])) -  # All extras, but not...
-    set(REQUIRES_FOR_PYTHON2_ONLY)  # the Python 2 compatibility things
-)
+EXTRAS_REQUIRE['everything'] = list(set(sum(EXTRAS_REQUIRE.values(), [])))
 
 
 if __name__ == '__main__':

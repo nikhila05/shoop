@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-19 08:57+0000\n"
+"POT-Creation-Date: 2016-01-20 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -19,50 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 2.1.1\n"
 
-msgid "Abandoned Cart Value"
+msgid "Abandoned Basket Value"
 msgstr ""
 
 #, python-brace-format
-msgid "Based on {b} carts over the last {d} days"
-msgstr ""
-
-msgid "Carts"
-msgstr ""
-
-msgid "Show carts"
-msgstr ""
-
-msgid "Created on"
-msgstr ""
-
-msgid "Last updated on"
-msgstr ""
-
-msgid "Abandoned"
-msgstr ""
-
-msgid "yes"
-msgstr ""
-
-msgid "no"
-msgstr ""
-
-msgid "Shop"
-msgstr ""
-
-msgid "Product count"
-msgstr ""
-
-msgid "Customer"
-msgstr ""
-
-msgid "Orderer"
-msgstr ""
-
-msgid "Total"
-msgstr ""
-
-msgid "Ordered"
+msgid "Based on {b} baskets over the last {d} days"
 msgstr ""
 
 #, python-format
@@ -95,6 +56,10 @@ msgstr ""
 msgid "Products in basket have no common payment method. %s"
 msgstr ""
 
+#, python-format
+msgid "%s not available in this shop"
+msgstr ""
+
 msgid "Tax number required for companies"
 msgstr ""
 
@@ -117,10 +82,6 @@ msgid "Confirmation"
 msgstr ""
 
 msgid "Empty Basket"
-msgstr ""
-
-#, python-brace-format
-msgid "{name} ({price})"
 msgstr ""
 
 msgid "shipping method"

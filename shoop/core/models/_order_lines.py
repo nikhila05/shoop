@@ -27,14 +27,14 @@ class OrderLineType(Enum):
     PRODUCT = 1
     SHIPPING = 2
     PAYMENT = 3
-    DISCOUNT = 4
+    CAMPAIGN = 4
     OTHER = 5
 
     class Labels:
         PRODUCT = _('product')
         SHIPPING = _('shipping')
         PAYMENT = _('payment')
-        DISCOUNT = _('discount')
+        CAMPAIGN = _('campaign')
         OTHER = _('other')
 
 
@@ -49,8 +49,8 @@ class OrderLineManager(models.Manager):
     def payment(self):  # pragma: no cover
         return self.filter(type=OrderLineType.PAYMENT)
 
-    def discounts(self):
-        return self.filter(type=OrderLineType.DISCOUNT)
+    def campaigns(self):  # pragma: no cover
+        return self.filter(type=OrderLineType.CAMPAIGN)
 
     def other(self):  # pragma: no cover
         return self.filter(type=OrderLineType.OTHER)
@@ -118,9 +118,7 @@ class OrderLine(MoneyPropped, models.Model, Priceful):
         if self.product_id and not self.supplier_id:
             raise ValidationError("Order line has product but no supplier")
 
-        super(OrderLine, self).save(*args, **kwargs)
-        if self.product_id:
-            self.supplier.module.update_stock(self.product_id)
+        return super(OrderLine, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible

@@ -1,149 +1,6 @@
 Shoop Change Log
 ================
 
-Unreleased
-----------
-
-- List all changes after last release here (newer on top).  Each change on a
-  separate bullet point line.  Wrap the file at 79 columns or so.  When
-  releasing next version, the "Unreleased" header will be replaced with
-  appropriate version header and this help text will be removed.
-
-Core
-~~~~
-
-- Add new Service API and implement shipping and payments with it
-- Remove BaseMethodModule based API (``shoop.core.methods``)
-- Add management command to generate bought with relations
-- Add ``merchant_notes`` text-field to ``Contact``
-- Add ``first_name`` and ``last_name`` fields to ``PersonContact``
-- Add bought with relation to ``ProductCrossSellType``
-- Set customer marketing permission while creating order
-- Disable delete for default contact groups
-- Allow storing price display options to contact groups
-- Add template tags for rendering prices with context specific price
-  display options (pretax or with taxes, or hide prices totally)
-- Fix bug: ``OrderSource.tax_amount`` always returned zero price
-- Add contacts automatically to type specific default groups
-- ``OrderCreator`` no longer requires a request
-- Add ``order_creator_finished`` signal under ``order_creator``
-- Move calculate_taxes_automatically from ``OrderSource`` to ``TaxModule``
-- Add shop product validation for OrderSource
-- Add option to create payments with REST API
-- Add contact address for ``Shop``
-- Add update_stock calls for ``SimpleSupplierModule``
-- Rename ``CAMPAIGN`` in ``OrderLineType`` enum to ``DISCOUNT``
-- Add ``OrderSourceModifierModule`` interface for modifying order source
-- Add ``DiscountModule`` interface for pricing
-- Simplify ``PricingContext`` and require shop and customer for it
-- Add ``get_price_info`` etc. functions to ``shoop.core.pricing``
-- Add ``get_suppliable_products`` to ``shoop.core.models.Supplier``
-- Add "codes" API to OrderSource and BaseBasket
-
-Localization
-~~~~~~~~~~~~
-
-- Add Brazilian Portuguese translations (pt_BR)
-
-Admin
-~~~~~
-
-- Add ``admin_contact_group_form_part`` provider for ``ContactGroup`` admin
-- Redo shipping and payment method management
-- Add service provider management
-- Add package mode for products
-- Enable merchant notes editing for contacts
-- Add option to add extra form parts to Shop edit view
-- Enable delete for contact groups
-- Make all enabled shipping and payment methods available in order creator
-- Check product quantities in order creation
-- Add option to add action buttons to Order edit view
-
-Addons
-~~~~~~
-
-- Enable upgrade, migrations and collectstatic from admin
-
-Front
-~~~~~
-
-- Enable description and logo for methods in checkout
-- Add admin view for monitoring customer carts
-- Remove ``get_method_validation_errors`` signal
-- Fix bug at ``get_visible_products`` filter when orderable_only is False
-- Set template price display options from the customer
-- Fix bug: BasketStorage.finalize() never called delete() correctly
-- Check product quantity already in basket while adding
-- Move ``order_creator_finished`` signal under core
-- Add "next" parameter support for registration
-- Process given coupon codes in basket
-- Add ``get_visible_products`` template helper
-
-Xtheme
-~~~~~~
-
-- Enhance default text plugin editor to remarkable markdown editor
-- Add support for global/multi-view placeholders
-- Add generic snippets plugin for doing simple integrations
-- Add a plugin for displaying category links on shop front
-- Add a linkable image plugin
-
-Classic Gray Theme
-~~~~~~~~~~~~~~~~~~
-
-- Remove ``ProductCrossSellType.COMPUTED`` from cross-sells plugin
-- Update cross-sells plugin to use ``ProductCrossSellType.BOUGHT_WITH``
-- Render prices with the new price rendering template tags
-- Show error messages while adding products to basket
-- Add "next" parameter to register links
-- Add Coupon use possibility to basket page
-- Add option to only show orderable products to highlights plugin
-- Add Xtheme plugin to display social media links on shop front
-
-Simple Supplier
-~~~~~~~~~~~~~~~
-
-- Add admin modules for updating stock
-- Add support for stock counts and values
-
-Order Printouts
-~~~~~~~~~~~~~~~
-
-- Add basic support to create PDF printouts
-- Add admin module to print order shipments and confirmation
-
-Campaigns
-~~~~~~~~~
-
-- Add campaigns app with following features:
-
-  - Campaigns management
-  - Coupon management
-  - Contact group sales ranges
-
-Customer Group Pricing
-~~~~~~~~~~~~~~~~~~~~~~
-
-- Rename Simple Pricing to Customer Group Pricing
-- Fix pricing for ``AnonymousContact``
-
-Discount Pricing
-~~~~~~~~~~~~~~~~
-
-- Removed
-
-Simple CMS
-~~~~~~~~~~
-
-- Add option to list children on page
-- Add possibility to set parent on page
-
-General/miscellaneous
-~~~~~~~~~~~~~~~~~~~~~
-
-- Reword doc/provides.rst
-
-
 Version 3.0.0
 -------------
 
@@ -180,7 +37,6 @@ Localization
 Admin
 ~~~~~
 
-- Bump bootstrap-datetimepicker version to 2.3.8
 - Show Shoop version number in Admin
 - Fix order list sorting and filtering by total price
 - Fix CMS page list sorting by title
@@ -211,7 +67,6 @@ Xtheme
 Classic Gray Theme
 ~~~~~~~~~~~~~~~~~~
 
-- Basket: Hide line base price when it's not positive
 - Show product media at order history and product detail pages
 - Add language changer to navigation
 - Add possibility for other future brand colors
@@ -228,11 +83,6 @@ Default Theme
 
 - Remove Default theme from Shoop Base. Moved to
   https://github.com/shoopio/shoop-simple-theme
-
-Campaigns
-~~~~~~~~~
-
-- Fix admin list view sorting
 
 General/miscellaneous
 ~~~~~~~~~~~~~~~~~~~~~

@@ -20,6 +20,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.validators import validate_email, ValidationError
 from django.db.transaction import atomic
+from django.test import RequestFactory
 from django.utils.timezone import now
 from django_countries.data import COUNTRIES
 from factory.django import DjangoModelFactory
@@ -29,16 +30,14 @@ from six import BytesIO
 
 from shoop.core.defaults.order_statuses import create_default_order_statuses
 from shoop.core.models import (
-    AnonymousContact, Attribute, AttributeType, Category, CategoryStatus,
-    CompanyContact, Contact, ContactGroup, CustomCarrier,
-    CustomPaymentProcessor, FixedCostBehaviorComponent, MutableAddress, Order,
-    OrderLine, OrderLineTax, OrderLineType, OrderStatus, PaymentMethod,
-    PersonContact, Product, ProductMedia, ProductMediaKind, ProductType,
-    SalesUnit, ShippingMethod, Shop, ShopProduct, ShopStatus, StockBehavior,
-    Supplier, SupplierType, Tax, TaxClass, WaivingCostBehaviorComponent
+    Attribute, AttributeType, Category, CategoryStatus, CompanyContact,
+    Contact, ContactGroup, MutableAddress, Order, OrderLine, OrderLineTax,
+    OrderLineType, OrderStatus, PaymentMethod, PersonContact, Product,
+    ProductMedia, ProductMediaKind, ProductType, SalesUnit, ShippingMethod,
+    Shop, ShopProduct, ShopStatus, StockBehavior, Supplier, SupplierType, Tax,
+    TaxClass
 )
 from shoop.core.order_creator import OrderCreator, OrderSource
-from shoop.core.pricing import get_pricing_module
 from shoop.core.shortcuts import update_order_line_from_product
 from shoop.default_tax.models import TaxRule
 from shoop.testing.text_data import random_title
@@ -46,6 +45,7 @@ from shoop.utils.filer import filer_image_from_data
 from shoop.utils.money import Money
 
 from .image_generator import generate_image
+from .utils import apply_request_middleware
 
 DEFAULT_IDENTIFIER = "default"
 DEFAULT_NAME = "Default"
@@ -295,74 +295,26 @@ def get_default_tax_class():
     return tax_class
 
 
-def get_custom_payment_processor():
-    return _get_service_provider(CustomPaymentProcessor)
-
-
-def get_custom_carrier():
-    return _get_service_provider(CustomCarrier)
-
-
-def _get_service_provider(model):
-    identifier = model.__name__
-    service_provider = model.objects.filter(identifier=identifier).first()
-    if not service_provider:
-        service_provider = model.objects.create(
-            identifier=identifier,
-            name=model.__name__,
-        )
-        assert service_provider.pk and service_provider.identifier == identifier
-    return service_provider
-
-
 def get_default_payment_method():
-    return get_payment_method()
-
-
-def get_payment_method(shop=None, price=None, waive_at=None, name=None):
-    return _get_service(
-        PaymentMethod, CustomPaymentProcessor, name=name,
-        shop=shop, price=price, waive_at=waive_at)
+    payment_method = default_by_identifier(PaymentMethod)
+    if not payment_method:
+        payment_method = PaymentMethod.objects.create(
+            identifier=DEFAULT_IDENTIFIER, name=DEFAULT_NAME,
+            tax_class=get_default_tax_class(),
+        )
+        assert payment_method.pk and payment_method.identifier == DEFAULT_IDENTIFIER
+    return payment_method
 
 
 def get_default_shipping_method():
-    return get_shipping_method()
-
-
-def get_shipping_method(shop=None, price=None, waive_at=None, name=None):
-    return _get_service(
-        ShippingMethod, CustomCarrier, name=name,
-        shop=shop, price=price, waive_at=waive_at)
-
-
-def _get_service(
-        service_model, provider_model, name,
-        shop=None, price=None, waive_at=None):
-    default_shop = get_default_shop()
-    if shop is None:
-        shop = default_shop
-    if shop == default_shop and not price and not waive_at and not name:
-        identifier = DEFAULT_IDENTIFIER
-    else:
-        identifier = "%s-%d-%r-%r" % (name, shop.pk, price, waive_at)
-    service = service_model.objects.filter(identifier=identifier).first()
-    if not service:
-        provider = _get_service_provider(provider_model)
-        service = provider.create_service(
-            None, identifier=identifier, shop=shop, enabled=True,
-            name=(name or service_model.__name__),
+    shipping_method = default_by_identifier(ShippingMethod)
+    if not shipping_method:
+        shipping_method = ShippingMethod.objects.create(
+            identifier=DEFAULT_IDENTIFIER, name=DEFAULT_NAME,
             tax_class=get_default_tax_class(),
         )
-        if price and waive_at is None:
-            service.behavior_components.add(
-                FixedCostBehaviorComponent.objects.create(price_value=price))
-        elif price:
-            service.behavior_components.add(
-                WaivingCostBehaviorComponent.objects.create(
-                    price_value=price, waive_limit_value=waive_at))
-    assert service.pk and service.identifier == identifier
-    assert service.shop == shop
-    return service
+        assert shipping_method.pk and shipping_method.identifier == DEFAULT_IDENTIFIER
+    return shipping_method
 
 
 def get_default_customer_group():
@@ -464,11 +416,11 @@ def get_completed_order_status():
     return OrderStatus.objects.get_default_complete()
 
 
-def create_product(sku, shop=None, supplier=None, default_price=None, **attrs):
+def create_product(sku, shop=None, supplier=None, default_price=None):
     if default_price is not None:
         default_price = shop.create_price(default_price)
 
-    product_attrs = dict(
+    product = Product(
         type=get_default_product_type(),
         tax_class=get_default_tax_class(),
         sku=sku,
@@ -481,8 +433,6 @@ def create_product(sku, shop=None, supplier=None, default_price=None, **attrs):
         sales_unit=get_default_sales_unit(),
         stock_behavior=StockBehavior.UNSTOCKED
     )
-    product_attrs.update(attrs)
-    product = Product(**product_attrs)
     product.full_clean()
     product.save()
     if shop:
@@ -507,23 +457,6 @@ def create_empty_order(prices_include_tax=False, shop=None):
     return order
 
 
-def add_product_to_order(order, supplier, product, quantity, taxless_base_unit_price, tax_rate=0, pricing_context=None):
-    if not pricing_context:
-        pricing_context = _get_pricing_context(order.shop, order.customer)
-    product_order_line = OrderLine(order=order)
-    update_order_line_from_product(pricing_context,
-                                   order_line=product_order_line,
-                                   product=product, quantity=quantity,
-                                   supplier=supplier)
-    product_order_line.base_unit_price = order.shop.create_price(taxless_base_unit_price)
-    product_order_line.save()
-    product_order_line.taxes.add(OrderLineTax.from_tax(
-        get_test_tax(tax_rate),
-        product_order_line.taxless_price.amount,
-        order_line=product_order_line,
-    ))
-
-
 def create_order_with_product(
         product, supplier, quantity, taxless_base_unit_price, tax_rate=0, n_lines=1,
         shop=None):
@@ -531,10 +464,22 @@ def create_order_with_product(
     order.full_clean()
     order.save()
 
-    pricing_context = _get_pricing_context(order.shop, order.customer)
-    for x in range(n_lines):
-        add_product_to_order(order, supplier, product, quantity, taxless_base_unit_price, tax_rate, pricing_context)
+    request = apply_request_middleware(RequestFactory().get("/"))
+    request.shop = order.shop
 
+    for x in range(n_lines):
+        product_order_line = OrderLine(order=order)
+        update_order_line_from_product(pricing_context=request,
+                                       order_line=product_order_line,
+                                       product=product, quantity=quantity,
+                                       supplier=supplier)
+        product_order_line.base_unit_price = order.shop.create_price(taxless_base_unit_price)
+        product_order_line.save()
+        product_order_line.taxes.add(OrderLineTax.from_tax(
+            get_test_tax(tax_rate),
+            product_order_line.taxless_price.amount,
+            order_line=product_order_line,
+        ))
     assert order.get_product_ids_and_quantities()[product.pk] == (quantity * n_lines), "Things got added"
     return order
 
@@ -626,8 +571,6 @@ def create_random_person(locale=None, minimum_name_comp_len=0):
         email=email,
         phone=phone,
         name=name,
-        first_name=first_name,
-        last_name=last_name,
         prefix=prefix,
         suffix=suffix,
         default_shipping_address=address,
@@ -665,7 +608,8 @@ def create_random_order(customer=None, products=(), completion_probability=0, sh
     if shop is None:
         shop = get_default_shop()
 
-    pricing_context = _get_pricing_context(shop, customer)
+    request = apply_request_middleware(RequestFactory().get("/"),
+                                       customer=customer)
 
     source = OrderSource(shop)
     source.customer = customer
@@ -688,7 +632,7 @@ def create_random_order(customer=None, products=(), completion_probability=0, sh
     for i in range(random.randint(3, 10)):
         product = random.choice(products)
         quantity = random.randint(1, 5)
-        price_info = product.get_price_info(pricing_context, quantity=quantity)
+        price_info = product.get_price_info(request, quantity=quantity)
         shop_product = product.get_shop_instance(source.shop)
         supplier = shop_product.suppliers.first()
         line = source.add_line(
@@ -703,7 +647,7 @@ def create_random_order(customer=None, products=(), completion_probability=0, sh
         )
         assert line.price == price_info.price
     with atomic():
-        oc = OrderCreator()
+        oc = OrderCreator(request)
         order = oc.create_order(source)
         if random.random() < completion_probability:
             order.create_shipment_of_all_products()
@@ -711,10 +655,3 @@ def create_random_order(customer=None, products=(), completion_probability=0, sh
             order.status = OrderStatus.objects.get_default_complete()
             order.save(update_fields=("status",))
         return order
-
-
-def _get_pricing_context(shop, customer=None):
-    return get_pricing_module().get_context_from_data(
-        shop=shop,
-        customer=(customer or AnonymousContact()),
-    )

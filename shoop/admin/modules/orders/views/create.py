@@ -12,11 +12,14 @@ import json
 
 from babel.numbers import format_decimal
 from django.contrib import messages
+from django.contrib.auth.models import AnonymousUser
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http.response import HttpResponse, JsonResponse
+from django.test.client import RequestFactory
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
@@ -24,7 +27,7 @@ from django_countries import countries
 
 from shoop.admin.modules.orders.json_order_creator import JsonOrderCreator
 from shoop.core.models import (
-    AnonymousContact, CompanyContact, Contact, Order, PaymentMethod, Product,
+    CompanyContact, Contact, MethodStatus, Order, PaymentMethod, Product,
     ShippingMethod, Shop, ShopStatus
 )
 from shoop.core.pricing import get_pricing_module
@@ -64,8 +67,17 @@ def encode_shop(shop):
     }
 
 
+def encode_method_extras(method):
+    module_data = method.module_data or {}
+
+    return {
+        "price": module_data.get("price", "0"),
+    }
+
+
 def encode_method(method):
     basic_data = {"id": method.pk, "name": force_text(method)}
+    basic_data.update(encode_method_extras(method))
     return basic_data
 
 
@@ -83,20 +95,13 @@ def encode_line(line):
 
 
 def get_price_info(shop, customer, product, quantity):
-    """
-    Get price info of given product for given context parameters.
-
-    :type shop: shoop.core.models.Shop
-    :type customer: shoop.core.models.Contact
-    :type product: shoop.core.models.Product
-    :type quantity: numbers.Number
-    """
-    pricing_mod = get_pricing_module()
-    pricing_ctx = pricing_mod.get_context_from_data(
-        shop=shop,
-        customer=(customer or AnonymousContact()),
-    )
-    return pricing_mod.get_price_info(pricing_ctx, product, quantity=quantity)
+    ctx_request = RequestFactory().get("/")
+    ctx_request.shop = shop
+    if customer:
+        ctx_request.customer = customer
+    ctx_request.user = AnonymousUser()
+    context = get_pricing_module().get_context_from_request(ctx_request)
+    return product.get_price_info(context, quantity=quantity)
 
 
 class OrderCreateView(TemplateView):
@@ -112,8 +117,12 @@ class OrderCreateView(TemplateView):
 
     def get_config(self):
         shops = [encode_shop(shop) for shop in Shop.objects.filter(status=ShopStatus.ENABLED)]
-        shipping_methods = ShippingMethod.objects.enabled()
-        payment_methods = PaymentMethod.objects.enabled()
+        shipping_methods = ShippingMethod.objects.filter(
+            Q(status=MethodStatus.ENABLED), Q(module_identifier="default_shipping") | Q(module_identifier="")
+        )
+        payment_methods = PaymentMethod.objects.filter(
+            Q(status=MethodStatus.ENABLED), Q(module_identifier="default_payment") | Q(module_identifier="")
+        )
         return {
             "shops": shops,
             "countries": [{"id": code, "name": name} for code, name in list(countries)],
@@ -140,7 +149,6 @@ class OrderCreateView(TemplateView):
         shop_id = request.GET["shop_id"]
         customer_id = request.GET.get("customer_id")
         quantity = decimal.Decimal(request.GET.get("quantity", 1))
-        already_in_lines_qty = decimal.Decimal(request.GET.get("already_in_lines_qty", 0))
         product = Product.objects.filter(pk=product_id).first()
         if not product:
             return {"errorText": _("Product %s does not exist.") % product_id}
@@ -161,7 +169,7 @@ class OrderCreateView(TemplateView):
         supplier = shop_product.suppliers.first()  # TODO: Allow setting a supplier?
         errors = " ".join(
             [str(message.args[0]) for message in shop_product.get_orderability_errors(
-                supplier=supplier, quantity=(quantity + already_in_lines_qty), customer=customer, ignore_minimum=True)])
+                supplier=supplier, quantity=quantity, customer=customer, ignore_minimum=True)])
         return {
             "id": product.id,
             "sku": product.sku,
@@ -201,11 +209,7 @@ class OrderCreateView(TemplateView):
     @transaction.atomic
     def _handle_source_data(self, request):
         state = json.loads(request.body.decode("utf-8"))["state"]
-        source = create_source_from_state(
-            state,
-            creator=request.user,
-            ip_address=request.META.get("REMOTE_ADDR"),
-        )
+        source = create_source_from_state(state, creator=request.user)
         # Calculate final lines for confirmation
         source.calculate_taxes(force_recalculate=True)
         return {
@@ -220,11 +224,7 @@ class OrderCreateView(TemplateView):
     @transaction.atomic
     def _handle_create(self, request):
         state = json.loads(request.body.decode("utf-8"))["state"]
-        order = create_order_from_state(
-            state,
-            creator=request.user,
-            ip_address=request.META.get("REMOTE_ADDR"),
-        )
+        order = create_order_from_state(state, creator=request.user)
         messages.success(request, _("Order %(identifier)s created.") % vars(order))
         return JsonResponse({
             "success": True,

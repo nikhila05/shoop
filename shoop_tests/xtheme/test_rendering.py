@@ -11,16 +11,12 @@ from shoop_tests.xtheme.utils import (
 @pytest.mark.parametrize("edit", (False, True))
 @pytest.mark.parametrize("injectable", (False, True))
 @pytest.mark.parametrize("theme_class", (None, FauxTheme))
-@pytest.mark.parametrize("global_type", (False, True))
-def test_rendering(edit, injectable, theme_class, global_type):
+def test_rendering(edit, injectable, theme_class):
     request = get_request(edit)
     with override_current_theme_class(theme_class):
         with plugin_override():
             jeng = get_jinja2_engine()
-            if global_type:
-                template = jeng.get_template("global_complex.jinja")
-            else:
-                template = jeng.get_template("complex.jinja")
+            template = jeng.get_template("complex.jinja")
             view = FauxView()
             view.xtheme_injection = bool(injectable)
             output = template.render(context={

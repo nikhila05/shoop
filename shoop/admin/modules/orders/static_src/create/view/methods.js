@@ -20,7 +20,10 @@ function renderMethod(store, mode, title, selectedMethod, choices, emptyChoice) 
                     store.dispatch(updateTotals(store.getState));
                 }, [].concat({id: 0, name: emptyChoice}, choices || []))
             ]
-        )
+        ),
+        m("div", [
+            (selectedMethod ? m("p.text-center", gettext("Price") + ": " + parseFloat(selectedMethod.price).toFixed(2)) : null)
+        ])
     ];
 }
 

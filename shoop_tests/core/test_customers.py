@@ -7,14 +7,17 @@
 # LICENSE file in the root directory of this source tree.
 import pytest
 
+from shoop.admin.modules.taxes.views import CustomerTaxGroupListView
 from shoop.core.models import (
-    AnonymousContact, CompanyContact, CustomerTaxGroup,
-    get_person_contact, PersonContact
+    CompanyContact, CustomerTaxGroup, get_person_contact, PersonContact
 )
 from shoop.testing.factories import (
-    create_random_company, create_random_person, DEFAULT_IDENTIFIER,
-    DEFAULT_NAME, get_default_customer_group
+    create_random_company, DEFAULT_IDENTIFIER, DEFAULT_NAME,
+    get_default_customer_group, get_default_shop
 )
+from shoop.testing.utils import apply_request_middleware
+from shoop.utils.importing import load
+
 
 @pytest.mark.django_db
 def test_customers(django_user_model):
@@ -27,7 +30,7 @@ def test_customers(django_user_model):
 
     for user in users:
         assert PersonContact.objects.get(user=user).user_id == user.pk, "Customer profile found"
-        assert DEFAULT_IDENTIFIER in user.contact.groups.values_list("identifier", flat=True), "Joe is now in the group"
+        assert tuple(user.contact.groups.values_list("identifier", flat=True)) == (DEFAULT_IDENTIFIER,), "Joe is now in the group"
 
 
 @pytest.mark.django_db
@@ -60,26 +63,3 @@ def test_customer_tax_group2():
 def test_customer_tax_group3(rf, admin_user):
     # SHOOP-1882
     assert type(CustomerTaxGroup.get_default_company_group().__str__()) == str
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize("contact_cls,create_contact", [
-    (AnonymousContact, AnonymousContact),
-    (PersonContact, create_random_person),
-    (CompanyContact, create_random_company)
-])
-def test_default_groups(contact_cls, create_contact):
-    new_contact = create_contact()
-    assert new_contact.groups.count() == 1
-    default_group = new_contact.groups.first()
-    assert type(CustomerTaxGroup.get_default_company_group().__str__()) == str
-    assert default_group == new_contact.get_default_group()
-    assert default_group.identifier == contact_cls.default_contact_group_identifier
-
-    some_other_contact = create_contact()
-    assert some_other_contact.groups.count() == 1
-
-    if contact_cls != AnonymousContact:
-        some_other_contact.groups.clear()
-        some_other_contact.save()
-        assert some_other_contact.groups.count() == 0  # Default group is only added while saving new contact

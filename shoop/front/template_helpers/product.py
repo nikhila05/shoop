@@ -8,12 +8,9 @@
 from jinja2.utils import contextfunction
 
 from shoop.core.models import (
-    AttributeVisibility, ProductAttribute, ProductCrossSell,
+    AttributeVisibility, Product, ProductAttribute, ProductCrossSell,
     ProductCrossSellType
 )
-from shoop.utils.text import force_ascii
-
-from . import general
 
 
 def get_visible_attributes(product):
@@ -50,42 +47,28 @@ def is_visible(context, product):
 
 
 @contextfunction
-def get_product_cross_sells(
-        context, product, relation_type=ProductCrossSellType.RELATED,
-        count=4, orderable_only=True):
-    rtype = _map_relation_type(relation_type)
+def get_product_cross_sells(context, product, relation_type="related", count=4):
+    request = context["request"]
+    rtype = ProductCrossSellType.RELATED
+    if relation_type == "computed":
+        rtype = ProductCrossSellType.COMPUTED
+    elif relation_type == "recommended":
+        rtype = ProductCrossSellType.RECOMMENDED
+
     related_product_ids = list((
         ProductCrossSell.objects
         .filter(product1=product, type=rtype)
         .order_by("weight")[:(count * 4)]).values_list("product2_id", flat=True)
     )
 
-    related_products = list(general.get_visible_products(
-        context,
-        count,
-        filter_dict={"id__in": related_product_ids},
-        orderable_only=orderable_only,
-    ))
+    related_products = list(
+        Product.objects
+        .filter(id__in=related_product_ids)
+        .list_visible(shop=request.shop, customer=request.customer)
+    )
 
     # Order related products by weight. Related product ids is in weight order.
     # If same related product is linked twice to product then lowest weight stands.
     related_products.sort(key=lambda prod: list(related_product_ids).index(prod.id))
 
     return related_products[:count]
-
-
-def _map_relation_type(relation_type):
-    """
-    Map relation type to enum value.
-
-    :type relation_type: ProductCrossSellType|str
-    :rtype: ProductCrossSellType
-    :raises: `LookupError` if unknown string is given
-    """
-    if isinstance(relation_type, ProductCrossSellType):
-        return relation_type
-    attr_name = force_ascii(relation_type).upper()
-    try:
-        return getattr(ProductCrossSellType, attr_name)
-    except AttributeError:
-        raise LookupError('Unknown ProductCrossSellType %r' % (relation_type,))

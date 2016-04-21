@@ -105,15 +105,3 @@ def validate_templates_configuration():
         "The `django_jinja` template backend was not encountered in your TEMPLATES configuration. "
         "See the Shoop or Django-Jinja documentation on more information how to configure things correctly."
     )
-
-
-def reload_apps():
-    import django
-    # Clear cache for any AppDirectoriesFinder instance.
-    # This should be done before Django apps is reloaded.
-    django.contrib.staticfiles.finders.get_finder.cache_clear()
-
-    _KNOWN_SETTINGS.clear()
-    django.apps.apps.app_configs.clear()
-    django.apps.apps.ready = False
-    django.setup()

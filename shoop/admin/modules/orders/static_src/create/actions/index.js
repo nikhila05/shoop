@@ -38,21 +38,14 @@ export const clearOrderSourceData = createAction("clearOrderSourceData");
 // Comment action
 export const setComment = createAction("setComment");
 
-export const retrieveProductData = function ({id, forLine, quantity}) {
+export const retrieveProductData = function ({id, forLine, quantity=1}) {
     return (dispatch, getState) => {
-        const {customer, lines, shop} = getState();
-        const prodsAlreadyInLinesQty = _.reduce(lines, function(sum, line) {
-            if (line.id !== forLine && line.product && line.product.id === id) {
-                return sum + parseFloat(line.quantity);
-            }
-            return sum;
-        }, 0);
+        const {customer, shop} = getState();
         get("product_data", {
             id,
             "shop_id": shop.selected.id,
             "customer_id": _.get(customer, "id"),
-            "quantity": quantity,
-            "already_in_lines_qty": prodsAlreadyInLinesQty
+            "quantity": quantity
         }).then((data) => {
             if (data.error) {
                 alert(data.error);

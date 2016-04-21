@@ -62,10 +62,9 @@ class BasketUpdateMethods(object):
         for linked_line in linked_lines:
             errors = list(self._get_orderability_errors(linked_line, new_quantity))
             if errors:
-                for error in errors:
-                    error_texts = ", ".join(six.text_type(sub_error) for sub_error in error)
-                    message = u"%s: %s" % (linked_line.get("text") or linked_line.get("name"), error_texts)
-                    messages.warning(self.request, message)
+                error_texts = ", ".join(six.text_type(error) for error in errors)
+                message = u"%s: %s" % (linked_line.get("text") or linked_line.get("name"), error_texts)
+                messages.warning(self.request, message)
                 continue
             self.basket.update_line(linked_line, quantity=new_quantity)
             linked_line["quantity"] = new_quantity

@@ -12,8 +12,6 @@ from django.db.models import Q
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
-from mptt.managers import TreeManager
-from mptt.models import MPTTModel, TreeForeignKey
 from parler.managers import TranslatableQuerySet
 from parler.models import TranslatableModel, TranslatedFields
 
@@ -40,7 +38,7 @@ class PageQuerySet(TranslatableQuerySet):
 
 
 @python_2_unicode_compatible
-class Page(MPTTModel, TranslatableModel):
+class Page(TranslatableModel):
     available_from = models.DateTimeField(null=True, blank=True, verbose_name=_('available from'))
     available_to = models.DateTimeField(null=True, blank=True, verbose_name=_('available to'))
 
@@ -63,9 +61,6 @@ class Page(MPTTModel, TranslatableModel):
     )
 
     visible_in_menu = models.BooleanField(verbose_name=_("visible in menu"), default=False)
-    parent = TreeForeignKey(
-        "self", blank=True, null=True, related_name="children", verbose_name=_("parent"))
-    list_children_on_page = models.BooleanField(verbose_name=_("list children on page"), default=False)
 
     translations = TranslatedFields(
         title=models.CharField(max_length=256, verbose_name=_('title')),
@@ -79,7 +74,7 @@ class Page(MPTTModel, TranslatableModel):
         content=models.TextField(verbose_name=_('content')),
     )
 
-    objects = TreeManager.from_queryset(PageQuerySet)()
+    objects = PageQuerySet.as_manager()
 
     class Meta:
         ordering = ('-id',)

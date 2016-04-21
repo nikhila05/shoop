@@ -50,22 +50,15 @@ class PricingModule(six.with_metaclass(abc.ABCMeta)):
         :type request: HttpRequest
         :rtype: PricingContext
         """
-        return self.pricing_context_class(
-            customer=request.customer,
-            shop=request.shop
-        )
+        return self.pricing_context_class()
 
-    def get_context_from_data(self, shop, customer, time=None, **kwargs):
+    def get_context_from_data(self, **context_data):
         """
-        Create pricing context from given arguments.
+        Create pricing context from keyword arguments.
 
-        :type shop: shoop.core.models.Shop
-        :type customer: shoop.core.models.Contact
-        :type time: datetime.datetime|None
         :rtype: PricingContext
         """
-        return self.pricing_context_class(
-            shop=shop, customer=customer, time=time, **kwargs)
+        return self.pricing_context_class(**context_data)
 
     @abc.abstractmethod
     def get_price_info(self, context, product, quantity=1):
@@ -111,10 +104,10 @@ class PricingModule(six.with_metaclass(abc.ABCMeta)):
         :type products:  Iterable[shoop.core.models.Product|int]
         :rtype: dict[int,PriceInfo]
         """
-        product_map = {getattr(x, "pk", x): x for x in products}
+        product_ids = [getattr(x, "pk", x) for x in products]
         return {
-            product_id: self.get_price_info(context, product, quantity)
-            for (product_id, product) in six.iteritems(product_map)
+            product_id: self.get_price_info(context=context, product=product_id, quantity=quantity)
+            for product_id in product_ids
         }
 
     def get_pricing_steps_for_products(self, context, products):
@@ -131,8 +124,8 @@ class PricingModule(six.with_metaclass(abc.ABCMeta)):
         :type products:  Iterable[shoop.core.models.Product|int]
         :rtype: dict[int,list[PriceInfo]]
         """
-        product_map = {getattr(x, "pk", x): x for x in products}
+        product_ids = [getattr(x, "pk", x) for x in products]
         return {
-            product_id: self.get_pricing_steps(context, product)
-            for (product_id, product) in six.iteritems(product_map)
+            product_id: self.get_pricing_steps(context, product_id=product_id)
+            for product_id in product_ids
         }

@@ -21,10 +21,6 @@ class SupplierType(Enum):
     INTERNAL = 1
     EXTERNAL = 2
 
-    class Labels:
-        INTERNAL = _('internal')
-        EXTERNAL = _('external')
-
 
 @python_2_unicode_compatible
 class Supplier(ModuleInterface, ShoopModel):
@@ -68,21 +64,6 @@ class Supplier(ModuleInterface, ShoopModel):
         :rtype: shoop.core.stocks.ProductStockStatus
         """
         return self.module.get_stock_status(product_id)
-
-    def get_suppliable_products(self, shop, customer):
-        """
-        :param shop: Shop to check for suppliability
-        :type shop: shoop.core.models.Shop
-        :param customer: Customer contact to check for suppliability
-        :type customer: shoop.core.models.Contact
-        :rtype: list[int]
-        """
-        return [
-            shop_product.pk
-            for shop_product
-            in self.shop_products.filter(shop=shop)
-            if shop_product.is_orderable(self, customer, shop_product.minimum_purchase_quantity)
-        ]
 
     def adjust_stock(self, product_id, delta, created_by=None):
         return self.module.adjust_stock(product_id, delta, created_by=created_by)

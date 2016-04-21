@@ -11,6 +11,14 @@ Subpackages
 Submodules
 ----------
 
+shoop.themes.classic_gray.config_form module
+--------------------------------------------
+
+.. automodule:: shoop.themes.classic_gray.config_form
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 shoop.themes.classic_gray.plugins module
 ----------------------------------------
 

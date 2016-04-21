@@ -11,6 +11,7 @@ Subpackages
     shoop.core.defaults
     shoop.core.fields
     shoop.core.management
+    shoop.core.methods
     shoop.core.models
     shoop.core.modules
     shoop.core.order_creator

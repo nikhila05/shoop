@@ -36,30 +36,6 @@ shoop.core.utils.name_mixin module
     :undoc-members:
     :show-inheritance:
 
-shoop.core.utils.price_display module
--------------------------------------
-
-.. automodule:: shoop.core.utils.price_display
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-shoop.core.utils.prices module
-------------------------------
-
-.. automodule:: shoop.core.utils.prices
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-shoop.core.utils.product_bought_with_relations module
------------------------------------------------------
-
-.. automodule:: shoop.core.utils.product_bought_with_relations
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 shoop.core.utils.product_caching_object module
 ----------------------------------------------
 

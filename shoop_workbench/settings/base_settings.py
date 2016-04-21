@@ -45,10 +45,8 @@ INSTALLED_APPS = add_enabled_addons(SHOOP_ENABLED_ADDONS_FILE, [
     'shoop.front.apps.simple_search',
     'shoop.notify',
     'shoop.simple_cms',
-    'shoop.customer_group_pricing',
-    'shoop.campaigns',
+    'shoop.simple_pricing',
     'shoop.simple_supplier',
-    'shoop.order_printouts',
     'shoop.testing',
     'shoop.utils',
     'shoop.xtheme',
@@ -59,6 +57,8 @@ INSTALLED_APPS = add_enabled_addons(SHOOP_ENABLED_ADDONS_FILE, [
     'filer',
     'registration',
     'rest_framework',
+
+    'shoop.discount_pricing'
 ])
 
 MIDDLEWARE_CLASSES = [
@@ -115,8 +115,7 @@ LANGUAGES = [
     ('en', 'English'),
     ('fi', 'Finnish'),
     ('ja', 'Japanese'),
-    ('zh-hans', 'Simplified Chinese'),
-    ('pt-br', 'Portuguese (Brazil)'),
+    ('zh-Hans', 'Chinese (Simplified)'),
 ]
 
 PARLER_DEFAULT_LANGUAGE_CODE = "en"
@@ -167,7 +166,7 @@ LOGIN_URL = "/login"
 
 SESSION_SERIALIZER = "django.contrib.sessions.serializers.PickleSerializer"
 
-SHOOP_PRICING_MODULE = "customer_group_pricing"
+SHOOP_PRICING_MODULE = "discount_pricing"
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',

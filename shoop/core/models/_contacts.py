@@ -12,76 +12,39 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from enumfields import Enum, EnumField
-from parler.models import TranslatedFields
+from parler.models import TranslatableModel, TranslatedFields
+from polymorphic.models import PolymorphicModel
 from timezone_field.fields import TimeZoneField
 
 from shoop.core.fields import InternalIdentifierField, LanguageField
-from shoop.core.pricing import PriceDisplayOptions
+from shoop.core.utils.name_mixin import NameMixin
 
-from ._base import PolymorphicShoopModel, TranslatableShoopModel
 from ._taxes import CustomerTaxGroup
 
-DEFAULT_COMPANY_GROUP_IDENTIFIER = "default_company_group"
-DEFAULT_PERSON_GROUP_IDENTIFIER = "default_person_group"
-DEFAULT_ANONYMOUS_GROUP_IDENTIFIER = "default_anonymous_group"
 
-PROTECTED_CONTACT_GROUP_IDENTIFIERS = [
-    DEFAULT_COMPANY_GROUP_IDENTIFIER,
-    DEFAULT_PERSON_GROUP_IDENTIFIER,
-    DEFAULT_ANONYMOUS_GROUP_IDENTIFIER
-]
-
-
-class ContactGroupQuerySet(models.QuerySet):
-    def with_price_display_options(self):
-        return self.filter(
-            models.Q(show_prices_including_taxes__isnull=False) |
-            models.Q(hide_prices__isnull=False))
-
-
-class ContactGroup(TranslatableShoopModel):
+@python_2_unicode_compatible
+class ContactGroup(TranslatableModel):
     identifier = InternalIdentifierField(unique=True)
     members = models.ManyToManyField("Contact", related_name="groups", verbose_name=_('members'), blank=True)
     show_pricing = models.BooleanField(verbose_name=_('show as pricing option'), default=True)
-    show_prices_including_taxes = models.NullBooleanField(
-        default=None, null=True, blank=True,
-        verbose_name=_("show prices including taxes"))
-    hide_prices = models.NullBooleanField(
-        default=None, null=True, blank=True,
-        verbose_name=_("hide prices"))
 
     translations = TranslatedFields(
         name=models.CharField(max_length=64, verbose_name=_('name')),
     )
 
-    objects = ContactGroupQuerySet.as_manager()
-
     class Meta:
         verbose_name = _('contact group')
         verbose_name_plural = _('contact groups')
 
-    def get_price_display_options(self):
-        return PriceDisplayOptions(
-            include_taxes=self.show_prices_including_taxes,
-            show_prices=(not self.hide_prices),
-        )
-
-    def can_delete(self):
-        return bool(self.identifier not in PROTECTED_CONTACT_GROUP_IDENTIFIERS)
-
-    def delete(self, *args, **kwargs):
-        if not self.can_delete():
-            raise models.ProtectedError(_("Can't delete. This object is protected."), [self])
-        super(ContactGroup, self).delete(*args, **kwargs)
+    def __str__(self):
+        return self.safe_translation_getter("name", default="Group<%s>" % (self.identifier or self.id))
 
 
 @python_2_unicode_compatible
-class Contact(PolymorphicShoopModel):
+class Contact(NameMixin, PolymorphicModel):
     is_anonymous = False
     is_all_seeing = False
     default_tax_group_getter = None
-    default_contact_group_identifier = None
-    default_contact_group_name = None
 
     created_on = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_('created on'))
     identifier = InternalIdentifierField(unique=True, null=True, blank=True)
@@ -116,7 +79,6 @@ class Contact(PolymorphicShoopModel):
     tax_group = models.ForeignKey(
         "CustomerTaxGroup", blank=True, null=True, on_delete=models.PROTECT, verbose_name=_('tax group')
     )
-    merchant_notes = models.TextField(blank=True, verbose_name=_('merchant notes'))
 
     def __str__(self):
         return self.full_name
@@ -130,73 +92,9 @@ class Contact(PolymorphicShoopModel):
             kwargs.setdefault("tax_group", self.default_tax_group_getter())
         super(Contact, self).__init__(*args, **kwargs)
 
-    @property
-    def full_name(self):
-        return (" ".join([self.prefix, self.name, self.suffix])).strip()
-
-    def get_price_display_options(self):
-        """
-        Get price display options of the contact.
-
-        If the default group (`get_default_group`) defines price display
-        options and the contact is member of it, return it.
-
-        If contact is not (anymore) member of the default group or the
-        default group does not define options, return one of the groups
-        which defines options.  If there is more than one such groups,
-        it is undefined which options will be used.
-
-        If contact is not a member of any group that defines price
-        display options, return default constructed
-        `PriceDisplayOptions`.
-
-        Subclasses may still override this default behavior.
-
-        :rtype: PriceDisplayOptions
-        """
-        groups_with_options = self.groups.with_price_display_options()
-        if groups_with_options:
-            default_group = self.get_default_group()
-            if groups_with_options.filter(pk=default_group.pk).exists():
-                group_with_options = default_group
-            else:
-                # Contact was removed from the default group.
-                group_with_options = groups_with_options.first()
-            return group_with_options.get_price_display_options()
-        return PriceDisplayOptions()
-
-    def save(self, *args, **kwargs):
-        add_to_default_group = bool(self.pk is None and self.default_contact_group_identifier)
-        super(Contact, self).save(*args, **kwargs)
-        if add_to_default_group:
-            self.groups.add(self.get_default_group())
-
-    @classmethod
-    def get_default_group(cls):
-        """
-        Get or create default contact group for the class.
-
-        Identifier of the group is specified by the class property
-        `default_contact_group_identifier`.
-
-        If new group is created, its name is set to value of
-        `default_contact_group_name` class property.
-
-        :rtype: core.models.ContactGroup
-        """
-        obj, created = ContactGroup.objects.get_or_create(
-            identifier=cls.default_contact_group_identifier,
-            defaults={
-                "name": cls.default_contact_group_name
-            }
-        )
-        return obj
-
 
 class CompanyContact(Contact):
     default_tax_group_getter = CustomerTaxGroup.get_default_company_group
-    default_contact_group_identifier = DEFAULT_COMPANY_GROUP_IDENTIFIER
-    default_contact_group_name = _("Company Contacts")
 
     members = models.ManyToManyField(
         "Contact", related_name="company_memberships", blank=True,
@@ -218,17 +116,9 @@ class Gender(Enum):
     FEMALE = "f"
     OTHER = "o"
 
-    class Labels:
-        UNDISCLOSED = _('undisclosed')
-        MALE = _('male')
-        FEMALE = _('female')
-        OTHER = _('other')
-
 
 class PersonContact(Contact):
     default_tax_group_getter = CustomerTaxGroup.get_default_person_group
-    default_contact_group_identifier = DEFAULT_PERSON_GROUP_IDENTIFIER
-    default_contact_group_name = _("Person Contacts")
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name="contact",
@@ -236,30 +126,11 @@ class PersonContact(Contact):
     )
     gender = EnumField(Gender, default=Gender.UNDISCLOSED, max_length=4, verbose_name=_('gender'))
     birth_date = models.DateField(blank=True, null=True, verbose_name=_('birth date'))
-    first_name = models.CharField(max_length=30, blank=True, verbose_name=_('first name'))
-    last_name = models.CharField(max_length=50, blank=True, verbose_name=_('last name'))
     # TODO: Figure out how/when/if the name and email fields are updated from users
 
     class Meta:
         verbose_name = _('person')
         verbose_name_plural = _('persons')
-
-    def __init__(self, *args, **kwargs):
-        name = kwargs.get('name')
-        if name:
-            (first_name, last_name) = _split_name(name)
-            kwargs['first_name'] = first_name
-            kwargs['last_name'] = last_name
-        super(PersonContact, self).__init__(*args, **kwargs)
-
-    @property
-    def name(self):
-        names = (self.first_name, self.last_name)
-        return " ".join(x for x in names if x)
-
-    @name.setter
-    def name(self, value):
-        (self.first_name, self.last_name) = _split_name(value)
 
     def save(self, *args, **kwargs):
         if self.user_id and not self.pk:  # Copy things
@@ -268,10 +139,6 @@ class PersonContact(Contact):
                 self.name = user.get_full_name()
             if not self.email:
                 self.email = user.email
-            if not self.first_name and not self.last_name:
-                self.first_name = user.first_name
-                self.last_name = user.last_name
-
         return super(PersonContact, self).save(*args, **kwargs)
 
     @property
@@ -283,14 +150,9 @@ class PersonContact(Contact):
 class AnonymousContact(Contact):
     pk = id = None
     is_anonymous = True
-    default_contact_group_identifier = DEFAULT_ANONYMOUS_GROUP_IDENTIFIER
-    default_contact_group_name = _("Anonymous Contacts")
 
     class Meta:
         managed = False  # This isn't something that should actually exist in the database
-
-    def __init__(self, *args, **kwargs):
-        super(AnonymousContact, self).__init__(*args, **kwargs)
 
     def __nonzero__(self):
         return False
@@ -308,29 +170,7 @@ class AnonymousContact(Contact):
 
     @property
     def groups(self):
-        """
-        Contact groups accessor for anonymous contact.
-
-        The base class already has a `groups` property via `ContactGroup`
-        related_name, but this overrides it for `AnonymousContact` so that
-        it will return a queryset containing just the anonymous contact
-        group rather than returning the original related manager, which
-        cannot work since `AnonymousContact` is not in the database.
-
-        This allows to use statements like this for all kinds of contacts,
-        even `AnonymousContact`::
-
-            some_contact.groups.all()
-
-        :rtype: django.db.QuerySet
-        """
-        self.get_default_group()  # Make sure group exists
-        return ContactGroup.objects.filter(identifier=self.default_contact_group_identifier)
-
-
-def _split_name(full_name):
-    names = full_name.rsplit(" ", 1)
-    return (names if len(names) == 2 else [full_name, ""])
+        return ContactGroup.objects.none()
 
 
 def get_person_contact(user):
@@ -354,8 +194,7 @@ def get_person_contact(user):
         return AnonymousContact()
     defaults = {
         'is_active': user.is_active,
-        'first_name': user.first_name,
-        'last_name': user.last_name,
+        'name': user.get_full_name(),
         'email': user.email,
     }
     return PersonContact.objects.get_or_create(user=user, defaults=defaults)[0]

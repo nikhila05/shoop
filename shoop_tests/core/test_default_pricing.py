@@ -14,7 +14,6 @@ from shoop.testing.factories import (
     create_product, create_random_person, get_default_customer_group,
     get_default_shop
 )
-from shoop.testing.utils import apply_request_middleware
 
 original_pricing_module = settings.SHOOP_PRICING_MODULE
 
@@ -44,12 +43,11 @@ def initialize_test(rf, include_tax=False):
 
     request = rf.get("/")
     request.shop = shop
-    apply_request_middleware(request)
     request.customer = customer
     return request, shop, group
 
 
-def test_module_is_active():  # this test is because we want to make sure `CustomerGroupPricing` is active
+def test_module_is_active():  # this test is because we want to make sure `SimplePricing` is active
     module = get_pricing_module()
     assert isinstance(module, DefaultPricingModule)
 

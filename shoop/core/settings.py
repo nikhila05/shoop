@@ -63,18 +63,7 @@ SHOOP_REFERENCE_NUMBER_PREFIX = ""
 #:
 #: Determines how product prices are calculated.  See
 #: :obj:`shoop.core.pricing` for details.
-SHOOP_PRICING_MODULE = "customer_group_pricing"
-
-#: List of identifiers of discount modules to use.
-#:
-#: Each discount module may change the price of a product.  See
-#: `shoop.core.pricing.DiscountModule` for details.
-SHOOP_DISCOUNT_MODULES = ["catalog_campaigns"]
-
-#: List of identifiers of order source modifier modules.
-#:
-#: See `shoop.core.order_creator.OrderSourceModifierModule` for details.
-SHOOP_ORDER_SOURCE_MODIFIER_MODULES = ["basket_campaigns"]
+SHOOP_PRICING_MODULE = "simple_pricing"
 
 #: The identifier of the tax module to use for determining taxes of products and order lines.
 #:
@@ -90,10 +79,6 @@ SHOOP_ENABLE_ATTRIBUTES = True
 #: Enabling or disabling this flag does not make it (im)possible to set up multiple shops,
 #: but having it disabled may confer a small performance increase.
 SHOOP_ENABLE_MULTIPLE_SHOPS = False
-
-#: Whether multiple suppliers are enabled in this installation.
-#: Enabling this flag prevents supplier creation from admin.
-SHOOP_ENABLE_MULTIPLE_SUPPLIERS = False
 
 #: A list of order labels (2-tuples of internal identifier / visible name).
 #:
@@ -150,6 +135,3 @@ SHOOP_DEFAULT_CACHE_DURATION = 60 * 30
 #: Overrides for default cache durations by key namespace.
 #: These override possible defaults in `shoop.core.cache.impl.DEFAULT_CACHE_DURATIONS`.
 SHOOP_CACHE_DURATIONS = {}
-
-#: Whether taxes should be calculated automatically in TaxModule
-SHOOP_CALCULATE_TAXES_AUTOMATICALLY_IF_POSSIBLE = True

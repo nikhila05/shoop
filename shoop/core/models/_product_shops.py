@@ -69,16 +69,8 @@ class ShopProduct(MoneyPropped, models.Model):
     default_price = PriceProperty('default_price_value', 'shop.currency', 'shop.prices_include_tax')
     default_price_value = MoneyValueField(verbose_name=_("default price"), null=True, blank=True)
 
-    minimum_price = PriceProperty('minimum_price_value', 'shop.currency', 'shop.prices_include_tax')
-    minimum_price_value = MoneyValueField(verbose_name=_("minimum price"), null=True, blank=True)
-
     class Meta:
         unique_together = (("shop", "product",),)
-
-    def save(self, *args, **kwargs):
-        super(ShopProduct, self).save(*args, **kwargs)
-        for supplier in self.suppliers.all():
-            supplier.module.update_stock(product_id=self.product.id)
 
     def is_list_visible(self):
         """
@@ -231,8 +223,6 @@ class ShopProduct(MoneyPropped, models.Model):
             raise ProductNotVisibleProblem(message.args[0])
 
     def is_orderable(self, supplier, customer, quantity):
-        if not supplier:
-            supplier = self.suppliers.first()  # TODO: Allow multiple suppliers
         for message in self.get_orderability_errors(supplier=supplier, quantity=quantity, customer=customer):
             return False
         return True

@@ -1,6 +1,13 @@
 shoop.admin.modules.products.views package
 ==========================================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    shoop.admin.modules.products.views.variation
+
 Submodules
 ----------
 
@@ -36,26 +43,10 @@ shoop.admin.modules.products.views.edit_media module
     :undoc-members:
     :show-inheritance:
 
-shoop.admin.modules.products.views.edit_package module
-------------------------------------------------------
+shoop.admin.modules.products.views.forms module
+-----------------------------------------------
 
-.. automodule:: shoop.admin.modules.products.views.edit_package
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-shoop.admin.modules.products.views.edit_parent module
------------------------------------------------------
-
-.. automodule:: shoop.admin.modules.products.views.edit_parent
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-shoop.admin.modules.products.views.edit_variation module
---------------------------------------------------------
-
-.. automodule:: shoop.admin.modules.products.views.edit_variation
+.. automodule:: shoop.admin.modules.products.views.forms
     :members:
     :undoc-members:
     :show-inheritance:

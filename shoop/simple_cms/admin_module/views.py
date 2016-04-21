@@ -30,9 +30,7 @@ class PageForm(MultiLanguageModelForm):
             'available_from',
             'available_to',
             'identifier',
-            'visible_in_menu',
-            'parent',
-            'list_children_on_page'
+            'visible_in_menu'
         ]
 
     def __init__(self, **kwargs):

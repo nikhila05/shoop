@@ -91,7 +91,7 @@ class BasketStorage(six.with_metaclass(abc.ABCMeta)):
         """
         pass
 
-    def finalize(self, basket):
+    def finalize(self, basket):  # pragma: no cover
         """
         Mark the basket as "finalized" (i.e. completed) in the storage.
 
@@ -99,7 +99,7 @@ class BasketStorage(six.with_metaclass(abc.ABCMeta)):
 
         :type basket: shoop.front.basket.objects.BaseBasket
         """
-        self.delete(basket=basket)
+        self.delete()
 
 
 class DirectSessionBasketStorage(BasketStorage):

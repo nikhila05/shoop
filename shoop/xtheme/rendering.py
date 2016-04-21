@@ -18,14 +18,12 @@ from shoop.xtheme.utils import get_html_attrs
 from shoop.xtheme.view_config import ViewConfig
 
 
-def get_view_config(context, global_type=False):
+def get_view_config(context):
     """
     Get a view configuration object for a Jinja2 rendering context.
 
     :param context: Rendering context
     :type context: jinja2.runtime.Context
-    :param global_type: Boolean indicating whether this is a global type
-    :type global_type: bool|False
     :return: View config
     :rtype: shoop.xtheme.view_config.ViewConfig
     """
@@ -33,7 +31,7 @@ def get_view_config(context, global_type=False):
     # to cache the view configuration. This is fine in our case, I'd say.
     request = context.get("request")
     config = context.vars.get("_xtheme_view_config")
-    if (config is None):
+    if config is None:
         view_object = context.get("view")
         if view_object:
             view_class = view_object.__class__
@@ -43,15 +41,13 @@ def get_view_config(context, global_type=False):
         config = ViewConfig(
             theme=get_current_theme(request),
             view_name=view_name,
-            draft=is_edit_mode(request),
-            global_type=global_type,
+            draft=is_edit_mode(request)
         )
         context.vars["_xtheme_view_config"] = config
     return config
 
 
-def render_placeholder(context, placeholder_name, default_layout=None, template_name=None,
-                       global_type=False):  # doccov: noargs
+def render_placeholder(context, placeholder_name, default_layout=None, template_name=None):  # doccov: noargs
     """
     Render a placeholder in a given context.
 
@@ -64,8 +60,7 @@ def render_placeholder(context, placeholder_name, default_layout=None, template_
         context,
         placeholder_name,
         default_layout=default_layout,
-        template_name=template_name,
-        global_type=global_type,
+        template_name=template_name
     )
     return renderer.render()
 
@@ -76,7 +71,7 @@ class PlaceholderRenderer(object):
     """
     # TODO: Maybe make this pluggable per-theme?
 
-    def __init__(self, context, placeholder_name, default_layout=None, template_name=None, global_type=False):
+    def __init__(self, context, placeholder_name, default_layout=None, template_name=None):
         """
         :param context: Rendering context
         :type context: jinja2.runtime.Context
@@ -87,24 +82,18 @@ class PlaceholderRenderer(object):
         :param template_name: The actual template this node was in. Used to figure out whether the placeholder
                               lives in an `extends` parent, or in a child.
         :type template_name: str|None
-        :param global_type: Boolean indicating whether this is a global placeholder
-        :type global_type: bool|False
         """
         self.context = context
-        self.view_config = get_view_config(context, global_type=global_type)
+        self.view_config = get_view_config(context)
         self.placeholder_name = placeholder_name
-        self.template_name = ("_xtheme_global_template_name" if global_type else template_name)
+        self.template_name = template_name
         self.default_layout = default_layout
         self.layout = self.view_config.get_placeholder_layout(placeholder_name, self.default_layout)
-        self.global_type = global_type
-        # For non-global placeholders, editing is only available for placeholders in the "base" template, i.e.
+        # Editing is only available for placeholders in the "base" template, i.e.
         # one that is not an `extend` parent.  Declaring placeholders in `include`d templates is fine,
         # but their configuration will not be shared among different uses of the same include.
-        if global_type:
-            self.edit = is_edit_mode(context["request"])
-        else:
-            is_base = (self.template_name == self.context.name)
-            self.edit = (is_base and is_edit_mode(context["request"]))
+        is_base = (self.template_name == self.context.name)
+        self.edit = (is_base and is_edit_mode(context["request"]))
 
     def render(self):
         """
@@ -126,12 +115,11 @@ class PlaceholderRenderer(object):
 
     def _get_wrapper_attrs(self):
         attrs = {
-            "class": ["xt-ph", "xt-ph-edit" if self.edit else None, "xt-global-ph" if self.global_type else None],
+            "class": ["xt-ph", "xt-ph-edit" if self.edit else None],
             "id": "xt-ph-%s" % self.placeholder_name
         }
         if self.edit:
             attrs["data-xt-placeholder-name"] = self.placeholder_name
-            attrs["data-xt-global-type"] = "global" if self.global_type else None
             attrs["title"] = _("Click to edit placeholder: %s") % self.placeholder_name.title()
         return attrs
 

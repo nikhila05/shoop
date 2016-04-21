@@ -16,7 +16,6 @@ from django.views.generic import DetailView
 
 from shoop.admin.toolbar import PostActionButton, Toolbar, URLActionButton
 from shoop.admin.utils.urls import get_model_url
-from shoop.apps.provides import get_provide_objects
 from shoop.core.models import Order, OrderStatus, OrderStatusRole
 from shoop.utils.excs import Problem
 
@@ -51,9 +50,7 @@ class OrderDetailView(DetailView):
             extra_css_class="btn-success"
         ))
 
-        for button in get_provide_objects("admin_order_toolbar_button"):
-            toolbar.append(button(order))
-
+        # TODO: Add extensibility to action_button_groups?
         return toolbar
 
     def get_context_data(self, **kwargs):

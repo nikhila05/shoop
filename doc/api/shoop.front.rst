@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    shoop.front.admin_module
     shoop.front.apps
     shoop.front.basket
     shoop.front.checkout
@@ -18,6 +17,14 @@ Subpackages
 
 Submodules
 ----------
+
+shoop.front.admin_module module
+-------------------------------
+
+.. automodule:: shoop.front.admin_module
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 shoop.front.error_handling module
 ---------------------------------

@@ -3,10 +3,11 @@ import pytest
 import six
 from django.forms import formset_factory
 
-from shoop.admin.modules.products.forms import (
-    SimpleVariationChildForm, SimpleVariationChildFormSet,
-    VariableVariationChildrenForm
+from shoop.admin.modules.products.views.variation.simple_variation_forms import (
+    SimpleVariationChildForm, SimpleVariationChildFormSet
 )
+from shoop.admin.modules.products.views.variation.variable_variation_forms import \
+    VariableVariationChildrenForm
 from shoop.core.excs import ImpossibleProductModeException
 from shoop.testing.factories import create_product
 from shoop.utils.excs import Problem

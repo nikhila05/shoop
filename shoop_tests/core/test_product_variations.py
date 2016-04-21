@@ -9,9 +9,10 @@
 import pytest
 
 from shoop.core.models import (
-    ProductMode, ProductVariationResult, ProductVariationVariable,
+    ProductVariationResult, ProductVariationVariable,
     ProductVariationVariableValue, ShopProduct
 )
+from shoop.core.models import ProductMode
 from shoop.testing.factories import create_product, get_default_shop
 
 

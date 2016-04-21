@@ -8,12 +8,10 @@
 
 import babel
 import babel.numbers
-from babel.dates import format_datetime
 from babel.numbers import format_currency
 from django.apps import apps
 from django.utils import translation
 from django.utils.lru_cache import lru_cache
-from django.utils.timezone import localtime
 from django.views.decorators.cache import cache_page
 from django.views.i18n import javascript_catalog
 
@@ -61,13 +59,6 @@ def format_percent(value, digits=0):
     pattern = locale.percent_formats.get(None).pattern
     new_pattern = pattern.replace("0", "0." + (digits * "0"))
     return babel.numbers.format_percent(value, new_pattern, locale)
-
-
-def get_locally_formatted_datetime(datetime):
-    """
-    Return a formatted, localized version of datetime based on the current context.
-    """
-    return format_datetime(localtime(datetime), locale=get_current_babel_locale())
 
 
 def format_money(amount, digits=None, widen=0, locale=None):
@@ -138,8 +129,3 @@ def javascript_catalog_all(request, domain='djangojs'):
     """
     all_apps = [x.name for x in apps.get_app_configs()]
     return javascript_catalog(request, domain, all_apps)
-
-
-def get_currency_name(currency):
-    locale = get_current_babel_locale()
-    return babel.numbers.get_currency_name(currency, locale=locale)

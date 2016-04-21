@@ -7,36 +7,22 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import unicode_literals
 
-import warnings
 from decimal import Decimal
 
 import six
 from django.utils.encoding import force_text
 
 from shoop.core.models import Order, OrderLine, OrderLineType
-from shoop.core.order_creator.signals import order_creator_finished
 from shoop.core.shortcuts import update_order_line_from_product
 from shoop.core.utils.users import real_user_or_none
+from shoop.front.signals import order_creator_finished
 from shoop.utils.numbers import bankers_round
-
-from ._source_modifier import get_order_source_modifier_modules
 
 
 class OrderCreator(object):
 
-    def __init__(self, request=None):
-        """
-        Initialize order creator.
-
-        :type request: django.http.HttpRequest|None
-        :param request:
-          Optional request object for backward compatibility.  Passing
-          non-None value is DEPRECATED.
-        """
-        if request is not None:
-            warnings.warn(
-                "Initializing OrderCreator with a request is deprecated",
-                DeprecationWarning, stacklevel=2)
+    def __init__(self, request):
+        self.request = request  # TODO: Get rid of `request`?
 
     def source_line_to_order_lines(self, order, source_line):
         """
@@ -90,7 +76,7 @@ class OrderCreator(object):
         for child_product, child_quantity in six.iteritems(parent_product.get_package_child_to_quantity_map()):
             child_order_line = OrderLine(order=order, parent_line=order_line)
             update_order_line_from_product(
-                pricing_context=None,
+                pricing_context=self.request,
                 order_line=child_order_line,
                 product=child_product,
                 quantity=(order_line.quantity * child_quantity),
@@ -158,7 +144,7 @@ class OrderCreator(object):
             for (index, line_tax) in enumerate(line.source_line.taxes, 1):
                 line.taxes.create(
                     tax=line_tax.tax,
-                    name=line_tax.name,
+                    name=line_tax.tax.name,
                     amount_value=line_tax.amount.value,
                     base_amount_value=line_tax.base_amount.value,
                     ordering=index,
@@ -179,6 +165,11 @@ class OrderCreator(object):
         return lines
 
     def create_order(self, order_source):
+        # order_provision.target_user = self._maybe_create_user(
+        #     user=order_provision.target_user,
+        #     billing_address=order_provision.billing_address,
+        #     shipping_address=order_provision.shipping_address
+        # )
         order = Order(
             shop=order_source.shop,
             currency=order_source.currency,
@@ -187,7 +178,7 @@ class OrderCreator(object):
             payment_method=order_source.payment_method,
             customer_comment=order_source.customer_comment,
             marketing_permission=bool(order_source.marketing_permission),
-            ip_address=order_source.ip_address,
+            ip_address=(self.request.META.get("REMOTE_ADDR") if self.request else None),
             creator=real_user_or_none(order_source.creator),
             orderer=(order_source.orderer or None),
             customer=(order_source.customer or None),
@@ -214,14 +205,7 @@ class OrderCreator(object):
         order.cache_prices()
         order.save()
 
-        if order.customer and order.customer.marketing_permission != order.marketing_permission:
-            order.customer.marketing_permission = order.marketing_permission
-            order.customer.save(update_fields=["marketing_permission"])
-
-        self._assign_code_usages(order_source, order)
-
-        order_creator_finished.send(
-            sender=type(self), order=order, source=order_source)
+        order_creator_finished.send(OrderCreator, order=order, source=order_source, request=self.request)
 
         order.save()
         self.process_order_after_lines(source=order_source, order=order)
@@ -230,16 +214,16 @@ class OrderCreator(object):
         order.cache_prices()
         order.save()
         return order
-
-    def _assign_code_usages(self, order_source, order):
-        for code in order_source.codes:
-            self._assign_code_usage(order_source, order, code)
-
-    def _assign_code_usage(self, order_source, order, code):
-        for module in get_order_source_modifier_modules():
-            if module.can_use_code(order_source, code):
-                module.use_code(order, code)
-                break
+    #
+    # def assign_campaign_usages(self, order, campaign_to_code):
+    #     from shoop.shop.models.campaigns import OrderCampaignUsage
+    #
+    #     for campaign, campaign_code in campaign_to_code.iteritems():
+    #         OrderCampaignUsage.objects.create(
+    #             order=order,
+    #             campaign=campaign,
+    #             code=campaign_code
+    #         )
 
     def process_order_before_lines(self, source, order):
         # Subclass hook
