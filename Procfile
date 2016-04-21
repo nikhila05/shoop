@@ -1,1 +1,1 @@
-web: gunicorn shoop_workbench.wsgi --log-file
+web: python -m shoop_workbench runserver
