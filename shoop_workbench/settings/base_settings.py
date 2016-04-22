@@ -18,8 +18,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "var", "media")
 STATIC_ROOT = os.path.join(BASE_DIR, "var", "static")
 MEDIA_URL = "/media/"
 
-SHOOP_ENABLED_ADDONS_FILE = os.getenv("SHOOP_ENABLED_ADDONS_FILE") or (
-    os.path.join(BASE_DIR, "var", "enabled_addons"))
+SHOOP_ENABLED_ADDONS_FILE = os.path.join(BASE_DIR, "enabled_addons")
+print (SHOOP_ENABLED_ADDONS_FILE)
+
 INSTALLED_APPS = add_enabled_addons(SHOOP_ENABLED_ADDONS_FILE, [
     # django
     'django.contrib.admin',
